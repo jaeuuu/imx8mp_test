@@ -1,0 +1,353 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AT_A	ltectl.h	21;"	d
+AT_CCLK	ltectl.h	15;"	d
+AT_CGMM	ltectl.h	11;"	d
+AT_CHK	ltectl.h	20;"	d
+AT_CHUP	ltectl.h	27;"	d
+AT_CLIP	ltectl.h	12;"	d
+AT_CLVL	ltectl.h	13;"	d
+AT_CMGD	ltectl.h	28;"	d
+AT_CMGF	ltectl.h	17;"	d
+AT_CMGR	ltectl.h	23;"	d
+AT_CMGS	ltectl.h	24;"	d
+AT_CMGS_MSG	ltectl.h	25;"	d
+AT_CMMS	ltectl.h	32;"	d
+AT_CMTI	ltectl.h	31;"	d
+AT_CNMI	ltectl.h	16;"	d
+AT_CNUM	ltectl.h	14;"	d
+AT_CSQ	ltectl.h	18;"	d
+AT_D	ltectl.h	26;"	d
+AT_ECHO	ltectl.h	10;"	d
+AT_IPR	ltectl.h	30;"	d
+AT_QAUDMOD	ltectl.h	22;"	d
+AT_QCDS	ltectl.h	19;"	d
+AT_URCCFG	ltectl.h	29;"	d
+BAUD_115200	api/uart.h	22;"	d
+BAUD_38400	api/uart.h	21;"	d
+BAUD_9600	api/uart.h	20;"	d
+DEV_NXP_UART1	api/uart.h	10;"	d
+DEV_NXP_UART2	api/uart.h	11;"	d
+DEV_NXP_UART3	api/uart.h	12;"	d
+DEV_NXP_UART4	api/uart.h	13;"	d
+DEV_USB_UART1	api/uart.h	15;"	d
+DEV_USB_UART2	api/uart.h	16;"	d
+DEV_USB_UART3	api/uart.h	17;"	d
+DEV_USB_UART4	api/uart.h	18;"	d
+D_API_QUEUE_CUSTOM	api/queue.c	13;"	d	file:
+F_CREAT	stoctl2.h	20;"	d
+F_LIST	stoctl2.h	18;"	d
+F_READ	stoctl2.h	19;"	d
+F_REMOVE	stoctl2.h	21;"	d
+F_WRITE	stoctl2.h	22;"	d
+GPIOCTL_H_	gpioctl.h	2;"	d
+GPIO_H_	api/gpio.h	2;"	d
+GPIO_PIN1	gpioctl.h	28;"	d
+GPIO_PIN10	gpioctl.h	37;"	d
+GPIO_PIN11	gpioctl.h	38;"	d
+GPIO_PIN12	gpioctl.h	39;"	d
+GPIO_PIN13	gpioctl.h	40;"	d
+GPIO_PIN14	gpioctl.h	41;"	d
+GPIO_PIN15	gpioctl.h	42;"	d
+GPIO_PIN16	gpioctl.h	43;"	d
+GPIO_PIN17	gpioctl.h	44;"	d
+GPIO_PIN18	gpioctl.h	45;"	d
+GPIO_PIN19	gpioctl.h	46;"	d
+GPIO_PIN2	gpioctl.h	29;"	d
+GPIO_PIN20	gpioctl.h	47;"	d
+GPIO_PIN21	gpioctl.h	48;"	d
+GPIO_PIN22	gpioctl.h	49;"	d
+GPIO_PIN23	gpioctl.h	50;"	d
+GPIO_PIN24	gpioctl.h	51;"	d
+GPIO_PIN25	gpioctl.h	52;"	d
+GPIO_PIN26	gpioctl.h	53;"	d
+GPIO_PIN27	gpioctl.h	54;"	d
+GPIO_PIN28	gpioctl.h	55;"	d
+GPIO_PIN29	gpioctl.h	56;"	d
+GPIO_PIN3	gpioctl.h	30;"	d
+GPIO_PIN30	gpioctl.h	57;"	d
+GPIO_PIN31	gpioctl.h	58;"	d
+GPIO_PIN4	gpioctl.h	31;"	d
+GPIO_PIN5	gpioctl.h	32;"	d
+GPIO_PIN6	gpioctl.h	33;"	d
+GPIO_PIN7	gpioctl.h	34;"	d
+GPIO_PIN8	gpioctl.h	35;"	d
+GPIO_PIN9	gpioctl.h	36;"	d
+GPIO_PORT1	gpioctl.h	22;"	d
+GPIO_PORT2	gpioctl.h	23;"	d
+GPIO_PORT3	gpioctl.h	24;"	d
+GPIO_PORT4	gpioctl.h	25;"	d
+GPIO_PORT5	gpioctl.h	26;"	d
+LTECTL_H_	ltectl.h	2;"	d
+LTE_STEPS	ltectl.h	/^enum LTE_STEPS {$/;"	g
+LTE_STEP_DATA	ltectl.h	/^    LTE_STEP_DATA,$/;"	e	enum:LTE_STEPS
+LTE_STEP_HEADER1	ltectl.h	/^    LTE_STEP_HEADER1 = 0,$/;"	e	enum:LTE_STEPS
+LTE_STEP_HEADER2	ltectl.h	/^    LTE_STEP_HEADER2,$/;"	e	enum:LTE_STEPS
+LTE_STEP_TRAILER	ltectl.h	/^    LTE_STEP_TRAILER,$/;"	e	enum:LTE_STEPS
+MAX_FILE_NUM	stoctl2.h	13;"	d
+MAX_GPIO_DEV	gpioctl.h	60;"	d
+MAX_PDU_SIZE	ltectl.h	36;"	d
+MAX_PHONE_NUM_SIZE	ltectl.h	35;"	d
+MAX_SMS_SIZE	ltectl.h	34;"	d
+MAX_STO_NUM	stoctl.h	12;"	d
+MAX_STO_NUM	stoctl2.h	12;"	d
+MAX_STRING_SIZE	stoctl2.h	15;"	d
+MAX_TMP_SIZE	stoctl2.h	16;"	d
+MAX_UART_XFER_SIZE	api/uart.h	24;"	d
+MENU_H_	menu.h	2;"	d
+NETUTILS_H_	api/netutils.h	2;"	d
+NETWORK_H_	netctl.h	2;"	d
+OBJS	Makefile	/^OBJS = main.o menu.o rtcctl.o stoctl2.o netctl.o netutils.o \\$/;"	m
+PATH_DEV_GPIO1	gpioctl.h	16;"	d
+PATH_DEV_GPIO2	gpioctl.h	17;"	d
+PATH_DEV_GPIO3	gpioctl.h	18;"	d
+PATH_DEV_GPIO4	gpioctl.h	19;"	d
+PATH_DEV_GPIO5	gpioctl.h	20;"	d
+PATH_STORAGE	stoctl.h	11;"	d
+PATH_STORAGE	stoctl2.h	11;"	d
+PDU_DCS_STEP	ltectl.h	/^    PDU_DCS_STEP,$/;"	e	enum:PDU_DECODE_STEPS
+PDU_DECODE_STEPS	ltectl.h	/^enum PDU_DECODE_STEPS {$/;"	g
+PDU_FOCT_STEP	ltectl.h	/^    PDU_FOCT_STEP,$/;"	e	enum:PDU_DECODE_STEPS
+PDU_PID_STEP	ltectl.h	/^    PDU_PID_STEP,$/;"	e	enum:PDU_DECODE_STEPS
+PDU_SENDER_STEP	ltectl.h	/^    PDU_SENDER_STEP,$/;"	e	enum:PDU_DECODE_STEPS
+PDU_SMSC_STEP	ltectl.h	/^    PDU_SMSC_STEP = 0,$/;"	e	enum:PDU_DECODE_STEPS
+PDU_TIME_STEP	ltectl.h	/^    PDU_TIME_STEP,$/;"	e	enum:PDU_DECODE_STEPS
+PDU_UDL_STEP	ltectl.h	/^    PDU_UDL_STEP,$/;"	e	enum:PDU_DECODE_STEPS
+PDU_UD_STEP	ltectl.h	/^    PDU_UD_STEP,$/;"	e	enum:PDU_DECODE_STEPS
+QUEUE_H_	api/queue.h	2;"	d
+RTCCTL_H_	rtcctl.h	2;"	d
+SMS_PDU_INDEX	ltectl.h	40;"	d
+SMS_PDU_INTL_FORMAT	ltectl.h	39;"	d
+SMS_PDU_SUBMIT	ltectl.h	38;"	d
+SRCS	Makefile	/^SRCS = main.c menu.c rtcctl.c stoctl2.c netctl.c api\/netutils.c \\$/;"	m
+STOCTL_H_	stoctl.h	2;"	d
+STOCTL_H_	stoctl2.h	2;"	d
+TARGET	Makefile	/^TARGET = safwi_test$/;"	m
+UARTCTL_H_	uartctl.h	2;"	d
+UART_DEBUG	uartctl.c	4;"	d	file:
+UART_H_	api/uart.h	2;"	d
+UART_LTE	uartctl.h	11;"	d
+UART_SOLAR	uartctl.h	13;"	d
+UART_WATER1	uartctl.h	14;"	d
+UART_WATER2	uartctl.h	15;"	d
+UART_WVU	uartctl.h	12;"	d
+UTILS_H_	api/utils.h	2;"	d
+__FILENAME__	api/netutils.c	3;"	d	file:
+__FILENAME__	api/queue.c	12;"	d	file:
+__FILENAME__	api/uart.c	3;"	d	file:
+__FILENAME__	api/utils.c	3;"	d	file:
+__gpio_ctl_lte_pwr	gpioctl.c	/^static int __gpio_ctl_lte_pwr(void *args)$/;"	f	file:
+__gpio_ctl_usb_hub1_pwr	gpioctl.c	/^static int __gpio_ctl_usb_hub1_pwr(void *args)$/;"	f	file:
+__gpio_ctl_usb_hub2_pwr	gpioctl.c	/^static int __gpio_ctl_usb_hub2_pwr(void *args)$/;"	f	file:
+__gpio_ctl_usb_serial_pwr	gpioctl.c	/^static int __gpio_ctl_usb_serial_pwr(void *args)$/;"	f	file:
+__gpio_ctl_water_pwr	gpioctl.c	/^static int __gpio_ctl_water_pwr(void *args)$/;"	f	file:
+__gpio_input_monitor	gpioctl.c	/^static int __gpio_input_monitor(void *args)$/;"	f	file:
+args	menu.h	/^    void    *args;$/;"	m	struct:st_menu_args
+baud	api/uart.h	/^    int     baud;$/;"	m	struct:st_uart
+check_ascii_num	api/utils.c	/^long long check_ascii_num(char *buf, int len)$/;"	f
+check_ip_form	api/netutils.c	/^int check_ip_form(const char *ip)$/;"	f
+close_gpio	api/uart.c	/^void close_gpio(uart_t *uart)$/;"	f
+cmd	stoctl2.h	/^    char cmd;$/;"	m	struct:st_dir_info
+data	api/uart.h	/^    char            *data;$/;"	m	struct:st_uart_ctrl
+destroy_queue	api/queue.c	/^int destroy_queue(queue_t *q)$/;"	f
+dev	api/uart.h	/^    char    *dev;$/;"	m	struct:st_uart
+dev	gpioctl.h	/^    char *dev;$/;"	m	struct:st_gpiochip
+dir_info_t	stoctl.h	/^}dir_info_t;$/;"	t	typeref:struct:st_dir_info
+dir_info_t	stoctl2.h	/^} dir_info_t;$/;"	t	typeref:struct:st_dir_info
+dirp	stoctl2.h	/^    dir_info_t *dirp;$/;"	m	struct:st_file_info
+dirs	stoctl2.c	/^static dir_info_t dirs[MAX_STO_NUM];$/;"	v	file:
+dlp	api/netutils.c	5;"	d	file:
+dlp	api/netutils.c	7;"	d	file:
+dlp	api/queue.c	15;"	d	file:
+dlp	api/queue.c	17;"	d	file:
+dlp	api/uart.c	5;"	d	file:
+dlp	api/uart.c	7;"	d	file:
+dlp	api/utils.c	5;"	d	file:
+dlp	api/utils.c	7;"	d	file:
+dp	stoctl.h	/^    DIR *dp;$/;"	m	struct:st_dir_info
+dp	stoctl2.h	/^    DIR *dp;$/;"	m	struct:st_dir_info
+dsize	api/queue.h	/^	int dsize;$/;"	m	struct:st_queue
+eth_dhcp	netctl.c	/^static void eth_dhcp(void)$/;"	f	file:
+eth_disable	netctl.c	/^static void eth_disable(void)$/;"	f	file:
+eth_down	api/netutils.c	/^void eth_down(const char *eth)$/;"	f
+eth_enable	netctl.c	/^static void eth_enable(void)$/;"	f	file:
+eth_ping	netctl.c	/^static void eth_ping(void)$/;"	f	file:
+eth_static	netctl.c	/^static void eth_static(void)$/;"	f	file:
+eth_static_menus	netctl.c	/^static menu_t eth_static_menus[] = {$/;"	v	file:
+eth_static_set_gw	netctl.c	/^static void eth_static_set_gw(void)$/;"	f	file:
+eth_static_set_ip	netctl.c	/^static void eth_static_set_ip(void)$/;"	f	file:
+eth_static_set_sub	netctl.c	/^static void eth_static_set_sub(void)$/;"	f	file:
+eth_up	api/netutils.c	/^void eth_up(const char *eth, const char *ip, const char *gw, const char *sub)$/;"	f
+fd	api/uart.h	/^    int     fd;$/;"	m	struct:st_uart
+fd	gpioctl.h	/^    int fd;$/;"	m	struct:st_gpiochip
+file_info_t	stoctl2.h	/^} file_info_t;$/;"	t	typeref:struct:st_file_info
+fname	stoctl2.h	/^    char fname[128];$/;"	m	struct:st_file_info
+fnum	stoctl2.h	/^    int fnum;$/;"	m	struct:st_file_info
+front	api/queue.h	/^	int front;$/;"	m	struct:st_queue
+func	menu.h	/^    int     (*func)(void *);$/;"	m	struct:st_menu_args
+func	menu.h	/^    void    (*func)(void);$/;"	m	struct:st_menu
+func_des	menu.h	/^    char    *func_des;$/;"	m	struct:st_menu
+func_des	menu.h	/^    char    *func_des;$/;"	m	struct:st_menu_args
+gpio_control	gpioctl.c	/^void gpio_control(void)$/;"	f
+gpio_ctl_lte_pwr	gpioctl.c	/^static void gpio_ctl_lte_pwr(void)$/;"	f	file:
+gpio_ctl_usb_hub1_pwr	gpioctl.c	/^static void gpio_ctl_usb_hub1_pwr(void)$/;"	f	file:
+gpio_ctl_usb_hub2_pwr	gpioctl.c	/^static void gpio_ctl_usb_hub2_pwr(void)$/;"	f	file:
+gpio_ctl_usb_serial_pwr	gpioctl.c	/^static void gpio_ctl_usb_serial_pwr(void)$/;"	f	file:
+gpio_ctl_water_pwr	gpioctl.c	/^static void gpio_ctl_water_pwr(void)$/;"	f	file:
+gpio_det_lte_act_status	gpioctl.c	/^static void gpio_det_lte_act_status(void)$/;"	f	file:
+gpio_det_lte_pwr_status	gpioctl.c	/^static void gpio_det_lte_pwr_status(void)$/;"	f	file:
+gpio_det_thread	gpioctl.c	/^static void gpio_det_thread(void)$/;"	f	file:
+gpio_det_water_pwr_status	gpioctl.c	/^static void gpio_det_water_pwr_status(void)$/;"	f	file:
+gpio_init	gpioctl.c	/^void gpio_init(void)$/;"	f
+gpio_input	gpioctl.c	/^static void gpio_input(void)$/;"	f	file:
+gpio_input_menus	gpioctl.c	/^static menu_t gpio_input_menus[] = {$/;"	v	file:
+gpio_input_monitor	gpioctl.c	/^static void gpio_input_monitor(void)$/;"	f	file:
+gpio_input_monitoring	gpioctl.c	/^static int gpio_input_monitoring;$/;"	v	file:
+gpio_menus	gpioctl.c	/^static menu_t gpio_menus[] = {$/;"	v	file:
+gpio_output	gpioctl.c	/^static void gpio_output(void)$/;"	f	file:
+gpio_output_menus	gpioctl.c	/^static menu_t gpio_output_menus[] = {$/;"	v	file:
+gpio_read	gpioctl.c	/^static int gpio_read(int port, int pin)$/;"	f	file:
+gpio_write	gpioctl.c	/^static int gpio_write(int port, int pin, int sig)$/;"	f	file:
+gpiochip_t	gpioctl.h	/^} gpiochip_t;$/;"	t	typeref:struct:st_gpiochip
+gpios	gpioctl.c	/^static gpiochip_t gpios[MAX_GPIO_DEV];$/;"	v	file:
+htoa	ltectl.c	/^char htoa(char hex)$/;"	f
+init	main.c	/^static void init(void)$/;"	f	file:
+init_queue	api/queue.c	/^int init_queue(queue_t *q, int qsize, int dsize)$/;"	f
+is_empty	api/queue.c	/^static bool is_empty(queue_t *q)$/;"	f	file:
+is_full	api/queue.c	/^static bool is_full(queue_t *q)$/;"	f	file:
+len	api/uart.h	/^    unsigned int    len;$/;"	m	struct:st_uart_ctrl
+lte_ber	ltectl.c	/^static int lte_ber(char *ber_str)$/;"	f	file:
+lte_call	ltectl.c	/^static void lte_call(void)$/;"	f	file:
+lte_control	ltectl.c	/^void lte_control(void)$/;"	f
+lte_csq	ltectl.c	/^static void lte_csq(void)$/;"	f	file:
+lte_handle_at	ltectl.c	/^static void lte_handle_at(lte_packet_t *packet)$/;"	f	file:
+lte_handle_sms	ltectl.c	/^static void lte_handle_sms(lte_packet_t *packet)$/;"	f	file:
+lte_hangup	ltectl.c	/^static void lte_hangup(void)$/;"	f	file:
+lte_init	ltectl.c	/^void lte_init(void)$/;"	f
+lte_menus	ltectl.c	/^static menu_t lte_menus[] = {$/;"	v	file:
+lte_modem_number	ltectl.c	/^static char lte_modem_number[MAX_PHONE_NUM_SIZE];$/;"	v	file:
+lte_number	ltectl.c	/^static void lte_number(void)$/;"	f	file:
+lte_packet_t	ltectl.h	/^} lte_packet_t;$/;"	t	typeref:struct:st_lte_packet
+lte_parser	ltectl.c	/^void lte_parser(char *buf, int len)$/;"	f
+lte_queue	ltectl.c	/^static queue_t lte_queue;$/;"	v	file:
+lte_rssi	ltectl.c	/^static int lte_rssi(char *rssi_str)$/;"	f	file:
+lte_rx_thread	ltectl.c	/^static void lte_rx_thread(void)$/;"	f	file:
+lte_sms	ltectl.c	/^static void lte_sms(void)$/;"	f	file:
+lte_sms_pdu_decode	ltectl.c	/^static char *lte_sms_pdu_decode(char *buf, int len)$/;"	f	file:
+lte_sms_pdu_encode	ltectl.c	/^static char *lte_sms_pdu_encode(char *receiver, char *sms)$/;"	f	file:
+lte_tx	uartctl.c	/^void lte_tx(char *buf, int len)$/;"	f
+lte_tx_atcmd	ltectl.c	/^static void lte_tx_atcmd(int cmd, char *buf)$/;"	f	file:
+lte_tx_test	uartctl.c	/^static void lte_tx_test(void)$/;"	f	file:
+lte_uart115200	ltectl.c	/^static void lte_uart115200(void)$/;"	f	file:
+lte_uart9600	ltectl.c	/^static void lte_uart9600(void)$/;"	f	file:
+main	main.c	/^int main(void)$/;"	f
+main	menu.c	/^int main(void)$/;"	f
+menu_args_print	menu.c	/^void menu_args_print(menu_args_t *menus, int menu_size, const char *menu_des)$/;"	f
+menu_args_t	menu.h	/^} menu_args_t;$/;"	t	typeref:struct:st_menu_args
+menu_exec	menu.c	/^void menu_exec(void)$/;"	f
+menu_exit	menu.c	/^int menu_exit(void)$/;"	f
+menu_print	menu.c	/^void menu_print(menu_t *menus, int menu_size, const char *menu_des)$/;"	f
+menu_t	menu.h	/^} menu_t;$/;"	t	typeref:struct:st_menu
+menus	menu.c	/^static menu_t menus[] = {$/;"	v	file:
+net_control	netctl.c	/^void net_control(void)$/;"	f
+net_eth	netctl.c	/^static void net_eth(void)$/;"	f	file:
+net_eth_enable_menus	netctl.c	/^static menu_t net_eth_enable_menus[] = {$/;"	v	file:
+net_eth_menus	netctl.c	/^static menu_t net_eth_menus[] = {$/;"	v	file:
+net_info	netctl.c	/^static void net_info(void)$/;"	f	file:
+net_menus	netctl.c	/^static menu_t net_menus[] = {$/;"	v	file:
+net_pingtest	netctl.c	/^static void net_pingtest(void)$/;"	f	file:
+net_pingtest_menus	netctl.c	/^static menu_t net_pingtest_menus[] = {$/;"	v	file:
+net_wwan	netctl.c	/^static void net_wwan(void)$/;"	f	file:
+net_wwan_menus	netctl.c	/^static menu_t net_wwan_menus[] = {$/;"	v	file:
+open_uart	api/uart.c	/^int open_uart(uart_t *uart)$/;"	f
+opend_dirs	stoctl2.c	/^static int opend_dirs;$/;"	v	file:
+packet	ltectl.h	/^    char packet[MAX_UART_XFER_SIZE];$/;"	m	struct:st_lte_packet
+path	stoctl.h	/^    char path[32];$/;"	m	struct:st_dir_info
+path	stoctl2.h	/^    char path[32];$/;"	m	struct:st_dir_info
+pdu_decode_7bit_gsm	ltectl.c	/^static void pdu_decode_7bit_gsm(char *src, char *des)$/;"	f	file:
+pdu_decode_8bit	ltectl.c	/^static void pdu_decode_8bit(char *src, char *des)$/;"	f	file:
+pdu_decode_ucs2	ltectl.c	/^static void pdu_decode_ucs2(char *src, char *des)$/;"	f	file:
+pdu_encode_num	ltectl.c	/^static int pdu_encode_num(char *src, char *des)$/;"	f	file:
+pdu_encode_sms	ltectl.c	/^static int pdu_encode_sms(char *src, char *des)$/;"	f	file:
+ping_test	api/netutils.c	/^void ping_test(const char *intf, const char *ip)$/;"	f
+plen	ltectl.h	/^    int plen;$/;"	m	struct:st_lte_packet
+print_queue	api/queue.c	/^int print_queue(queue_t *q, int num)$/;"	f
+qsize	api/queue.h	/^	int qsize;$/;"	m	struct:st_queue
+queue	api/queue.h	/^	void *queue;$/;"	m	struct:st_queue
+queue_t	api/queue.h	/^} queue_t;$/;"	t	typeref:struct:st_queue
+read_uart	api/uart.c	/^int read_uart(uart_t *uart, uart_ctrl_t *ctrl)$/;"	f
+rear	api/queue.h	/^	int rear;$/;"	m	struct:st_queue
+recv_queue	api/queue.c	/^int recv_queue(queue_t *q, void *buf)$/;"	f
+rtc_control	rtcctl.c	/^void rtc_control(void)$/;"	f
+rtc_get_time	rtcctl.c	/^static void rtc_get_time(void)$/;"	f	file:
+rtc_menus	rtcctl.c	/^static menu_t rtc_menus[] = {$/;"	v	file:
+rtc_set_time	rtcctl.c	/^static void rtc_set_time(void)$/;"	f	file:
+sem	api/queue.h	/^	sem_t sem;$/;"	m	struct:st_queue
+sem	api/uart.h	/^    sem_t   sem;$/;"	m	struct:st_uart
+sem_destroy_queue	api/queue.c	/^static void sem_destroy_queue(sem_t *sem)$/;"	f	file:
+sem_destroy_uart	api/uart.c	/^static void sem_destroy_uart(sem_t *sem)$/;"	f	file:
+sem_init_queue	api/queue.c	/^static int sem_init_queue(sem_t *sem)$/;"	f	file:
+sem_init_uart	api/uart.c	/^static int sem_init_uart(sem_t *sem)$/;"	f	file:
+sem_post_queue	api/queue.c	/^static void sem_post_queue(sem_t *sem)$/;"	f	file:
+sem_post_uart	api/uart.c	/^static void sem_post_uart(sem_t *sem)$/;"	f	file:
+sem_wait_queue	api/queue.c	/^static void sem_wait_queue(sem_t *sem)$/;"	f	file:
+sem_wait_uart	api/uart.c	/^static void sem_wait_uart(sem_t *sem)$/;"	f	file:
+send_queue	api/queue.c	/^int send_queue(queue_t *q, void *buf)$/;"	f
+sms_incoming	ltectl.c	/^static bool sms_incoming = false;$/;"	v	file:
+solar_tx	uartctl.c	/^void solar_tx(char *buf, int len)$/;"	f
+solar_tx_test	uartctl.c	/^static void solar_tx_test(void)$/;"	f	file:
+st_dir_info	stoctl.h	/^typedef struct st_dir_info {$/;"	s
+st_dir_info	stoctl2.h	/^typedef struct st_dir_info {$/;"	s
+st_file_info	stoctl2.h	/^typedef struct st_file_info {$/;"	s
+st_gpiochip	gpioctl.h	/^typedef struct st_gpiochip {$/;"	s
+st_lte_packet	ltectl.h	/^typedef struct st_lte_packet {$/;"	s
+st_menu	menu.h	/^typedef struct st_menu {$/;"	s
+st_menu_args	menu.h	/^typedef struct st_menu_args {$/;"	s
+st_queue	api/queue.h	/^typedef struct st_queue {$/;"	s
+st_uart	api/uart.h	/^typedef struct st_uart {$/;"	s
+st_uart_ctrl	api/uart.h	/^typedef struct st_uart_ctrl {$/;"	s
+sto_control	stoctl.c	/^void sto_control(void)$/;"	f
+sto_control	stoctl2.c	/^void sto_control(void)$/;"	f
+sto_create	stoctl.c	/^static void sto_create(void)$/;"	f	file:
+sto_create	stoctl2.c	/^static void sto_create(void)$/;"	f	file:
+sto_destroy	stoctl2.c	/^static void sto_destroy(void)$/;"	f	file:
+sto_file_list	stoctl.c	/^static int sto_file_list(DIR *dp)$/;"	f	file:
+sto_file_list	stoctl2.c	/^static int sto_file_list(void *p)$/;"	f	file:
+sto_function	stoctl2.c	/^static int sto_function(void *p)$/;"	f	file:
+sto_init	stoctl.c	/^static int sto_init(dir_info_t *dirs, int size)$/;"	f	file:
+sto_init	stoctl2.c	/^static int sto_init(void)$/;"	f	file:
+sto_list	stoctl.c	/^static int sto_list(dir_info_t *dirs, int size)$/;"	f	file:
+sto_list	stoctl2.c	/^static void sto_list(void)$/;"	f	file:
+sto_menus	stoctl.c	/^static menu_t sto_menus [] = {$/;"	v	file:
+sto_menus	stoctl2.c	/^static menu_t sto_menus[] = {$/;"	v	file:
+sto_print	stoctl.c	/^static void sto_print(void)$/;"	f	file:
+sto_read	stoctl.c	/^static void sto_read(void)$/;"	f	file:
+sto_read	stoctl2.c	/^static void sto_read(void)$/;"	f	file:
+sto_remove	stoctl.c	/^static void sto_remove(void)$/;"	f	file:
+sto_remove	stoctl2.c	/^static void sto_remove(void)$/;"	f	file:
+sto_write	stoctl.c	/^static void sto_write(void)$/;"	f	file:
+sto_write	stoctl2.c	/^static void sto_write(void)$/;"	f	file:
+uart_control	uartctl.c	/^void uart_control(void)$/;"	f
+uart_ctrl_t	api/uart.h	/^} __attribute__((packed)) uart_ctrl_t;$/;"	t	typeref:struct:st_uart_ctrl
+uart_hex_print	uartctl.c	/^static void uart_hex_print(const char *buf, int size)$/;"	f	file:
+uart_init	uartctl.c	/^void uart_init(void)$/;"	f
+uart_menus	uartctl.c	/^static menu_t uart_menus[] = {$/;"	v	file:
+uart_rx_thread	uartctl.c	/^static void uart_rx_thread(void)$/;"	f	file:
+uart_t	api/uart.h	/^} uart_t;$/;"	t	typeref:struct:st_uart
+uarts	uartctl.c	/^static uart_t uarts[] = {$/;"	v	file:
+water1_tx	uartctl.c	/^void water1_tx(char *buf, int len)$/;"	f
+water1_tx_test	uartctl.c	/^static void water1_tx_test(void)$/;"	f	file:
+water2_tx	uartctl.c	/^void water2_tx(char *buf, int len)$/;"	f
+water2_tx_test	uartctl.c	/^static void water2_tx_test(void)$/;"	f	file:
+write_uart	api/uart.c	/^int write_uart(uart_t *uart, uart_ctrl_t *ctrl)$/;"	f
+wvu_tx	uartctl.c	/^void wvu_tx(char *buf, int len)$/;"	f
+wvu_tx_test	uartctl.c	/^static void wvu_tx_test(void)$/;"	f	file:
+wwan_disable	netctl.c	/^static void wwan_disable(void)$/;"	f	file:
+wwan_down	api/netutils.c	/^void wwan_down(const char *wwan)$/;"	f
+wwan_enable	netctl.c	/^static void wwan_enable(void)$/;"	f	file:
+wwan_ping	netctl.c	/^static void wwan_ping(void)$/;"	f	file:
+wwan_up	api/netutils.c	/^void wwan_up(const char *wwan)$/;"	f

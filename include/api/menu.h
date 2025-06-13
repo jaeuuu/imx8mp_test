@@ -1,0 +1,28 @@
+#ifndef MENU_H_
+#define MENU_H_
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+typedef struct st_menu {
+    int    (*func)(void);
+    char *func_des;
+} menu_t;
+
+typedef struct st_menu_args {
+    int     (*func)(void *);
+    char *func_des;
+    void *args;
+} menu_args_t;
+
+
+void menu_exec(menu_t *menu, int menu_size, const char *menu_des);
+//void menu_args_exec(menu_args_t *menu_args, int menu_args_size, const char *menu_des);
+int menu_exit(void);
+void menu_init(void);
+//void menu_print(menu_t *menus, int menu_size, const char *menu_des);
+//void menu_args_print(menu_args_t *menus, int menu_size, const char *menu_des);
+
+#endif

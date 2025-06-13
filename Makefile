@@ -1,5 +1,4 @@
-
-CC = gcc
+API_DIR = api
 
 SOM_BOARD_DIR = som
 SOM_BOARD_SRC = main.c $(SOM_BOARD_DIR)/som_board.c
@@ -7,8 +6,8 @@ SOM_BOARD_OBJ = main.o som_board.o
 SOM_TARGET = som_board_test
 
 JIG_BOARD_DIR = jig
-JIG_BOARD_SRC = main.c $(JIG_BOARD_DIR)/jig_board.c
-JIG_BOARD_OBJ = main.o jig_board.o
+JIG_BOARD_SRC = main.c $(JIG_BOARD_DIR)/jig_board.c $(API_DIR)/menu.c
+JIG_BOARD_OBJ = main.o jig_board.o menu.o
 JIG_TARGET = jig_board_test
 
 all: som_board jig_board
@@ -26,7 +25,7 @@ som_board: .obj_som_board
 	$(CC) -c $^ -I./include
 
 jig_board: .obj_jig_board
-	$(CC) -o $(JIG_TARGET) $(JIG_BOARD_OBJ)
+	$(CC) -o $(JIG_TARGET) $(JIG_BOARD_OBJ) -lreadline -lncurses
 
 clean:
 	- rm *.o

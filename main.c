@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <board.h>
 
-int main(void)
+void main(void)
 {
     board_init();
     start_board();
