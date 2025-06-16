@@ -16,7 +16,8 @@ typedef struct st_gpiochip {
 
 typedef struct st_gpiostat {
     bool init_flag;
-    int data;
+    int inval;
+    int outval;
 } gpiostat_t;
 
 #define PATH_DEV_GPIO1  "/dev/gpiochip0"
@@ -72,7 +73,8 @@ typedef struct st_gpiostat {
 
 #define MAX_GPIO_DEV    7
 
-void gpio_control(void);
+int gpio_in_ctrl(void);
+int gpio_out_ctrl(void);
 void gpio_init(void);
 
 #endif

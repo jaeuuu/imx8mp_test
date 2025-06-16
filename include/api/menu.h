@@ -17,9 +17,18 @@ typedef struct st_menu_args {
     void *args;
 } menu_args_t;
 
+static int back(void)
+{
+    return -1;
+}
+
+static int back2(void *)
+{
+    return -1;
+}
 
 void menu_exec(menu_t *menu, int menu_size, const char *menu_des);
-//void menu_args_exec(menu_args_t *menu_args, int menu_args_size, const char *menu_des);
+void menu_args_exec(menu_args_t *menu_args, int menu_args_size, const char *menu_des);
 int menu_exit(void);
 void menu_init(void);
 //void menu_print(menu_t *menus, int menu_size, const char *menu_des);

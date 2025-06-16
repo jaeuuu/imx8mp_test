@@ -1,15 +1,11 @@
 #include <stdio.h>
 #include <ncurses.h>
 #include <api/menu.h>
+#include "gpioctl.h"
 
 int hello_world1(void);
 int hello_world2(void);
 int hello_world3(void);
-
-int back(void)
-{
-    return -1;
-}
 
 static menu_t sub_menu[] = {
     {hello_world1, "Sub Hello World 1"},
@@ -52,7 +48,8 @@ int hello_world3(void)
 }
 
 static menu_t main_menu[] = {
-    {hello_world1, "Hello World 1"},
+    {gpio_in_ctrl, "GPIO INPUT CONTROL"},
+    {gpio_out_ctrl, "GPIO OUTPUT CONTROL"},
     {hello_world2, "Hello World 2"},
     {hello_world3, "Hello World 3"},
     {sub_hello_world, "Sub Hello World"},
@@ -63,6 +60,7 @@ void board_init(void)
 {
     printf("jig board_init()\r\n");
     menu_init();
+    gpio_init();
 }
 
 void start_board(void)
