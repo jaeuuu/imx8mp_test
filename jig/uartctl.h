@@ -5,21 +5,15 @@
 #include <stdlib.h>
 #include <poll.h>
 #include <pthread.h>
-#include "menu.h"
-#include "api/uart.h"
 
-#define UART_LTE        0
-#define UART_WVU        1
-#define UART_SOLAR      2
-#define UART_WATER1     3
-#define UART_WATER2     4
+#define UART_MXC1       0
+#define UART_MXC3       1
+#define UART_SERIAL1    2
+#define UART_SERIAL2    3
+#define UART_SERIAL3    4
+#define UART_SERIAL4    5
 
-void uart_control(void);
+int uart_ctrl(void);
 void uart_init(void);
-void lte_tx(char *buf, int len);
-void wvu_tx(char *buf, int len);
-void solar_tx(char *buf, int len);
-void water1_tx(char *buf, int len);
-void water2_tx(char *buf, int len);
 
 #endif

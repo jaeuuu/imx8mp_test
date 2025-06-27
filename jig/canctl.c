@@ -1,0 +1,322 @@
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <net/if.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <linux/can.h>
+#include <linux/can/isotp.h>
+#include <linux/can/raw.h>
+#include <stdbool.h>
+
+static int socks[8];
+static int sock;
+//static int sock_stm32_1 = -1;
+//static int sock_stm32_2 = -1;
+
+int init_can(int *cansock, const char *ifname, int tx_id, int rx_id)
+{
+    struct sockaddr_can addr;
+    struct ifreq ifr;
+    struct can_isotp_options opts;
+    struct can_isotp_fc_options fcopts;
+    //struct can_isotp_ll_options opts;
+
+    *cansock = socket(PF_CAN, SOCK_DGRAM, CAN_ISOTP);
+    if (*cansock < 0) {
+        perror("socket(): ");
+        return -1;
+    }
+
+    strcpy(ifr.ifr_name, ifname);
+    ioctl(*cansock, SIOCGIFINDEX, &ifr);
+
+    addr.can_family = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+    addr.can_addr.tp.rx_id = rx_id;     // 상대 ID
+    addr.can_addr.tp.tx_id = tx_id;     // 내 ID
+
+    /* 필요시 opt 사용 */
+    /*
+    memset(&opts, 0, sizeof(opts));
+    if (setsockopt(*cansock, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, &opts, sizeof(opts)) < 0) {
+        perror("setsockopt(): ");
+        return -1;
+    }
+    */
+
+    memset(&fcopts, 0x00, sizeof(fcopts));
+    fcopts.bs = 0;
+    fcopts.stmin = 0x01;
+    fcopts.wftmax = 0;
+
+    if (setsockopt(*cansock, SOL_CAN_ISOTP, CAN_ISOTP_RECV_FC, &fcopts, sizeof(fcopts)) < 0) {
+        perror("setsockopt()");
+        return -1;
+    }
+
+    if (bind(*cansock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        perror("bind(): ");
+        return -1;
+    }
+
+    return 0;
+}
+
+int init_can_fd(int *cansock, const char *ifname)
+{
+    struct sockaddr_can addr;
+    struct ifreq ifr;
+    //struct can_isotp_options opts;
+    struct can_isotp_fc_options fcopts;
+    struct can_isotp_ll_options opts;
+
+    *cansock = socket(PF_CAN, SOCK_DGRAM, CAN_ISOTP);
+    if (*cansock < 0) {
+        perror("socket(): ");
+        return -1;
+    }
+
+    strcpy(ifr.ifr_name, ifname);
+    ioctl(*cansock, SIOCGIFINDEX, &ifr);
+
+    addr.can_family = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+    addr.can_addr.tp.rx_id = 0x321;
+    addr.can_addr.tp.tx_id = 0x123;
+
+    memset(&opts, 0, sizeof(opts));
+    opts.mtu = CANFD_MTU;       // MTU size
+    opts.tx_dl = 64;            // max dlc size
+    opts.tx_flags = CANFD_BRS;  // Block size
+
+    if (setsockopt(*cansock, SOL_CAN_ISOTP, CAN_ISOTP_LL_OPTS, &opts, sizeof(opts)) < 0) {
+        perror("setsockopt(): ");
+        return -1;
+    }
+
+    if (bind(*cansock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        perror("bind(): ");
+        return -1;
+    }
+
+    return 0;
+}
+
+int send_can(int *cansock, char *data, int size)
+{
+    int ret;
+
+    if (!cansock) {
+        printf("cansock is null!\n");
+        return -1;
+    }
+
+    if (*cansock < 0) {
+        printf("cansock < 0\n");
+        return -1;
+    }
+
+    ret = write(*cansock, data, size);
+    if (ret < 0) {
+        perror("write(): ");
+        return -1;
+    }
+
+    return ret;
+}
+
+int recv_can(int *cansock, char *data, int size)
+{
+    int ret;
+
+    if (!cansock) {
+        printf("cansock is null!\n");
+        return -1;
+    }
+
+    if (*cansock < 0) {
+        printf("cansock < 0\n");
+        return -1;
+    }
+
+    ret = read(*cansock, data, size);
+    if (ret < 0) {
+        perror("read(): ");
+        return -1;
+    }
+
+    return ret;
+}
+
+void close_can(int *cansock)
+{
+    close(*cansock);
+    *cansock = -1;
+}
+
+#ifdef CAN_TX_TEST
+int main(int argc, char **argv)
+{
+    bool is_fd;
+    int id;
+    char payload[1024];
+    char rcv[1024];
+    int ret;
+    int i;
+
+    if (argc != 4) {
+        printf("Usage: isotp-test-tx [can0|can1] [1(can_fd)|0(can)] [ID]\n");
+        return -1;
+    }
+
+    is_fd = atoi(argv[2]);
+    id = atoi(argv[3]);
+    memset(payload, id, sizeof(payload));
+
+    printf("interface: [%s], can fd: [%s], can id: [%s]\n", argv[1], argv[2], argv[3]);
+
+    if (is_fd)
+        init_can_fd(&sock, argv[1]);
+    else
+        init_can(&sock, argv[1], id, 0);
+
+    while (1) {
+        ret = send_can(&sock, payload, sizeof(payload));
+        if (ret < 0) {
+            printf("send_can() fail!\n");
+        }
+#if 1
+        memset(rcv, 0x00, sizeof(rcv));
+        ret = recv_can(&sock, rcv, sizeof(rcv));
+        if (ret < 0) {
+            printf("recv_can() fail!\n");
+        }
+
+        printf("[RECV ID(%d) from ID(0)][%d]\n", id, ret);
+#if 0
+        for (i = 0; i < ret; i++) {
+            printf("%02X ", rcv[i]);
+        }
+#endif
+        //printf("\n==================================\n");
+#endif
+        sleep(1);
+    }
+}
+#else
+int main(int argc, char **argv)
+{
+    bool is_fd;
+    char payload[1024];
+    char rcv[1024];
+    int ret;
+    int i;
+
+    if (argc != 3) {
+        printf("Usage: isotp-test-rx [can0|can1] [1(can_fd)|0(can)]\n");
+        return -1;
+    }
+
+    is_fd = atoi(argv[2]);
+    memset(payload, 0x00, sizeof(payload));
+    memset(socks, -1, sizeof(socks));
+
+    printf("interface: [%s], can fd: [%s]\n", argv[1], argv[2]);
+
+    if (is_fd)
+        init_can_fd(&sock, argv[1]);
+    else {
+        //init_can(&sock, argv[1], 2, 4);
+        //init_can(&sock_stm32_1, argv[1], 2, 1);
+        //init_can(&sock_stm32_1, argv[1], 2, 3);
+        for (i = 0; i < 8; i++) {
+            init_can(&socks[i], argv[1], 0, i + 1);
+        }
+    }
+
+    while (1) {
+#if 0
+        ret = send_can(&sock, payload, sizeof(payload));
+        if (ret < 0) {
+            printf("send_can() fail!\n");
+        }
+#endif
+        printf("inside while loop\n");
+        for (i = 0; i < 8; i++) {
+            memset(rcv, 0x00, sizeof(rcv));
+            ret = recv_can(&socks[i], rcv, sizeof(rcv));
+            if (ret < 0) {
+                printf("recv_can() fail!\n");
+            } else {
+                ret = send_can(&socks[i], payload, sizeof(payload));
+                if (ret < 0) {
+                    printf("send_can() fail\n");
+                }
+            }
+
+            printf("[RECV ID(0) from ID(%d)][%d]===============\n", i + 1, ret);
+#if 0
+            for (int j = 0; j < ret; j++) {
+                printf("%02X ", rcv[j]);
+            }
+#endif
+            sleep(1);
+        }
+#if 0
+        memset(rcv, 0x00, sizeof(rcv));
+        ret = recv_can(&sock, rcv, sizeof(rcv));
+        if (ret < 0) {
+            printf("recv_can() fail!\n");
+        } else {
+            ret = send_can(&sock, payload, sizeof(payload));
+            if (ret < 0) {
+                printf("send_can() fail!\n");
+            }
+        }
+
+        printf("[RECV CAN-ID(2) from ID(4)]==> [len=%d]\n", ret);
+        for (i = 0; i < ret; i++) {
+            printf("%02X ", rcv[i]);
+        }
+
+        memset(rcv, 0x00, sizeof(rcv));
+        ret = recv_can(&sock_stm32_1, rcv, sizeof(rcv));
+        if (ret < 0) {
+            printf("recv_can() fail!\n");
+        } else {
+            ret = send_can(&sock_stm32_1, payload, sizeof(payload));
+            if (ret < 0) {
+                printf("send_can() fail!\n");
+            }
+        }
+
+        printf("[RECV CAN-ID(2) from ID(1)]==> [len=%d]\n", ret);
+        for (i = 0; i < ret; i++) {
+            printf("%02X ", rcv[i]);
+        }
+
+        memset(rcv, 0x00, sizeof(rcv));
+        ret = recv_can(&sock_stm32_2, rcv, sizeof(rcv));
+        if (ret < 0) {
+            printf("recv_can() fail!\n");
+        } else {
+            ret = send_can(&sock_stm32_2, payload, sizeof(payload));
+            if (ret < 0) {
+                printf("send_can() fail!\n");
+            }
+        }
+
+        printf("[RECV CAN-ID(2) from ID(3)]==> [len=%d]\n", ret);
+        for (i = 0; i < ret; i++) {
+            printf("%02X ", rcv[i]);
+        }
+        printf("\n==================================\n");
+        sleep(3);
+#endif
+    }
+}
+#endif

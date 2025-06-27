@@ -79,3 +79,31 @@ void close_uart(uart_t *uart)
 
     sem_destroy_uart(&uart->sem);
 }
+
+int set_uart_speed(uart_t *uart)
+{
+    struct termios tio;
+    int ret;
+
+    sem_wait_uart(&uart->sem);
+
+    ret = tcgetattr(uart->fd, &tio);
+    if (ret < 0) {
+        perror("tcgetattr() fail:");
+        return -1;
+    }
+
+    tio.c_cflag = uart->baud | CS8 | CLOCAL | CREAD;
+
+    tcflush(uart->fd, TCIFLUSH);
+
+    ret = tcsetattr(uart->fd, TCSANOW, &tio);
+    if (ret < 0) {
+        perror("tcsetattr() fail:");
+        return -1;
+    }
+
+    sem_post_uart(&uart->sem);
+
+    return 0;
+}
