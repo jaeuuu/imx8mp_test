@@ -11,6 +11,7 @@
 #include <linux/can/isotp.h>
 #include <linux/can/raw.h>
 #include <stdbool.h>
+#include <poll.h>
 
 static int socks[8];
 static int sock;
@@ -49,6 +50,10 @@ int init_can(int *cansock, const char *ifname, int tx_id, int rx_id)
     */
 
     memset(&fcopts, 0x00, sizeof(fcopts));
+    //fcopts.bs = 8;
+    //fcopts.stmin = 0x01;
+    //fcopts.wftmax = 8;
+
     fcopts.bs = 0;
     fcopts.stmin = 0x01;
     fcopts.wftmax = 0;
@@ -57,6 +62,13 @@ int init_can(int *cansock, const char *ifname, int tx_id, int rx_id)
         perror("setsockopt()");
         return -1;
     }
+    /*
+        int on = 1;
+        if (setsockopt(*cansock, SOL_CAN_ISOTP, CAN_ISOTP_WAIT_TX_DONE, &on, sizeof(on)) < 0) {
+            perror("setsockopt()");
+            return -1;
+        }
+    */
 
     if (bind(*cansock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("bind(): ");
@@ -66,7 +78,7 @@ int init_can(int *cansock, const char *ifname, int tx_id, int rx_id)
     return 0;
 }
 
-int init_can_fd(int *cansock, const char *ifname)
+int init_can_fd(int *cansock, const char *ifname, int tx_id, int rx_id)
 {
     struct sockaddr_can addr;
     struct ifreq ifr;
@@ -85,8 +97,22 @@ int init_can_fd(int *cansock, const char *ifname)
 
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
-    addr.can_addr.tp.rx_id = 0x321;
-    addr.can_addr.tp.tx_id = 0x123;
+    addr.can_addr.tp.rx_id = rx_id;
+    addr.can_addr.tp.tx_id = tx_id;
+
+    memset(&fcopts, 0x00, sizeof(fcopts));
+    //fcopts.bs = 8;
+    //fcopts.stmin = 0x01;
+    //fcopts.wftmax = 8;
+
+    fcopts.bs = 0;
+    fcopts.stmin = 0x01;
+    fcopts.wftmax = 0;
+
+    if (setsockopt(*cansock, SOL_CAN_ISOTP, CAN_ISOTP_RECV_FC, &fcopts, sizeof(fcopts)) < 0) {
+        perror("setsockopt()");
+        return -1;
+    }
 
     memset(&opts, 0, sizeof(opts));
     opts.mtu = CANFD_MTU;       // MTU size
@@ -163,8 +189,8 @@ int main(int argc, char **argv)
 {
     bool is_fd;
     int id;
-    char payload[1024];
-    char rcv[1024];
+    char payload[8500];
+    char rcv[8500];
     int ret;
     int i;
 
@@ -180,9 +206,9 @@ int main(int argc, char **argv)
     printf("interface: [%s], can fd: [%s], can id: [%s]\n", argv[1], argv[2], argv[3]);
 
     if (is_fd)
-        init_can_fd(&sock, argv[1]);
+        init_can_fd(&sock, argv[1], id, id - 8);
     else
-        init_can(&sock, argv[1], id, 0);
+        init_can(&sock, argv[1], id, id - 8);
 
     while (1) {
         ret = send_can(&sock, payload, sizeof(payload));
@@ -211,10 +237,11 @@ int main(int argc, char **argv)
 int main(int argc, char **argv)
 {
     bool is_fd;
-    char payload[1024];
-    char rcv[1024];
+    char payload[20000];
+    char rcv[20000];
     int ret;
     int i;
+    struct pollfd ps[8];
 
     if (argc != 3) {
         printf("Usage: isotp-test-rx [can0|can1] [1(can_fd)|0(can)]\n");
@@ -224,17 +251,27 @@ int main(int argc, char **argv)
     is_fd = atoi(argv[2]);
     memset(payload, 0x00, sizeof(payload));
     memset(socks, -1, sizeof(socks));
+    memset(&ps, 0x00, sizeof(ps));
 
     printf("interface: [%s], can fd: [%s]\n", argv[1], argv[2]);
 
-    if (is_fd)
-        init_can_fd(&sock, argv[1]);
-    else {
+    if (is_fd) {
+        //init_can_fd(&socks[i], argv[1], i, i + 8);
+        for (i = 0; i < 8; i++) {
+            init_can_fd(&socks[i], argv[1], i, i + 8);
+            ps[i].fd = socks[i];
+            ps[i].events = POLLIN | POLLERR | POLLHUP;
+            ps[i].revents = 0;
+        }
+    } else {
         //init_can(&sock, argv[1], 2, 4);
         //init_can(&sock_stm32_1, argv[1], 2, 1);
         //init_can(&sock_stm32_1, argv[1], 2, 3);
         for (i = 0; i < 8; i++) {
-            init_can(&socks[i], argv[1], 0, i + 1);
+            init_can(&socks[i], argv[1], i, i + 8);
+            ps[i].fd = socks[i];
+            ps[i].events = POLLIN | POLLERR | POLLHUP;
+            ps[i].revents = 0;
         }
     }
 
@@ -245,26 +282,46 @@ int main(int argc, char **argv)
             printf("send_can() fail!\n");
         }
 #endif
-        printf("inside while loop\n");
+        ret = poll(ps, 8, 1000);     // 8 fds, 1s
+
+        if (ret < 0) {
+            perror("poll()");
+            continue;
+        }
+
+        if (ret == 0)
+            continue;
+
         for (i = 0; i < 8; i++) {
-            memset(rcv, 0x00, sizeof(rcv));
-            ret = recv_can(&socks[i], rcv, sizeof(rcv));
-            if (ret < 0) {
-                printf("recv_can() fail!\n");
-            } else {
-                ret = send_can(&socks[i], payload, sizeof(payload));
+            if (ps[i].revents & POLLIN) {
+                memset(rcv, 0x00, sizeof(rcv));
+                ret = recv_can(&socks[i], rcv, sizeof(rcv));
                 if (ret < 0) {
-                    printf("send_can() fail\n");
+                    printf("recv_can() fail!\n");
+                    perror("recv_can()");
+                } else {
+                    ret = send_can(&socks[i], payload, sizeof(payload));
+                    if (ret < 0) {
+                        printf("send_can() fail\n");
+                        perror("send_can()");
+                    }
                 }
+
+                printf("[RECV ID(0) from ID(%d)][%d]===============\n", i + 1, ret);
+#if 0
+                for (int j = 0; j < ret; j++) {
+                    printf("%02X ", rcv[j]);
+                }
+#endif
             }
 
-            printf("[RECV ID(0) from ID(%d)][%d]===============\n", i + 1, ret);
-#if 0
-            for (int j = 0; j < ret; j++) {
-                printf("%02X ", rcv[j]);
+            if (ps[i].revents & POLLERR) {
+                //perror("POLLERR [%d]");
+                printf("index = %d pollerr\n", i);
             }
-#endif
-            sleep(1);
+
+            if (ps[i].revents & POLLHUP)
+                perror("POLLHUP");
         }
 #if 0
         memset(rcv, 0x00, sizeof(rcv));
