@@ -189,8 +189,8 @@ int main(int argc, char **argv)
 {
     bool is_fd;
     int id;
-    char payload[8500];
-    char rcv[8500];
+    char payload[8192];
+    char rcv[8192];
     int ret;
     int i;
 
@@ -237,8 +237,8 @@ int main(int argc, char **argv)
 int main(int argc, char **argv)
 {
     bool is_fd;
-    char payload[20000];
-    char rcv[20000];
+    char payload[8192];
+    char rcv[8192];
     int ret;
     int i;
     struct pollfd ps[8];

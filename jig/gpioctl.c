@@ -288,7 +288,7 @@ static void gpio_det_thread(void)
                     mvprintw(y, 0, "[GPIO%d_PIN%02d][READ] : \"%s\"\n", port + 1, pin, new ? "HIGH" : "LOW");
                     refresh();
                 }
-                usleep(10 * 1000);
+                usleep(1 * 1000);
             }
         }
     }
@@ -318,8 +318,9 @@ static int gpio_active_high(void *val)
     ret = gpio_write(v[0], v[1], 1);
     if (ret < 0)
         mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : error!\n", v[0] + 1, v[1]);
-    else
-        mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
+    else {
+        //mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
+    }
 
     return 0;
 }
@@ -333,8 +334,9 @@ static int gpio_active_low(void *val)
     ret = gpio_write(v[0], v[1], 0);
     if (ret < 0)
         mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : error!\n", v[0] + 1, v[1]);
-    else
-        mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
+    else {
+        //mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
+    }
 
     return 0;
 }
@@ -1317,8 +1319,8 @@ static int gpio_out_ctrl_port3(void)
         {gpio_out_ctrl_pin16, "GPIO3_IO16", &port},
         {gpio_out_ctrl_pin17, "GPIO3_IO17", &port},
         {gpio_out_ctrl_pin18, "GPIO3_IO18", &port},
-        {gpio_out_ctrl_pin19, "GPIO3_IO19", &port},
-        {gpio_out_ctrl_pin20, "GPIO3_IO20", &port},
+        {gpio_out_ctrl_pin19, "GPIO3_IO19(PLD-OUT)", &port},
+        {gpio_out_ctrl_pin20, "GPIO3_IO20(PLD-IN)", &port},
         {gpio_out_ctrl_pin21, "GPIO3_IO21", &port},
         {gpio_out_ctrl_pin22, "GPIO3_IO22", &port},
         {gpio_out_ctrl_pin23, "GPIO3_IO23", &port},
@@ -2527,8 +2529,8 @@ static int gpio_in_ctrl_port3(void)
         {gpio_in_ctrl_pin16, "GPIO3_IO16", &port},
         {gpio_in_ctrl_pin17, "GPIO3_IO17", &port},
         {gpio_in_ctrl_pin18, "GPIO3_IO18", &port},
-        {gpio_in_ctrl_pin19, "GPIO3_IO19", &port},
-        {gpio_in_ctrl_pin20, "GPIO3_IO20", &port},
+        {gpio_in_ctrl_pin19, "GPIO3_IO19(PLD-OUT)", &port},
+        {gpio_in_ctrl_pin20, "GPIO3_IO20(PLD-IN)", &port},
         {gpio_in_ctrl_pin21, "GPIO3_IO21", &port},
         {gpio_in_ctrl_pin22, "GPIO3_IO22", &port},
         {gpio_in_ctrl_pin23, "GPIO3_IO23", &port},
