@@ -238,6 +238,42 @@ static void gpio_output(void)
 }
 #endif
 
+static void gpio_cpld_det_thread(void)
+{
+    int old, new;
+    int x, y;
+    int id = gpio_read(GPIO_PORT1, GPIO_PIN7);
+
+    old = gpio_read(GPIO_PORT3, GPIO_PIN19);
+
+    getyx(stdscr, y, x);
+    mvprintw(y, 0, "ID[%d] = %s", id, old ? "active" : "inactive");
+
+    while (1) {
+        new = gpio_read(GPIO_PORT3, GPIO_PIN19);
+        if (new) {
+            if (old != new) {
+                old = new;
+                gpio_write(GPIO_PORT2, GPIO_PIN0, 0);   // act led on
+                gpio_write(GPIO_PORT3, GPIO_PIN20, 0);
+                getyx(stdscr, y, x);
+                mvprintw(y, 0, "ID[%d] - active", id);
+                refresh();
+            }
+        } else {
+            if (old != new) {
+                old = new;
+                gpio_write(GPIO_PORT2, GPIO_PIN0, 1);   // act led off
+                gpio_write(GPIO_PORT3, GPIO_PIN20, 1);
+                getyx(stdscr, y, x);
+                mvprintw(y, 0, "ID[%d] - inactive", id);
+                refresh();
+            }
+        }
+        usleep(100 * 1000);
+    }
+}
+
 static void gpio_det_thread(void)
 {
     int port, pin;
@@ -271,6 +307,18 @@ static void gpio_det_thread(void)
         for (port = GPIO_PORT1; port < MAX_GPIO_PORT; port++) {
             for (pin = GPIO_PIN0; pin < MAX_GPIO_PIN; pin++) {
                 if (!gpio_stat[port][pin].init_flag)
+                    continue;
+
+                /* CPLD IN control pin */
+                if (port == GPIO_PORT3 && pin == GPIO_PIN20)
+                    continue;
+
+                /* CPLD MS LED control pin */
+                if (port == GPIO_PORT1 && pin == GPIO_PIN8)
+                    continue;
+
+                /* CPLD ACT LED control pin */
+                if (port == GPIO_PORT2 && pin == GPIO_PIN0)
                     continue;
 
                 new = gpio_read(port, pin);
@@ -2766,7 +2814,7 @@ int gpio_out_ctrl(void)
 void gpio_init(void)
 {
     int i, port, pin, sig;
-    pthread_t det_thread;
+    pthread_t det_thread, cpld_det_thread;
 
     gpios[GPIO_PORT1].dev = PATH_DEV_GPIO1;
     gpios[GPIO_PORT2].dev = PATH_DEV_GPIO2;
@@ -2786,6 +2834,21 @@ void gpio_init(void)
 
     for (port = GPIO_PORT1; port < MAX_GPIO_PORT; port++) {
         for (pin = GPIO_PIN0; pin < MAX_GPIO_PIN; pin++) {
+            if (port == GPIO_PORT3 && pin == GPIO_PIN20) {
+                gpio_stat[port][pin].init_flag = true;
+                continue;
+            }
+
+            if (port == GPIO_PORT1 && pin == GPIO_PIN8) {
+                gpio_stat[port][pin].init_flag = true;
+                continue;
+            }
+
+            if (port == GPIO_PORT2 && pin == GPIO_PIN0) {
+                gpio_stat[port][pin].init_flag = true;
+                continue;
+            }
+
             sig = gpio_read(port, pin);
             if (sig < 0)
                 continue;
@@ -2798,6 +2861,9 @@ void gpio_init(void)
     pthread_mutex_init(&gpio_lock, NULL);
 
     if (pthread_create(&det_thread, NULL, (void *)gpio_det_thread, NULL) < 0)
+        exit(1);
+
+    if (pthread_create(&cpld_det_thread, NULL, (void *)gpio_cpld_det_thread, NULL) < 0)
         exit(1);
 
     printf("GPIO Init Ok.\n");
