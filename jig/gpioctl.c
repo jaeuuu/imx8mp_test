@@ -2,10 +2,14 @@
 #include <linux/gpio.h>
 #include <ncurses.h>
 
+#define MAX_GPIO_MENU_DEPTH     3
+
 static gpiochip_t gpios[MAX_GPIO_PORT];
 static gpiostat_t gpio_stat[MAX_GPIO_PORT][MAX_GPIO_PIN];
 static int gpio_input_monitoring;
 static pthread_mutex_t gpio_lock;
+static WINDOW *pr_win_gpio[MAX_GPIO_MENU_DEPTH];
+static int pr_win_gpio_depth = 0;
 
 static int gpio_read(int port, int pin)
 {
@@ -67,9 +71,10 @@ static int __gpio_input_monitor(void *args)
 
     gpio_input_monitoring = *onoff;
 
-    getyx(stdscr, y, x);
-    mvprintw(y, 0, "[GPIO INPUT MONITORING]: %s\n", gpio_input_monitoring ? "ON" : "OFF");
-    refresh();
+    //getyx(stdscr, y, x);
+    //mvprintw(y, 0, "[GPIO INPUT MONITORING]: %s\n", gpio_input_monitoring ? "ON" : "OFF");
+    //refresh();
+    pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO INPUT MONITORING]: %s\n", gpio_input_monitoring ? "ON" : "OFF");
     return 0;
 }
 
@@ -82,161 +87,12 @@ static int gpio_input_monitor(void)
         {back2, "back", &on}
     };
 
-    char *des = "\tSelect Input Monitoring(On/Off)";
-    menu_args_exec(input_monitor_menus, sizeof(input_monitor_menus) / sizeof(menu_args_t), des);
+    char *des = "Select Input Monitoring(On/Off)";
+    pr_win_gpio_depth++;
+    menu_args_exec(input_monitor_menus, sizeof(input_monitor_menus) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
     return 0;
 }
-
-#if 0
-static void gpio_det_water_pwr_status(void)
-{
-    int ret = gpio_read(GPIO_PORT3, GPIO_PIN25);
-    printf("\n\n\t[WATER SENSOR POWER STATUS] : %s\n\n", ret ? "HIGH" : "LOW");
-}
-
-static void gpio_det_lte_pwr_status(void)
-{
-    int ret = gpio_read(GPIO_PORT5, GPIO_PIN4);
-    printf("\n\n\t[LTE MODEM POWER STATUS] : %s\n\n", ret ? "HIGH" : "LOW");
-}
-
-static void gpio_det_lte_act_status(void)
-{
-    int ret = gpio_read(GPIO_PORT5, GPIO_PIN5);
-    printf("\n\n\t[LTE MODEM ACTIVE STATUS] : %s\n\n", ret ? "HIGH" : "LOW");
-}
-
-static int __gpio_ctl_water_pwr(void *args)
-{
-    int *signal = (int *)args;
-    int ret = gpio_write(GPIO_PORT3, GPIO_PIN24, *signal);
-    printf("\n\n\t[WATER SENSOR RELAY POWER] : %s\n\n", ret ? "HIGH" : "LOW");
-    return ret;
-}
-
-static void gpio_ctl_water_pwr(void)
-{
-    int high = 1, low = 0;
-    menu_args_t ctl_water_pwr_menus[] = {
-        {__gpio_ctl_water_pwr, "HIGH", &high},
-        {__gpio_ctl_water_pwr, "LOW", &low},
-    };
-
-    char *des = "\t\t Select Signal";
-    menu_args_print(ctl_water_pwr_menus, sizeof(ctl_water_pwr_menus) / sizeof(menu_args_t), des);
-
-}
-
-static int __gpio_ctl_lte_pwr(void *args)
-{
-    int *signal = (int *)args;
-    int ret = gpio_write(GPIO_PORT3, GPIO_PIN20, *signal);
-    printf("\n\n\t[LTE MODEM RESET] : %s\n\n", ret ? "HIGH" : "LOW");
-    return ret;
-}
-
-static void gpio_ctl_lte_pwr(void)
-{
-    int high = 1, low = 0;
-    menu_args_t ctl_lte_pwr_menus[] = {
-        {__gpio_ctl_lte_pwr, "HIGH", &high},
-        {__gpio_ctl_lte_pwr, "LOW", &low},
-    };
-
-    char *des = "\t\t Select Signal";
-    menu_args_print(ctl_lte_pwr_menus, sizeof(ctl_lte_pwr_menus) / sizeof(menu_args_t), des);
-
-}
-
-static int __gpio_ctl_usb_hub1_pwr(void *args)
-{
-    int *signal = (int *)args;
-    int ret = gpio_write(GPIO_PORT3, GPIO_PIN21, *signal);
-    printf("\n\n\t[USB HUB IC(USB2514B) RESET] : %s\n\n", ret ? "HIGH" : "LOW");
-    return ret;
-}
-
-static void gpio_ctl_usb_hub1_pwr(void)
-{
-    int high = 1, low = 0;
-    menu_args_t ctl_usb_hub1_pwr_menus[] = {
-        {__gpio_ctl_usb_hub1_pwr, "HIGH", &high},
-        {__gpio_ctl_usb_hub1_pwr, "LOW", &low},
-    };
-
-    char *des = "\t\t Select Signal";
-    menu_args_print(ctl_usb_hub1_pwr_menus, sizeof(ctl_usb_hub1_pwr_menus) / sizeof(menu_args_t), des);
-
-}
-
-static int __gpio_ctl_usb_hub2_pwr(void *args)
-{
-    int *signal = (int *)args;
-    int ret = gpio_write(GPIO_PORT3, GPIO_PIN22, *signal);
-    printf("\n\n\t[USB HUB IC(GL850G) RESET] : %s\n\n", ret ? "HIGH" : "LOW");
-    return ret;
-}
-
-static void gpio_ctl_usb_hub2_pwr(void)
-{
-    int high = 1, low = 0;
-    menu_args_t ctl_usb_hub2_pwr_menus[] = {
-        {__gpio_ctl_usb_hub2_pwr, "HIGH", &high},
-        {__gpio_ctl_usb_hub2_pwr, "LOW", &low},
-    };
-
-    char *des = "\t\t Select Signal";
-    menu_args_print(ctl_usb_hub2_pwr_menus, sizeof(ctl_usb_hub2_pwr_menus) / sizeof(menu_args_t), des);
-
-}
-
-static int __gpio_ctl_usb_serial_pwr(void *args)
-{
-    int *signal = (int *)args;
-    int ret = gpio_write(GPIO_PORT3, GPIO_PIN23, *signal);
-    printf("\n\n  [USB TO SERIAL IC(FT4232HL) RESET] : %s\n\n", ret ? "HIGH" : "LOW");
-    return ret;
-}
-
-static void gpio_ctl_usb_serial_pwr(void)
-{
-    int high = 1, low = 0;
-    menu_args_t ctl_usb_serial_pwr_menus[] = {
-        {__gpio_ctl_usb_serial_pwr, "HIGH", &high},
-        {__gpio_ctl_usb_serial_pwr, "LOW", &low},
-    };
-
-    char *des = "\t\t Select Signal";
-    menu_args_print(ctl_usb_serial_pwr_menus, sizeof(ctl_usb_serial_pwr_menus) / sizeof(menu_args_t), des);
-}
-
-static menu_t gpio_input_menus[] = {
-    {gpio_input_monitor, "ALL PIN MONITORING"},
-    {gpio_det_water_pwr_status, "WATER SENSOR POWER STATUS"},
-    {gpio_det_lte_pwr_status, "LTE MODEM POWER STATUS"},
-    {gpio_det_lte_act_status, "LTE MODEM ACTIVE STATUS"},
-};
-
-static menu_t gpio_output_menus[] = {
-    {gpio_ctl_water_pwr, "WATER SENSOR RELAY POWER"},
-    {gpio_ctl_lte_pwr, "LTE MODEM RESET"},
-    {gpio_ctl_usb_hub1_pwr, "USB HUB IC(USB2514B) RESET"},
-    {gpio_ctl_usb_hub2_pwr, "USB HUB IC(GL850G) RESET"},
-    {gpio_ctl_usb_serial_pwr, "USB TO SERIAL IC(FT4232HL) RESET"},
-};
-
-static void gpio_input(void)
-{
-    char *des = "\t    GPIO Input Pin Menu";
-    menu_print(gpio_input_menus, sizeof(gpio_input_menus) / sizeof(menu_t), des);
-}
-
-static void gpio_output(void)
-{
-    char *des = "\t    GPIO Output Pin Menu";
-    menu_print(gpio_output_menus, sizeof(gpio_output_menus) / sizeof(menu_t), des);
-}
-#endif
 
 static void gpio_cpld_det_thread(void)
 {
@@ -246,8 +102,7 @@ static void gpio_cpld_det_thread(void)
 
     old = gpio_read(GPIO_PORT3, GPIO_PIN19);
 
-    getyx(stdscr, y, x);
-    mvprintw(y, 0, "ID[%d] = %s", id, old ? "active" : "inactive");
+    pr_win(pr_win_gpio[pr_win_gpio_depth], "ID[%d] = %s\n", id, old ? "active" : "inactive");
 
     while (1) {
         new = gpio_read(GPIO_PORT3, GPIO_PIN19);
@@ -256,18 +111,14 @@ static void gpio_cpld_det_thread(void)
                 old = new;
                 gpio_write(GPIO_PORT2, GPIO_PIN0, 0);   // act led on
                 gpio_write(GPIO_PORT3, GPIO_PIN20, 0);
-                getyx(stdscr, y, x);
-                mvprintw(y, 0, "ID[%d] - active", id);
-                refresh();
+                pr_win(pr_win_gpio[pr_win_gpio_depth], "ID[%d] = %s\n", id, old ? "active" : "inactive");
             }
         } else {
             if (old != new) {
                 old = new;
                 gpio_write(GPIO_PORT2, GPIO_PIN0, 1);   // act led off
                 gpio_write(GPIO_PORT3, GPIO_PIN20, 1);
-                getyx(stdscr, y, x);
-                mvprintw(y, 0, "ID[%d] - inactive", id);
-                refresh();
+                pr_win(pr_win_gpio[pr_win_gpio_depth], "ID[%d] = %s\n", id, old ? "active" : "inactive");
             }
         }
         usleep(100 * 1000);
@@ -323,18 +174,14 @@ static void gpio_det_thread(void)
 
                 new = gpio_read(port, pin);
                 if (new < 0) {
-                    getyx(stdscr, y, x);
-                    mvprintw(y, 0, "[GPIO%d_IO%02d][READ] : error!\n", port + 1, pin);
-                    refresh();
+                    pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][READ]: error!\n", port + 1, pin);
                     continue;
                 }
 
                 old = gpio_stat[port][pin].inval;
                 if (old != new) {
-                    getyx(stdscr, y, x);
                     gpio_stat[port][pin].inval = new;
-                    mvprintw(y, 0, "[GPIO%d_PIN%02d][READ] : \"%s\"\n", port + 1, pin, new ? "HIGH" : "LOW");
-                    refresh();
+                    pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][READ]: \"%s\"\n", port + 1, pin, new ? "HIGH" : "LOW");
                 }
                 usleep(1 * 1000);
             }
@@ -347,12 +194,11 @@ static int gpio_read_read(void *val)
     int *v = (int *)val;
     int x, y, ret;
 
-    getyx(stdscr, y, x);
     ret = gpio_read(v[0], v[1]);
     if (ret < 0)
-        mvprintw(y, 0, "[GPIO%d_IO%02d][READ] : error!\n", v[0] + 1, v[1]);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][READ]: error!\n", v[0] + 1, v[1]);
     else
-        mvprintw(y, 0, "[GPIO%d_IO%02d][READ] : \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][READ]: \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
 
     return 0;
 }
@@ -362,13 +208,11 @@ static int gpio_active_high(void *val)
     int *v = (int *)val;
     int x, y, ret;
 
-    getyx(stdscr, y, x);
     ret = gpio_write(v[0], v[1], 1);
     if (ret < 0)
-        mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : error!\n", v[0] + 1, v[1]);
-    else {
-        //mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
-    }
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][WRITE]: error!\n", v[0] + 1, v[1]);
+    else
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][WRITE]: \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
 
     return 0;
 }
@@ -378,13 +222,11 @@ static int gpio_active_low(void *val)
     int *v = (int *)val;
     int x, y, ret;
 
-    getyx(stdscr, y, x);
     ret = gpio_write(v[0], v[1], 0);
     if (ret < 0)
-        mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : error!\n", v[0] + 1, v[1]);
-    else {
-        //mvprintw(y, 0, "[GPIO%d_IO%02d][WRITE] : \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
-    }
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][WRITE]: error!\n", v[0] + 1, v[1]);
+    else
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][WRITE]: \"%s\"\n", v[0] + 1, v[1], ret ? "HIGH" : "LOW");
 
     return 0;
 }
@@ -394,7 +236,7 @@ static int gpio_out_ctrl_pin0(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN0 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN0];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -402,17 +244,15 @@ static int gpio_out_ctrl_pin0(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO00] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO00]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    //ret = gpio_write(*p, GPIO_PIN0, sig);
-    //printf("[GPIO%d_IO00] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -421,7 +261,7 @@ static int gpio_out_ctrl_pin1(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN1 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN1];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -429,14 +269,14 @@ static int gpio_out_ctrl_pin1(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO01] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO01]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
     // ret = gpio_write(*p, GPIO_PIN1, sig);
     // printf("[GPIO%d_IO01] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
@@ -448,7 +288,7 @@ static int gpio_out_ctrl_pin2(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN2 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN2];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -456,17 +296,15 @@ static int gpio_out_ctrl_pin2(void *port)
         {back2, "back", &val},
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO02] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO02]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN2, sig);
-    // printf("[GPIO%d_IO02] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -475,7 +313,7 @@ static int gpio_out_ctrl_pin3(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN3 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN3];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -483,17 +321,15 @@ static int gpio_out_ctrl_pin3(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO03] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO03]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN3, sig);
-    // printf("[GPIO%d_IO03] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -502,7 +338,7 @@ static int gpio_out_ctrl_pin4(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN4 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN4];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -510,17 +346,15 @@ static int gpio_out_ctrl_pin4(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO04] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO04]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN4, sig);
-    // printf("[GPIO%d_IO04] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -529,7 +363,7 @@ static int gpio_out_ctrl_pin5(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN5 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN5];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -537,17 +371,15 @@ static int gpio_out_ctrl_pin5(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO05] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO05]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN5, sig);
-    // printf("[GPIO%d_IO05] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -556,7 +388,7 @@ static int gpio_out_ctrl_pin6(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN6 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN6];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -564,17 +396,15 @@ static int gpio_out_ctrl_pin6(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO06] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO06]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN6, sig);
-    // printf("[GPIO%d_IO06] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -583,7 +413,7 @@ static int gpio_out_ctrl_pin7(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN7 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN7];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -591,17 +421,15 @@ static int gpio_out_ctrl_pin7(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO07] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO07]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN7, sig);
-    // printf("[GPIO%d_IO07] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -610,7 +438,7 @@ static int gpio_out_ctrl_pin8(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN8 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN8];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -618,17 +446,15 @@ static int gpio_out_ctrl_pin8(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO08] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO08]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN8, sig);
-    // printf("[GPIO%d_IO08] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -637,7 +463,7 @@ static int gpio_out_ctrl_pin9(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN9 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN9];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -645,17 +471,15 @@ static int gpio_out_ctrl_pin9(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO09] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO09]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN9, sig);
-    // printf("[GPIO%d_IO09] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -664,7 +488,7 @@ static int gpio_out_ctrl_pin10(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN10 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN10];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -672,17 +496,15 @@ static int gpio_out_ctrl_pin10(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO10] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO10]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN10, sig);
-    // printf("[GPIO%d_IO10] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -691,7 +513,7 @@ static int gpio_out_ctrl_pin11(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN11 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN11];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -699,17 +521,15 @@ static int gpio_out_ctrl_pin11(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO11] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO11]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN11, sig);
-    // printf("[GPIO%d_IO11] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -718,7 +538,7 @@ static int gpio_out_ctrl_pin12(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN12 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN12];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -726,17 +546,15 @@ static int gpio_out_ctrl_pin12(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO12] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO12]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN12, sig);
-    // printf("[GPIO%d_IO12] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -745,7 +563,7 @@ static int gpio_out_ctrl_pin13(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN13 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN13];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -753,17 +571,15 @@ static int gpio_out_ctrl_pin13(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO13] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO13]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN13, sig);
-    // printf("[GPIO%d_IO13] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -772,7 +588,7 @@ static int gpio_out_ctrl_pin14(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN14 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN14];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -780,17 +596,15 @@ static int gpio_out_ctrl_pin14(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO14] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO14]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN14, sig);
-    // printf("[GPIO%d_IO14] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -799,7 +613,7 @@ static int gpio_out_ctrl_pin15(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN15 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN15];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -807,17 +621,15 @@ static int gpio_out_ctrl_pin15(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO15] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO15]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN15, sig);
-    // printf("[GPIO%d_IO15] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -826,7 +638,7 @@ static int gpio_out_ctrl_pin16(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN16 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN16];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -834,17 +646,15 @@ static int gpio_out_ctrl_pin16(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO16] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO16]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN16, sig);
-    // printf("[GPIO%d_IO16] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -853,7 +663,7 @@ static int gpio_out_ctrl_pin17(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN17 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN17];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -861,17 +671,15 @@ static int gpio_out_ctrl_pin17(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO17] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO17]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN17, sig);
-    // printf("[GPIO%d_IO17] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -880,7 +688,7 @@ static int gpio_out_ctrl_pin18(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN18 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN18];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -888,17 +696,15 @@ static int gpio_out_ctrl_pin18(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO18] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO18]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN18, sig);
-    // printf("[GPIO%d_IO18] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -907,7 +713,7 @@ static int gpio_out_ctrl_pin19(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN19 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN19];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -915,17 +721,15 @@ static int gpio_out_ctrl_pin19(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO19] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO19]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN19, sig);
-    // printf("[GPIO%d_IO19] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -934,7 +738,7 @@ static int gpio_out_ctrl_pin20(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN20 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN20];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -942,17 +746,15 @@ static int gpio_out_ctrl_pin20(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO20] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO20]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN20, sig);
-    // printf("[GPIO%d_IO20] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -961,7 +763,7 @@ static int gpio_out_ctrl_pin21(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN21 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN21];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -969,17 +771,15 @@ static int gpio_out_ctrl_pin21(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO21] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO21]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN21, sig);
-    // printf("[GPIO%d_IO21] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -988,7 +788,7 @@ static int gpio_out_ctrl_pin22(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN22 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN22];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -996,17 +796,15 @@ static int gpio_out_ctrl_pin22(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO22] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO22]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN22, sig);
-    // printf("[GPIO%d_IO22] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1015,7 +813,7 @@ static int gpio_out_ctrl_pin23(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN23 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN23];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1023,17 +821,15 @@ static int gpio_out_ctrl_pin23(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO23] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO23]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN23, sig);
-    // printf("[GPIO%d_IO23] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1042,7 +838,7 @@ static int gpio_out_ctrl_pin24(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN24 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN24];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1050,17 +846,15 @@ static int gpio_out_ctrl_pin24(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO24] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO24]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN24, sig);
-    // printf("[GPIO%d_IO24] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1069,7 +863,7 @@ static int gpio_out_ctrl_pin25(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN25 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN25];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1077,17 +871,15 @@ static int gpio_out_ctrl_pin25(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO25] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO25]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN25, sig);
-    // printf("[GPIO%d_IO25] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1096,7 +888,7 @@ static int gpio_out_ctrl_pin26(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN26 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN26];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1104,17 +896,15 @@ static int gpio_out_ctrl_pin26(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO26] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO26]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN26, sig);
-    // printf("[GPIO%d_IO26] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1123,7 +913,7 @@ static int gpio_out_ctrl_pin27(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN27 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN27];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1131,17 +921,15 @@ static int gpio_out_ctrl_pin27(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO27] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO27]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN27, sig);
-    // printf("[GPIO%d_IO27] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1150,7 +938,7 @@ static int gpio_out_ctrl_pin28(void *port)
     int *p = (int *)port;
     int y, x;
     int val[2] = { *p, GPIO_PIN28 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN28];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1158,17 +946,15 @@ static int gpio_out_ctrl_pin28(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO28] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO28]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN28, sig);
-    // printf("[GPIO%d_IO28] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1177,7 +963,7 @@ static int gpio_out_ctrl_pin29(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN29 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN29];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1185,17 +971,15 @@ static int gpio_out_ctrl_pin29(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO29] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO29]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN29, sig);
-    // printf("[GPIO%d_IO29] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1204,7 +988,7 @@ static int gpio_out_ctrl_pin30(void *port)
     int *p = (int *)port;
     int y, x;
     int val[2] = { *p, GPIO_PIN30 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN30];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1212,16 +996,15 @@ static int gpio_out_ctrl_pin30(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO30] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO30]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN30, sig);
-    // printf("[GPIO%d_IO30] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1230,7 +1013,7 @@ static int gpio_out_ctrl_pin31(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN31 };
-    char *des = "\t     Select Signal(H/L)";
+    char *des = "Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN31];
     menu_args_t gpio_sig_menu[] = {
         {gpio_active_high, "HIGH", &val},
@@ -1238,17 +1021,15 @@ static int gpio_out_ctrl_pin31(void *port)
         {back2, "back", &val}
     };
 
-    getyx(stdscr, y, x);
-
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO31] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO31]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 
-    // ret = gpio_write(*p, GPIO_PIN31, sig);
-    // printf("[GPIO%d_IO31] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     return 0;
 }
 
@@ -1256,7 +1037,7 @@ static int gpio_out_ctrl_pin31(void *port)
 
 static int gpio_out_ctrl_port1(void)
 {
-    char *des = "\t     GPIO PORT1 Control Menu";
+    char *des = "GPIO PORT1 Control Menu";
     int port = GPIO_PORT1;
 
     menu_args_t gpio_port1_menu[] = {
@@ -1295,12 +1076,14 @@ static int gpio_out_ctrl_port1(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port1_menu, sizeof(gpio_port1_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port1_menu, sizeof(gpio_port1_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_out_ctrl_port2(void)
 {
-    char *des = "\t     GPIO PORT2 Control Menu";
+    char *des = "GPIO PORT2 Control Menu";
     int port = GPIO_PORT2;
 
     menu_args_t gpio_port2_menu[] = {
@@ -1339,12 +1122,14 @@ static int gpio_out_ctrl_port2(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port2_menu, sizeof(gpio_port2_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port2_menu, sizeof(gpio_port2_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_out_ctrl_port3(void)
 {
-    char *des = "\t     GPIO PORT3 Control Menu";
+    char *des = "GPIO PORT3 Control Menu";
     int port = GPIO_PORT3;
 
     menu_args_t gpio_port3_menu[] = {
@@ -1383,12 +1168,14 @@ static int gpio_out_ctrl_port3(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port3_menu, sizeof(gpio_port3_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port3_menu, sizeof(gpio_port3_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_out_ctrl_port4(void)
 {
-    char *des = "\t     GPIO PORT4 Control Menu";
+    char *des = "GPIO PORT4 Control Menu";
     int port = GPIO_PORT4;
 
     menu_args_t gpio_port4_menu[] = {
@@ -1427,12 +1214,14 @@ static int gpio_out_ctrl_port4(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port4_menu, sizeof(gpio_port4_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port4_menu, sizeof(gpio_port4_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_out_ctrl_port5(void)
 {
-    char *des = "\t     GPIO PORT5 Control Menu";
+    char *des = "GPIO PORT5 Control Menu";
     int port = GPIO_PORT5;
 
     menu_args_t gpio_port5_menu[] = {
@@ -1471,12 +1260,14 @@ static int gpio_out_ctrl_port5(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port5_menu, sizeof(gpio_port5_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port5_menu, sizeof(gpio_port5_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_out_ctrl_port6(void)
 {
-    char *des = "\t     GPIO PORT6 Control Menu";
+    char *des = "GPIO PORT6 Control Menu";
     int port = GPIO_PORT6;
 
     menu_args_t gpio_port6_menu[] = {
@@ -1517,12 +1308,14 @@ static int gpio_out_ctrl_port6(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port6_menu, sizeof(gpio_port6_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port6_menu, sizeof(gpio_port6_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_out_ctrl_port7(void)
 {
-    char *des = "\t     GPIO PORT7 Control Menu";
+    char *des = "GPIO PORT7 Control Menu";
     int port = GPIO_PORT7;
 
     menu_args_t gpio_port7_menu[] = {
@@ -1563,7 +1356,9 @@ static int gpio_out_ctrl_port7(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port7_menu, sizeof(gpio_port7_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port7_menu, sizeof(gpio_port7_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_in_ctrl_pin0(void *port)
@@ -1571,24 +1366,12 @@ static int gpio_in_ctrl_pin0(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN0 };
-    //char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN0];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO00] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO00]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    //menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-    //ret = gpio_write(*p, GPIO_PIN0, sig);
-    //printf("[GPIO%d_IO00] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
 
     gpio_read_read(val);
 
@@ -1600,25 +1383,12 @@ static int gpio_in_ctrl_pin1(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN1 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN1];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO01] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO01]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN1, sig);
-    // printf("[GPIO%d_IO01] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
 
     gpio_read_read(val);
     return 0;
@@ -1629,25 +1399,13 @@ static int gpio_in_ctrl_pin2(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN2 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN2];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val},
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO02] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO02]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN2, sig);
-    // printf("[GPIO%d_IO02] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1657,25 +1415,13 @@ static int gpio_in_ctrl_pin3(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN3 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN3];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO03] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO03]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN3, sig);
-    // printf("[GPIO%d_IO03] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1685,25 +1431,13 @@ static int gpio_in_ctrl_pin4(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN4 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN4];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO04] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO04]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN4, sig);
-    // printf("[GPIO%d_IO04] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1713,25 +1447,13 @@ static int gpio_in_ctrl_pin5(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN5 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN5];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO05] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO05]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN5, sig);
-    // printf("[GPIO%d_IO05] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1741,25 +1463,12 @@ static int gpio_in_ctrl_pin6(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN6 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN6];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO06] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO06]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN6, sig);
-    // printf("[GPIO%d_IO06] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1769,25 +1478,13 @@ static int gpio_in_ctrl_pin7(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN7 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN7];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO07] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO07]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN7, sig);
-    // printf("[GPIO%d_IO07] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1797,25 +1494,13 @@ static int gpio_in_ctrl_pin8(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN8 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN8];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO08] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO08]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN8, sig);
-    // printf("[GPIO%d_IO08] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1825,25 +1510,12 @@ static int gpio_in_ctrl_pin9(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN9 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN9];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO09] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO09]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN9, sig);
-    // printf("[GPIO%d_IO09] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1853,25 +1525,12 @@ static int gpio_in_ctrl_pin10(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN10 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN10];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO10] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO10]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN10, sig);
-    // printf("[GPIO%d_IO10] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1881,25 +1540,12 @@ static int gpio_in_ctrl_pin11(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN11 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN11];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO11] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO11]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN11, sig);
-    // printf("[GPIO%d_IO11] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1909,25 +1555,12 @@ static int gpio_in_ctrl_pin12(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN12 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN12];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO12] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO12]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN12, sig);
-    // printf("[GPIO%d_IO12] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1937,25 +1570,12 @@ static int gpio_in_ctrl_pin13(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN13 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN13];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO13] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO13]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN13, sig);
-    // printf("[GPIO%d_IO13] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1965,25 +1585,12 @@ static int gpio_in_ctrl_pin14(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN14 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN14];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO14] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO14]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN14, sig);
-    // printf("[GPIO%d_IO14] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -1993,25 +1600,12 @@ static int gpio_in_ctrl_pin15(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN15 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN15];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO15] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO15]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN15, sig);
-    // printf("[GPIO%d_IO15] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2021,25 +1615,12 @@ static int gpio_in_ctrl_pin16(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN16 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN16];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO16] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO16]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN16, sig);
-    // printf("[GPIO%d_IO16] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2049,25 +1630,13 @@ static int gpio_in_ctrl_pin17(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN17 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN17];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO17] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO17]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
 
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN17, sig);
-    // printf("[GPIO%d_IO17] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2077,25 +1646,12 @@ static int gpio_in_ctrl_pin18(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN18 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN18];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO18] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO18]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN18, sig);
-    // printf("[GPIO%d_IO18] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2105,25 +1661,12 @@ static int gpio_in_ctrl_pin19(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN19 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN19];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO19] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO19]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN19, sig);
-    // printf("[GPIO%d_IO19] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2133,25 +1676,12 @@ static int gpio_in_ctrl_pin20(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN20 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN20];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO20] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO20]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN20, sig);
-    // printf("[GPIO%d_IO20] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2161,25 +1691,12 @@ static int gpio_in_ctrl_pin21(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN21 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN21];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO21] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO21]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN21, sig);
-    // printf("[GPIO%d_IO21] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2189,25 +1706,12 @@ static int gpio_in_ctrl_pin22(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN22 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN22];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO22] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO22]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN22, sig);
-    // printf("[GPIO%d_IO22] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2217,25 +1721,12 @@ static int gpio_in_ctrl_pin23(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN23 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN23];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO23] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO23]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN23, sig);
-    // printf("[GPIO%d_IO23] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2245,25 +1736,12 @@ static int gpio_in_ctrl_pin24(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN24 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN24];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO24] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO24]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN24, sig);
-    // printf("[GPIO%d_IO24] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2273,25 +1751,12 @@ static int gpio_in_ctrl_pin25(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN25 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN25];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO25] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO25]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN25, sig);
-    // printf("[GPIO%d_IO25] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2301,25 +1766,12 @@ static int gpio_in_ctrl_pin26(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN26 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN26];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO26] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO26]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN26, sig);
-    // printf("[GPIO%d_IO26] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2329,25 +1781,12 @@ static int gpio_in_ctrl_pin27(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN27 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN27];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO27] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO27]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN27, sig);
-    // printf("[GPIO%d_IO27] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2357,25 +1796,12 @@ static int gpio_in_ctrl_pin28(void *port)
     int *p = (int *)port;
     int y, x;
     int val[2] = { *p, GPIO_PIN28 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN28];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO28] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO28]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN28, sig);
-    // printf("[GPIO%d_IO28] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2385,25 +1811,12 @@ static int gpio_in_ctrl_pin29(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN29 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN29];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO29] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO29]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN29, sig);
-    // printf("[GPIO%d_IO29] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2413,24 +1826,12 @@ static int gpio_in_ctrl_pin30(void *port)
     int *p = (int *)port;
     int y, x;
     int val[2] = { *p, GPIO_PIN30 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN30];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
 
-    getyx(stdscr, y, x);
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO30] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO30]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN30, sig);
-    // printf("[GPIO%d_IO30] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2440,25 +1841,12 @@ static int gpio_in_ctrl_pin31(void *port)
     int *p = (int *)port;
     int x, y;
     int val[2] = { *p, GPIO_PIN31 };
-    // char *des = "\t     Select Signal(H/L)";
     gpiostat_t *stat = &gpio_stat[*p][GPIO_PIN31];
-    // menu_args_t gpio_sig_menu[] = {
-    //     {gpio_active_high, "HIGH", &val},
-    //     {gpio_active_low, "LOW", &val},
-    //     {back2, "back", &val}
-    // };
-
-    getyx(stdscr, y, x);
 
     if (!stat->init_flag) {
-        mvprintw(y, 0, "[GPIO%d_IO31] : already pin used! can't control this pin.\n", *p + 1);
+        pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO31]: already pin used! can't control this pin.\n", *p + 1);
         return 0;
     }
-
-    // menu_args_exec(gpio_sig_menu, sizeof(gpio_sig_menu) / sizeof(menu_args_t), des);
-
-    // ret = gpio_write(*p, GPIO_PIN31, sig);
-    // printf("[GPIO%d_IO31] : \"%s\"\n", *p, ret ? "HIGH" : "LOW");
     gpio_read_read(val);
     return 0;
 }
@@ -2466,7 +1854,7 @@ static int gpio_in_ctrl_pin31(void *port)
 
 static int gpio_in_ctrl_port1(void)
 {
-    char *des = "\t     GPIO PORT1 Control Menu";
+    char *des = "GPIO PORT1 Control Menu";
     int port = GPIO_PORT1;
 
     menu_args_t gpio_port1_menu[] = {
@@ -2505,12 +1893,14 @@ static int gpio_in_ctrl_port1(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port1_menu, sizeof(gpio_port1_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port1_menu, sizeof(gpio_port1_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_in_ctrl_port2(void)
 {
-    char *des = "\t     GPIO PORT2 Control Menu";
+    char *des = "GPIO PORT2 Control Menu";
     int port = GPIO_PORT2;
 
     menu_args_t gpio_port2_menu[] = {
@@ -2549,12 +1939,14 @@ static int gpio_in_ctrl_port2(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port2_menu, sizeof(gpio_port2_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port2_menu, sizeof(gpio_port2_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_in_ctrl_port3(void)
 {
-    char *des = "\t     GPIO PORT3 Control Menu";
+    char *des = "GPIO PORT3 Control Menu";
     int port = GPIO_PORT3;
 
     menu_args_t gpio_port3_menu[] = {
@@ -2593,12 +1985,14 @@ static int gpio_in_ctrl_port3(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port3_menu, sizeof(gpio_port3_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port3_menu, sizeof(gpio_port3_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_in_ctrl_port4(void)
 {
-    char *des = "\t     GPIO PORT4 Control Menu";
+    char *des = "GPIO PORT4 Control Menu";
     int port = GPIO_PORT4;
 
     menu_args_t gpio_port4_menu[] = {
@@ -2637,12 +2031,14 @@ static int gpio_in_ctrl_port4(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port4_menu, sizeof(gpio_port4_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port4_menu, sizeof(gpio_port4_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_in_ctrl_port5(void)
 {
-    char *des = "\t     GPIO PORT5 Control Menu";
+    char *des = "GPIO PORT5 Control Menu";
     int port = GPIO_PORT5;
 
     menu_args_t gpio_port5_menu[] = {
@@ -2681,12 +2077,14 @@ static int gpio_in_ctrl_port5(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port5_menu, sizeof(gpio_port5_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port5_menu, sizeof(gpio_port5_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_in_ctrl_port6(void)
 {
-    char *des = "\t     GPIO PORT6 Control Menu";
+    char *des = "GPIO PORT6 Control Menu";
     int port = GPIO_PORT6;
 
     menu_args_t gpio_port6_menu[] = {
@@ -2727,12 +2125,14 @@ static int gpio_in_ctrl_port6(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port6_menu, sizeof(gpio_port6_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port6_menu, sizeof(gpio_port6_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static int gpio_in_ctrl_port7(void)
 {
-    char *des = "\t     GPIO PORT7 Control Menu";
+    char *des = "GPIO PORT7 Control Menu";
     int port = GPIO_PORT7;
 
     menu_args_t gpio_port7_menu[] = {
@@ -2773,7 +2173,9 @@ static int gpio_in_ctrl_port7(void)
         { back2, "back", &port }
     };
 
-    menu_args_exec(gpio_port7_menu, sizeof(gpio_port7_menu) / sizeof(menu_args_t), des);
+    pr_win_gpio_depth++;
+    menu_args_exec(gpio_port7_menu, sizeof(gpio_port7_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    pr_win_gpio_depth--;
 }
 
 static menu_t gpio_out_menu[] = {
@@ -2801,14 +2203,14 @@ static menu_t gpio_in_menu[] = {
 
 int gpio_in_ctrl(void)
 {
-    char *des = "\t     GPIO Input Control Menu";
-    menu_exec(gpio_in_menu, sizeof(gpio_in_menu) / sizeof(menu_t), des);
+    char *des = "GPIO Input Control Menu";
+    menu_exec(gpio_in_menu, sizeof(gpio_in_menu) / sizeof(menu_t), des, &pr_win_gpio[pr_win_gpio_depth]);
 }
 
 int gpio_out_ctrl(void)
 {
-    char *des = "\t     GPIO Output Control Menu";
-    menu_exec(gpio_out_menu, sizeof(gpio_out_menu) / sizeof(menu_t), des);
+    char *des = "GPIO Output Control Menu";
+    menu_exec(gpio_out_menu, sizeof(gpio_out_menu) / sizeof(menu_t), des, &pr_win_gpio[pr_win_gpio_depth]);
 }
 
 void gpio_init(void)

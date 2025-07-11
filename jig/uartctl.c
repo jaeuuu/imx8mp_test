@@ -468,7 +468,7 @@ static int set_speed(void *port)
     };
 
     char *des = "\t  UART Baudrate Control Menu";
-    menu_args_exec(spd_menu, sizeof(spd_menu) / sizeof(menu_args_t), des);
+    menu_args_exec(spd_menu, sizeof(spd_menu) / sizeof(menu_args_t), des, NULL);
 }
 
 static int uart_tx_test(void *port)
@@ -521,7 +521,7 @@ static int mxc_uart1(void)
     };
     char *des = "\t  UART MXC1 Control Menu";
 
-    menu_args_exec(muart1_menu, sizeof(muart1_menu) / sizeof(menu_args_t), des);
+    menu_args_exec(muart1_menu, sizeof(muart1_menu) / sizeof(menu_args_t), des, NULL);
 }
 
 static int mxc_uart3(void)
@@ -534,7 +534,7 @@ static int mxc_uart3(void)
     };
     char *des = "\t  UART MXC3 Control Menu";
 
-    menu_args_exec(muart3_menu, sizeof(muart3_menu) / sizeof(menu_args_t), des);
+    menu_args_exec(muart3_menu, sizeof(muart3_menu) / sizeof(menu_args_t), des, NULL);
 }
 
 static int serial_uart1(void)
@@ -547,7 +547,7 @@ static int serial_uart1(void)
     };
     char *des = "\t  UART SERIAL1 Control Menu";
 
-    menu_args_exec(suart1_menu, sizeof(suart1_menu) / sizeof(menu_args_t), des);
+    menu_args_exec(suart1_menu, sizeof(suart1_menu) / sizeof(menu_args_t), des, NULL);
 }
 
 static int serial_uart2(void)
@@ -560,7 +560,7 @@ static int serial_uart2(void)
     };
     char *des = "\t  UART SERIAL2 Control Menu";
 
-    menu_args_exec(suart2_menu, sizeof(suart2_menu) / sizeof(menu_args_t), des);
+    menu_args_exec(suart2_menu, sizeof(suart2_menu) / sizeof(menu_args_t), des, NULL);
 }
 
 static int serial_uart3(void)
@@ -573,7 +573,7 @@ static int serial_uart3(void)
     };
     char *des = "\t  UART SERIAL3 Control Menu";
 
-    menu_args_exec(suart3_menu, sizeof(suart3_menu) / sizeof(menu_args_t), des);
+    menu_args_exec(suart3_menu, sizeof(suart3_menu) / sizeof(menu_args_t), des, NULL);
 }
 
 static int serial_uart4(void)
@@ -586,7 +586,7 @@ static int serial_uart4(void)
     };
     char *des = "\t  UART SERIAL4 Control Menu";
 
-    menu_args_exec(suart4_menu, sizeof(suart4_menu) / sizeof(menu_args_t), des);
+    menu_args_exec(suart4_menu, sizeof(suart4_menu) / sizeof(menu_args_t), des, NULL);
 }
 
 static menu_t uart_menus[] = {
@@ -602,7 +602,7 @@ static menu_t uart_menus[] = {
 int uart_ctrl(void)
 {
     char *des = "\t      UART Control Menu";
-    menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des);
+    menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des, NULL);
 }
 
 void uart_init(void)

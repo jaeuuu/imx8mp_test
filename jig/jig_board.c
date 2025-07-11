@@ -15,36 +15,38 @@ static menu_t sub_menu[] = {
     {back, "back"},
 };
 
+static WINDOW *pr_hello_win;
+
 int sub_hello_world(void)
 {
-    menu_exec(sub_menu, sizeof(sub_menu) / sizeof(menu_t), "\tSUB HELLO WORLD MENU");
+    menu_exec(sub_menu, sizeof(sub_menu) / sizeof(menu_t), "SUB HELLO WORLD MENU", &pr_hello_win);
     return 0;
 }
 
 int hello_world1(void)
 {
     int x, y;
-    getyx(stdscr, y, x);
-    mvprintw(y, 0, "hello, world1\n");
-    refresh();
+    getyx(pr_hello_win, y, x);
+    mvwprintw(pr_hello_win, y, x, "hello, world1\n");
+    wrefresh(pr_hello_win);
     return 0;
 }
 
 int hello_world2(void)
 {
     int x, y;
-    getyx(stdscr, y, x);
-    mvprintw(y, 0, "hello, world2\n");
-    refresh();
+    getyx(pr_hello_win, y, x);
+    mvwprintw(pr_hello_win, y, x, "hello, world2\n");
+    wrefresh(pr_hello_win);
     return 0;
 }
 
 int hello_world3(void)
 {
     int x, y;
-    getyx(stdscr, y, x);
-    mvprintw(y, 0, "hello, world3\n");
-    refresh();
+    getyx(pr_hello_win, y, x);
+    mvwprintw(pr_hello_win, y, x, "hello, world3\n");
+    wrefresh(pr_hello_win);
     return 0;
 }
 
@@ -69,7 +71,7 @@ void start_board(void)
 {
     printf("jig start_board()\r\n");
 restart:
-    menu_exec(main_menu, sizeof(main_menu) / sizeof(menu_t), "\tIMX8M-PLUS JIG BOARD TEST PROGRAM");
+    menu_exec(main_menu, sizeof(main_menu) / sizeof(menu_t), "IMX8M-PLUS JIG BOARD TEST PROGRAM", NULL);
 
     if (menu_exit() < 0)
         goto restart;
