@@ -5,6 +5,10 @@
 
 #define UART_DEBUG
 
+#define MAX_UART_MENU_DEPTH     3
+static WINDOW *pr_win_uart[MAX_UART_MENU_DEPTH];
+static int pr_win_uart_depth = 0;
+
 static uart_t uarts[] = {
     [UART_MXC1] = {
         .dev = DEV_NXP_UART1,
@@ -46,27 +50,37 @@ static uart_t uarts[] = {
 
 static void uart_hex_print(const char *buf, int size)
 {
-    int x, y, i;
+    int i;
+    char tmp[4096];
+    char tmp_cache[32];
+
+    memset(tmp, 0x00, sizeof(tmp));
 
     for (i = 0; i < size; i++) {
-        getyx(stdscr, y, x);
-        mvprintw(y, x, "0x%02X ", buf[i]);
-        if ((i + 1) % 16 == 0) {
-            getyx(stdscr, y, x);
-            mvprintw(y, x, "\n");
+        snprintf(tmp_cache, sizeof(tmp_cache), "0x%02X ", buf[i]);
+        strcat(tmp, tmp_cache);
+        if ((i + 1) % 8 == 0) {
+            strcat(tmp, "\n");
         }
     }
-    getyx(stdscr, y, x);
-    mvprintw(y, x, "\n");
+    /*
+        for (i = 0; i < size; i++) {
+            pr_win(pr_win_uart[pr_win_uart_depth], "0x%02X ", buf[i]);
+            if ((i + 1) % 8 == 0) {
+                pr_win(pr_win_uart[pr_win_uart_depth], "\n");
+            }
+        }
+    */
+    pr_win(pr_win_uart[pr_win_uart_depth], "%s\n", tmp);
 }
 
+struct pollfd uarts_poll[sizeof(uarts) / sizeof(uart_t)];
 static void uart_rx_thread(void)
 {
-    struct pollfd uarts_poll[sizeof(uarts) / sizeof(uart_t)];
+    //struct pollfd uarts_poll[sizeof(uarts) / sizeof(uart_t)];
     int i, uarts_num = sizeof(uarts) / sizeof(uart_t);
     char tmp[MAX_UART_XFER_SIZE];
     int ret;
-    int x, y;
 
     for (i = 0; i < uarts_num; i++) {
         uarts_poll[i].fd = uarts[i].fd;
@@ -79,6 +93,7 @@ static void uart_rx_thread(void)
 
         for (i = 0; i < uarts_num; i++) {
             if (uarts_poll[i].revents & POLLIN) {
+                usleep(100 * 1000);
                 memset(tmp, 0x00, sizeof(tmp));
                 if ((ret = read_uart(&uarts[i], tmp, sizeof(tmp))) <= 0)
                     continue;
@@ -86,55 +101,92 @@ static void uart_rx_thread(void)
                 switch (i) {
                 case UART_MXC1:
 #ifdef UART_DEBUG
-                    getyx(stdscr, y, x);
-                    mvprintw(y, 0, "[UART MXC1][READ] :\n");
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART MXC1][READ]: \n");
                     uart_hex_print(tmp, ret);
-                    refresh();
 #endif
-                    //lte_parser(tmp, ret);
                     break;
                 case UART_MXC3:
 #ifdef UART_DEBUG
-                    getyx(stdscr, y, x);
-                    mvprintw(y, 0, "[UART MXC3][READ] :\n");
+                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART MXC3][READ]: \n");
+                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
-                    refresh();
 #endif
                     break;
                 case UART_SERIAL1:
 #ifdef UART_DEBUG
-                    getyx(stdscr, y, x);
-                    mvprintw(y, 0, "[UART SERIAL1][READ] :\n");
+                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART SERIAL1][READ]: \n");
+                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
-                    refresh();
 #endif
                     break;
                 case UART_SERIAL2:
 #ifdef UART_DEBUG
-                    getyx(stdscr, y, x);
-                    mvprintw(y, 0, "[UART SERIAL2][READ] :\n");
+                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART SERIAL2][READ]: \n");
+                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
-                    refresh();
 #endif
                     break;
                 case UART_SERIAL3:
 #ifdef UART_DEBUG
-                    getyx(stdscr, y, x);
-                    mvprintw(y, 0, "[UART SERIAL3][READ] :\n");
+                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART SERIAL3][READ]: \n");
+                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
-                    refresh();
 #endif
                     break;
                 case UART_SERIAL4:
 #ifdef UART_DEBUG
-                    getyx(stdscr, y, x);
-                    mvprintw(y, 0, "[UART SERIAL4][READ] :\n");
+                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART SERIAL4][READ]: \n");
+                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
-                    refresh();
 #endif
                     break;
                 default:
                     break;
+                }
+            }
+
+            if (uarts_poll[i].revents & POLLOUT) {
+                char *str = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                int ret;
+                char *port_name = NULL;
+
+                switch (i) {
+                case UART_MXC1:
+                    port_name = "UART MXC1";
+                    break;
+                case UART_MXC3:
+                    port_name = "UART MXC3";
+                    break;
+                case UART_SERIAL1:
+                    port_name = "UART SERIAL1";
+                    break;
+                case UART_SERIAL2:
+                    port_name = "UART SERIAL2";
+                    break;
+                case UART_SERIAL3:
+                    port_name = "UART SERIAL3";
+                    break;
+                case UART_SERIAL4:
+                    port_name = "UART SERIAL4";
+                    break;
+                }
+
+                ret = write_uart(&uarts[i], str, strlen(str));
+                if (ret < 0) {
+                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[%s][WRITE]: error!\n", port_name);
+                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                } else {
+                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[%s][WRITE]: \n", port_name);
+                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    uart_hex_print(str, strlen(str));
+                    uarts_poll[i].events &= ~POLLOUT;
                 }
             }
         }
@@ -144,7 +196,7 @@ static void uart_rx_thread(void)
 static int uart_speed_9600(void *port)
 {
     int *p = (int *)port;
-    int x, y, ret;
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -170,12 +222,11 @@ static int uart_speed_9600(void *port)
 
     uarts[*p].baud = BAUD_9600;
 
-    getyx(stdscr, y, x);
     ret = set_uart_speed(&uarts[*p]);
     if (ret < 0)
-        mvprintw(y, 0, "[%s][SPEED] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: error\n", port_name);
     else
-        mvprintw(y, 0, "[%s][SPEED] : 9600 bps\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: 9600 bps\n", port_name);
 
     return 0;
 }
@@ -183,7 +234,7 @@ static int uart_speed_9600(void *port)
 static int uart_speed_19200(void *port)
 {
     int *p = (int *)port;
-    int x, y, ret;
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -209,12 +260,11 @@ static int uart_speed_19200(void *port)
 
     uarts[*p].baud = BAUD_19200;
 
-    getyx(stdscr, y, x);
     ret = set_uart_speed(&uarts[*p]);
     if (ret < 0)
-        mvprintw(y, 0, "[%s][SPEED] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: error\n", port_name);
     else
-        mvprintw(y, 0, "[%s][SPEED] : 19200 bps\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: 19200 bps\n", port_name);
 
     return 0;
 }
@@ -222,7 +272,7 @@ static int uart_speed_19200(void *port)
 static int uart_speed_38400(void *port)
 {
     int *p = (int *)port;
-    int x, y, ret;
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -248,12 +298,11 @@ static int uart_speed_38400(void *port)
 
     uarts[*p].baud = BAUD_38400;
 
-    getyx(stdscr, y, x);
     ret = set_uart_speed(&uarts[*p]);
     if (ret < 0)
-        mvprintw(y, 0, "[%s][SPEED] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: error\n", port_name);
     else
-        mvprintw(y, 0, "[%s][SPEED] : 38400 bps\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: 38400 bps\n", port_name);
 
     return 0;
 }
@@ -261,7 +310,7 @@ static int uart_speed_38400(void *port)
 static int uart_speed_57600(void *port)
 {
     int *p = (int *)port;
-    int x, y, ret;
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -287,12 +336,11 @@ static int uart_speed_57600(void *port)
 
     uarts[*p].baud = BAUD_57600;
 
-    getyx(stdscr, y, x);
     ret = set_uart_speed(&uarts[*p]);
     if (ret < 0)
-        mvprintw(y, 0, "[%s][SPEED] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: error\n", port_name);
     else
-        mvprintw(y, 0, "[%s][SPEED] : 57600 bps\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: 57600 bps\n", port_name);
 
     return 0;
 }
@@ -300,7 +348,7 @@ static int uart_speed_57600(void *port)
 static int uart_speed_115200(void *port)
 {
     int *p = (int *)port;
-    int x, y, ret;
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -326,12 +374,11 @@ static int uart_speed_115200(void *port)
 
     uarts[*p].baud = BAUD_115200;
 
-    getyx(stdscr, y, x);
     ret = set_uart_speed(&uarts[*p]);
     if (ret < 0)
-        mvprintw(y, 0, "[%s][SPEED] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: error\n", port_name);
     else
-        mvprintw(y, 0, "[%s][SPEED] : 115200 bps\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: 115200 bps\n", port_name);
 
     return 0;
 }
@@ -339,7 +386,7 @@ static int uart_speed_115200(void *port)
 static int uart_speed_230400(void *port)
 {
     int *p = (int *)port;
-    int x, y, ret;
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -365,12 +412,11 @@ static int uart_speed_230400(void *port)
 
     uarts[*p].baud = BAUD_230400;
 
-    getyx(stdscr, y, x);
     ret = set_uart_speed(&uarts[*p]);
     if (ret < 0)
-        mvprintw(y, 0, "[%s][SPEED] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: error\n", port_name);
     else
-        mvprintw(y, 0, "[%s][SPEED] : 230400 bps\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: 230400 bps\n", port_name);
 
     return 0;
 }
@@ -378,7 +424,7 @@ static int uart_speed_230400(void *port)
 static int uart_speed_460800(void *port)
 {
     int *p = (int *)port;
-    int x, y, ret;
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -404,12 +450,11 @@ static int uart_speed_460800(void *port)
 
     uarts[*p].baud = BAUD_460800;
 
-    getyx(stdscr, y, x);
     ret = set_uart_speed(&uarts[*p]);
     if (ret < 0)
-        mvprintw(y, 0, "[%s][SPEED] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: error\n", port_name);
     else
-        mvprintw(y, 0, "[%s][SPEED] : 460800 bps\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: 460800 bps\n", port_name);
 
     return 0;
 }
@@ -417,7 +462,7 @@ static int uart_speed_460800(void *port)
 static int uart_speed_921600(void *port)
 {
     int *p = (int *)port;
-    int x, y, ret;
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -443,12 +488,11 @@ static int uart_speed_921600(void *port)
 
     uarts[*p].baud = BAUD_921600;
 
-    getyx(stdscr, y, x);
     ret = set_uart_speed(&uarts[*p]);
     if (ret < 0)
-        mvprintw(y, 0, "[%s][SPEED] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: error\n", port_name);
     else
-        mvprintw(y, 0, "[%s][SPEED] : 921600 bps\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][SPEED]: 921600 bps\n", port_name);
 
     return 0;
 }
@@ -467,15 +511,17 @@ static int set_speed(void *port)
         {back2, "back", port},
     };
 
-    char *des = "\t  UART Baudrate Control Menu";
-    menu_args_exec(spd_menu, sizeof(spd_menu) / sizeof(menu_args_t), des, NULL);
+    char *des = "UART Baudrate Control Menu";
+    pr_win_uart_depth++;
+    menu_args_exec(spd_menu, sizeof(spd_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
+    pr_win_uart_depth--;
 }
 
 static int uart_tx_test(void *port)
 {
     int *p = (int *)port;
-    char *str = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    int x, y, ret;
+    //char *str = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    int ret;
     char *port_name = NULL;
 
     switch (*p) {
@@ -497,16 +543,20 @@ static int uart_tx_test(void *port)
     case UART_SERIAL4:
         port_name = "UART SERIAL4";
         break;
+    default:
+        return -1;
     }
 
-    getyx(stdscr, y, x);
+    uarts_poll[*p].events |= POLLOUT;
+#if 0
     ret = write_uart(&uarts[*p], str, strlen(str));
     if (ret < 0)
-        mvprintw(y, 0, "[%s][WRITE] : error!\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][WRITE]: error!\n", port_name);
     else {
-        mvprintw(y, 0, "[%s][WRITE] :\n", port_name);
+        pr_win(pr_win_uart[pr_win_uart_depth], "[%s][WRITE]: \n", port_name);
         uart_hex_print(str, strlen(str));
     }
+#endif
 
     return 0;
 }
@@ -519,9 +569,11 @@ static int mxc_uart1(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "\t  UART MXC1 Control Menu";
+    char *des = "UART MXC1 Control Menu";
 
-    menu_args_exec(muart1_menu, sizeof(muart1_menu) / sizeof(menu_args_t), des, NULL);
+    pr_win_uart_depth++;
+    menu_args_exec(muart1_menu, sizeof(muart1_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
+    pr_win_uart_depth--;
 }
 
 static int mxc_uart3(void)
@@ -532,9 +584,11 @@ static int mxc_uart3(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "\t  UART MXC3 Control Menu";
+    char *des = "UART MXC3 Control Menu";
 
-    menu_args_exec(muart3_menu, sizeof(muart3_menu) / sizeof(menu_args_t), des, NULL);
+    pr_win_uart_depth++;
+    menu_args_exec(muart3_menu, sizeof(muart3_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
+    pr_win_uart_depth--;
 }
 
 static int serial_uart1(void)
@@ -545,9 +599,11 @@ static int serial_uart1(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "\t  UART SERIAL1 Control Menu";
+    char *des = "UART SERIAL1 Control Menu";
 
-    menu_args_exec(suart1_menu, sizeof(suart1_menu) / sizeof(menu_args_t), des, NULL);
+    pr_win_uart_depth++;
+    menu_args_exec(suart1_menu, sizeof(suart1_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
+    pr_win_uart_depth--;
 }
 
 static int serial_uart2(void)
@@ -558,9 +614,11 @@ static int serial_uart2(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "\t  UART SERIAL2 Control Menu";
+    char *des = "UART SERIAL2 Control Menu";
 
-    menu_args_exec(suart2_menu, sizeof(suart2_menu) / sizeof(menu_args_t), des, NULL);
+    pr_win_uart_depth++;
+    menu_args_exec(suart2_menu, sizeof(suart2_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
+    pr_win_uart_depth--;
 }
 
 static int serial_uart3(void)
@@ -571,9 +629,11 @@ static int serial_uart3(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "\t  UART SERIAL3 Control Menu";
+    char *des = "UART SERIAL3 Control Menu";
 
-    menu_args_exec(suart3_menu, sizeof(suart3_menu) / sizeof(menu_args_t), des, NULL);
+    pr_win_uart_depth++;
+    menu_args_exec(suart3_menu, sizeof(suart3_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
+    pr_win_uart_depth--;
 }
 
 static int serial_uart4(void)
@@ -584,9 +644,11 @@ static int serial_uart4(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "\t  UART SERIAL4 Control Menu";
+    char *des = "UART SERIAL4 Control Menu";
 
-    menu_args_exec(suart4_menu, sizeof(suart4_menu) / sizeof(menu_args_t), des, NULL);
+    pr_win_uart_depth++;
+    menu_args_exec(suart4_menu, sizeof(suart4_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
+    pr_win_uart_depth--;
 }
 
 static menu_t uart_menus[] = {
@@ -601,8 +663,8 @@ static menu_t uart_menus[] = {
 
 int uart_ctrl(void)
 {
-    char *des = "\t      UART Control Menu";
-    menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des, NULL);
+    char *des = "UART Control Menu";
+    menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des, &pr_win_uart[pr_win_uart_depth]);
 }
 
 void uart_init(void)
@@ -613,7 +675,7 @@ void uart_init(void)
     for (i = 0; i < sizeof(uarts) / sizeof(uart_t); i++) {
         if (open_uart(&uarts[i]) < 0) {
             printf("uart_init() fail\n");
-            //exit(1);
+            exit(1);
         }
     }
 

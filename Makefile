@@ -32,7 +32,7 @@ som_board: .obj_som_board
 	$(CC) -c $^ -I./include
 
 jig_board: .obj_jig_board
-	$(CC) -o $(JIG_TARGET) $(JIG_BOARD_OBJ) -lreadline -lncurses -lgpiod
+	$(CC) -g -o $(JIG_TARGET) $(JIG_BOARD_OBJ) -lreadline -lncurses -lgpiod
 
 clean:
 	- rm *.o
