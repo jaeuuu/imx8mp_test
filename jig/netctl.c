@@ -1,319 +1,214 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <api/utils.h>
+#include <api/menu.h>
 #include "netctl.h"
 
+struct network_info eth0_info;
+struct network_info eth1_info;
+
+#define MAX_NET_MENU_DEPTH     2
+static WINDOW *pr_win_net[MAX_NET_MENU_DEPTH];
+static int pr_win_net_depth = 0;
 /*
  * MENU Deepth 4
  */
 
-static void eth_static_set_ip(void)
+static int setup_ip(void *intf)
 {
-    int i, num;
-    char c, ip[32];
+    char des[64];
+    char tmp[32];
+    struct network_info *info;
 
-    while (1) {
-        memset(ip, 0x00, sizeof(ip));
-        printf("\n\n***********************************************\n");
-        printf("\n\tInput format: [xxx.xxx.xxx.xxx]\n\n");
-        printf("\t   (ex) >> 192.168.25.100\n");
-        printf("\n***********************************************\n");
-        printf("|  0: Back\n");
-        printf("+---------------------------------------------+\n");
-        printf(">> ");
+    if (!strcmp(intf, "eth0"))
+        info = &eth0_info;
+    else if (!strcmp(intf, "eth1"))
+        info = &eth1_info;
 
-        i = 0;
-        for (;;) {
-            if (scanf("%c", &c) < 0)
-                continue;
-            if (c == 0x0a)
-                break;
-            if (i < sizeof(ip))
-                ip[i++] = c;
-        }
+    snprintf(des, sizeof(des), "Current IP: [%s]", info->ip);
 
-        if (system("clear") < 0)
-            printf("clear fail\n");
+    memset(tmp, 0x00, sizeof(tmp));
+    if (menu_args_input_exec(tmp, sizeof(tmp), des) < 0)
+        return 0;
 
-        num = check_ascii_num(ip, i);
-        if (num == 0)
-            return;
-
-        if (check_ip_form(ip) < 0) {
-            printf("invalid ip format.\n");
-            continue;
-        }
-        eth_up("eth0", ip, NULL, NULL);
+    if (check_ip_form(tmp) < 0) {
+        wattron(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        pr_win(pr_win_net[pr_win_net_depth], "[SET IP]: format error!\n");
+        wattroff(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        return 0;
     }
+
+    strcpy(info->ip, tmp);
+    eth_up(intf, info->ip, NULL, NULL);
+    pr_win(pr_win_net[pr_win_net_depth], "[SET IP]: [%s]\n", info->ip);
+    return 0;
 }
 
-static void eth_static_set_gw(void)
+static int setup_gw(void *intf)
 {
-    int i, num;
-    char c, gw[32];
+    char des[64];
+    char tmp[32];
+    struct network_info *info;
 
-    while (1) {
-        memset(gw, 0x00, sizeof(gw));
-        printf("\n\n***********************************************\n");
-        printf("\n\tInput format: [xxx.xxx.xxx.xxx]\n\n");
-        printf("\t   (ex) >> 192.168.25.1\n");
-        printf("\n***********************************************\n");
-        printf("|  0: Back\n");
-        printf("+---------------------------------------------+\n");
-        printf(">> ");
+    if (!strcmp(intf, "eth0"))
+        info = &eth0_info;
+    else if (!strcmp(intf, "eth1"))
+        info = &eth1_info;
 
-        i = 0;
-        for (;;) {
-            if (scanf("%c", &c) < 0)
-                continue;
-            if (c == 0x0a)
-                break;
-            if (i < sizeof(gw))
-                gw[i++] = c;
-        }
+    snprintf(des, sizeof(des), "Current GW: [%s]", info->gw);
 
-        if (system("clear") < 0)
-            printf("clear fail\n");
+    memset(tmp, 0x00, sizeof(tmp));
+    if (menu_args_input_exec(tmp, sizeof(tmp), des) < 0)
+        return 0;
 
-        num = check_ascii_num(gw, i);
-        if (num == 0)
-            return;
-
-        if (check_ip_form(gw) < 0) {
-            printf("invalid ip format.\n");
-            continue;
-        }
-        eth_up("eth0", NULL, gw, NULL);
+    if (check_ip_form(tmp) < 0) {
+        wattron(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        pr_win(pr_win_net[pr_win_net_depth], "[SET GATEWAY]: format error!\n");
+        wattroff(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        return 0;
     }
+
+    strcpy(info->gw, tmp);
+    eth_up(intf, NULL, info->gw, NULL);
+    pr_win(pr_win_net[pr_win_net_depth], "[SET GATEWAY]: [%s]\n", info->gw);
+    return 0;
 }
 
-static void eth_static_set_sub(void)
+static int setup_sub(void *intf)
 {
-    int i;
-    long long num;
-    char c, sub[32];
+    char des[64];
+    char tmp[32];
+    struct network_info *info;
 
-    while (1) {
-        memset(sub, 0x00, sizeof(sub));
-        printf("\n\n***********************************************\n");
-        printf("\n\tInput format: [xxx.xxx.xxx.xxx]\n\n");
-        printf("\t   (ex) >> 255.255.255.0\n");
-        printf("\n***********************************************\n");
-        printf("|  0: Back\n");
-        printf("+---------------------------------------------+\n");
-        printf(">> ");
+    if (!strcmp(intf, "eth0"))
+        info = &eth0_info;
+    else if (!strcmp(intf, "eth1"))
+        info = &eth1_info;
 
-        i = 0;
-        for (;;) {
-            if (scanf("%c", &c) < 0)
-                continue;
-            if (c == 0x0a)
-                break;
-            if (i < sizeof(sub))
-                sub[i++] = c;
-        }
+    snprintf(des, sizeof(des), "Current SUB: [%s]", info->sub);
 
-        if (system("clear") < 0)
-            printf("clear fail\n");
+    memset(tmp, 0x00, sizeof(tmp));
+    if (menu_args_input_exec(tmp, sizeof(tmp), des) < 0)
+        return 0;
 
-        num = check_ascii_num(sub, i);
-        if (num == 0)
-            return;
-
-        if (check_ip_form(sub) < 0) {
-            printf("invalid ip format.\n");
-            continue;
-        }
-        eth_up("eth0", NULL, NULL, sub);
+    if (check_ip_form(tmp) < 0) {
+        wattron(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        pr_win(pr_win_net[pr_win_net_depth], "[SET SUBNET]: format error!\n");
+        wattroff(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        return 0;
     }
+
+    strcpy(info->sub, tmp);
+    eth_up(intf, NULL, NULL, info->sub);
+    pr_win(pr_win_net[pr_win_net_depth], "[SET SUBNET]: [%s]\n", info->sub);
+    return 0;
 }
 
-static menu_t eth_static_menus[] = {
-    {eth_static_set_ip, "IP SETTING"},
-    {eth_static_set_gw, "GATEWAY SETTING"},
-    {eth_static_set_sub, "SUBNET SETTING"},
-};
-
-/*
- * MENU Deepth 3
- */
-
-static void eth_static(void)
+static int setup_ping(void *intf)
 {
-    char *des = "\t  Ethernet Static Setting Menu";
-    menu_print(eth_static_menus, sizeof(eth_static_menus)/sizeof(menu_t), des);
-}
+    char cmd[64];
+    char tmp[32];
+    char buf[512];
+    struct network_info *info;
+    FILE *fp;
 
-static void eth_dhcp(void)
-{
-    if (system("udhcpc -n -q -i eth0 &") < 0)
-        printf("udhcpc -n -q -i eth0 fail!\n");
-}
+    if (!strcmp(intf, "eth0"))
+        info = &eth0_info;
+    else if (!strcmp(intf, "eth1"))
+        info = &eth1_info;
 
-static menu_t net_eth_enable_menus[] = {
-    {eth_static, "STATIC"},
-    {eth_dhcp, "DHCP"},
-};
+    memset(tmp, 0x00, sizeof(tmp));
+    if (menu_args_input_exec(tmp, sizeof(tmp), "Input target IP") < 0)
+        return 0;
 
-/*
- * MENU Deepth 2
- */
-
-static void eth_enable(void)
-{
-    char *des = "\t  Ehternet Enabling Mode Menu";
-    menu_print(net_eth_enable_menus, sizeof(net_eth_enable_menus)/sizeof(menu_t), des);
-}
-
-static void eth_disable(void)
-{
-    eth_down("eth0");
-}
-
-static void wwan_enable(void)
-{
-    wwan_up("wwan0");
-}
-
-static void wwan_disable(void)
-{
-    wwan_down("wwan0");
-}
-
-static void eth_ping(void)
-{
-    int i;
-    long long num;
-    char c, ip[32];
-
-    while (1) {
-        memset(ip, 0x00, sizeof(ip));
-        printf("\n\n***********************************************\n");
-        printf("\n\tInput format: [xxx.xxx.xxx.xxx]\n\n");
-        printf("\t   (ex) >> 8.8.8.8\n");
-        printf("\n***********************************************\n");
-        printf("|  0: Back\n");
-        printf("+---------------------------------------------+\n");
-        printf(">> ");
-
-        i = 0;
-        for (;;) {
-            if (scanf("%c", &c) < 0)
-                continue;
-            if (c == 0x0a)
-                break;
-            if (i < sizeof(ip))
-                ip[i++] = c;
-        }
-
-        if (system("clear") < 0)
-            printf("clear fail\n");
-
-        num = check_ascii_num(ip, i);
-        if (num == 0)
-            return;
-
-        if (check_ip_form(ip) < 0) {
-            printf("invalid ip format.\n");
-            continue;
-        }
-        ping_test("eth0", ip);
+    if (check_ip_form(tmp) < 0) {
+        wattron(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        pr_win(pr_win_net[pr_win_net_depth], "[PING TEST]: format error!\n");
+        wattroff(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        return 0;
     }
+
+    sprintf(cmd, "ping -c 5 %s -I %s", tmp, intf);
+    fp = popen(cmd, "r");
+    if (!fp)
+        return 0;
+    //pr_win(pr_win_net[pr_win_net_depth], "%s\n", cmd);
+
+    memset(buf, 0x00, sizeof(buf));
+    fread(buf, sizeof(buf), 1, fp);
+    pr_win(pr_win_net[pr_win_net_depth], "%s\n%s\n", cmd, buf);
+    pclose(fp);
+    return 0;
 }
-
-static void wwan_ping(void)
-{
-    int i;
-    long long num;
-    char c, ip[32];
-
-    while (1) {
-        memset(ip, 0x00, sizeof(ip));
-        printf("\n\n***********************************************\n");
-        printf("\n\tInput format: [xxx.xxx.xxx.xxx]\n\n");
-        printf("\t   (ex) >> 8.8.8.8\n");
-        printf("\n***********************************************\n");
-        printf("|  0: Back\n");
-        printf("+---------------------------------------------+\n");
-        printf(">> ");
-
-        i = 0;
-        for (;;) {
-            if (scanf("%c", &c) < 0)
-                continue;
-            if (c == 0x0a)
-                break;
-            if (i < sizeof(ip))
-                ip[i++] = c;
-        }
-
-        if (system("clear") < 0)
-            printf("clear fail!\n");
-
-        num = check_ascii_num(ip, i);
-        if (num == 0)
-            return;
-
-        if (check_ip_form(ip) < 0) {
-            printf("invalid ip format.\n");
-            continue;
-        }
-        ping_test("wwan0", ip);
-    }
-}
-
-static menu_t net_eth_menus[] = {
-    {eth_enable, "ENABLE"},
-    {eth_disable, "DISABLE"},
-};
-
-static menu_t net_wwan_menus[] = {
-    {wwan_enable, "ENABLE"},
-    {wwan_disable, "DISABLE"},
-};
-
-static menu_t net_pingtest_menus[] = {
-    {eth_ping, "ETHERNET PING TEST"},
-    {wwan_ping, "WIRELESS WAN PING TEST"},
-};
 
 /*
  * MENU Deepth 1
  */
 
-static void net_eth(void)
+static int net_eth0(void)
 {
-    char *des = "\t     Ethernet Control Menu";
-    menu_print(net_eth_menus, sizeof(net_eth_menus)/sizeof(menu_t), des);
+    char *des = "Ethernet1 Control Menu";
+    menu_args_t eth_set_menu[] = {
+        {setup_ip, "SET IP", "eth0"},
+        {setup_gw, "SET GATEWAY", "eth0"},
+        {setup_sub, "SET SUBNET", "eth0"},
+        {setup_ping, "PING TEST", "eth0"},
+        {back2, "back", "eth0"}
+    };
+
+    pr_win_net_depth++;
+    menu_args_exec(eth_set_menu, sizeof(eth_set_menu) / sizeof(menu_args_t), des, &pr_win_net[pr_win_net_depth]);
+    pr_win_net_depth--;
+
+    return 0;
 }
 
-static void net_wwan(void)
+static int net_eth1(void)
 {
-    char *des = "\t   Wireless WAN Control Menu";
-    menu_print(net_wwan_menus, sizeof(net_wwan_menus)/sizeof(menu_t), des);
+    char *des = "Ethernet2 Control Menu";
+    menu_args_t eth_set_menu[] = {
+        {setup_ip, "SET IP", "eth1"},
+        {setup_gw, "SET GATEWAY", "eth1"},
+        {setup_sub, "SET SUBNET", "eth1"},
+        {setup_ping, "PING TEST", "eth1"},
+        {back2, "back", "eth0"}
+    };
+
+    pr_win_net_depth++;
+    menu_args_exec(eth_set_menu, sizeof(eth_set_menu) / sizeof(menu_args_t), des, &pr_win_net[pr_win_net_depth]);
+    pr_win_net_depth--;
+
+    return 0;
 }
 
-static void net_pingtest(void)
+static int net_info(void)
 {
-    char *des = "\t        Ping Test Menu";
-    menu_print(net_pingtest_menus, sizeof(net_pingtest_menus)/sizeof(menu_t), des);
-}
+    FILE *fp;
+    char buf[1024];
 
-static void net_info(void)
-{
-    if (system("ifconfig") < 0)
-        printf("ifconfig fail!\n");
-    printf("\n\n");
-    if (system("route -n") < 0)
-        printf("route -n fail\n");
+    fp = popen("ifconfig", "r");
+    if (!fp)
+        return 0;
+
+    memset(buf, 0x00, sizeof(buf));
+    fread(buf, sizeof(buf), 1, fp);
+
+    pr_win(pr_win_net[pr_win_net_depth], "%s\n", buf);
+    pclose(fp);
+
+    return 0;
 }
 
 static menu_t net_menus[] = {
-    {net_eth, "EHTERNET"},
-    {net_wwan, "WIRELESS WAN"},
+    {net_eth0, "ETHERNET1"},
+    {net_eth1, "ETHERNET2"},
     {net_info, "NETWORK INFO"},
-    {net_pingtest, "PING TEST"},
+    {back, "back"}
 };
 
-void net_control(void)
+int net_ctrl(void)
 {
-    char *des = "\t      Network Control Menu";
-    menu_print(net_menus, sizeof(net_menus)/sizeof(menu_t), des);
+    char *des = "Network Control Menu";
+    menu_exec(net_menus, sizeof(net_menus) / sizeof(menu_t), des, &pr_win_net[pr_win_net_depth]);
 }

@@ -32,6 +32,7 @@ static int back2(void *)
 void menu_exec(menu_t *menu, int menu_size, const char *menu_des, WINDOW **pr_win);
 //void menu_args_exec(menu_args_t *menu_args, int menu_args_size, const char *menu_des);
 void menu_args_exec(menu_args_t *menu_args, int menu_args_size, const char *menu_des, WINDOW **pr_win);
+int menu_args_input_exec(char *buf, int size, const char *menu_des);
 int menu_exit(void);
 void menu_init(void);
 //void menu_print(menu_t *menus, int menu_size, const char *menu_des);

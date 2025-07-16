@@ -3,6 +3,7 @@
 #include <api/menu.h>
 #include "gpioctl.h"
 #include "uartctl.h"
+#include "netctl.h"
 
 int hello_world1(void);
 int hello_world2(void);
@@ -23,12 +24,21 @@ int sub_hello_world(void)
     return 0;
 }
 
+static char buffer[32];
 int hello_world1(void)
 {
     int x, y;
+    char buf[32];
+    char des[64];
     getyx(pr_hello_win, y, x);
     mvwprintw(pr_hello_win, y, x, "hello, world1\n");
     wrefresh(pr_hello_win);
+
+    memset(buf, 0x00, sizeof(buf));
+    sprintf(des, "Input string [%s]", buffer);
+
+    if (!menu_args_input_exec(buf, sizeof(buf), des))
+        memcpy(buffer, buf, sizeof(buf));
     return 0;
 }
 
@@ -54,6 +64,7 @@ static menu_t main_menu[] = {
     {gpio_in_ctrl, "GPIO INPUT CONTROL"},
     {gpio_out_ctrl, "GPIO OUTPUT CONTROL"},
     {uart_ctrl, "UART CONTROL"},
+    {net_ctrl, "NET CONTROL"},
     {hello_world3, "Hello World 3"},
     {sub_hello_world, "Sub Hello World"},
     {back, "back"},

@@ -11,7 +11,7 @@
 #define MSG_COLOR_CYAN(msg)         "\033[0;36m"msg"\033[0m" 
 #define MSG_COLOR_MAG(msg)          "\033[0;35m"msg"\033[0m"
 
-#define __DEBUG__
+//#define __DEBUG__
 
 #define __FILENAME__    (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #ifdef __DEBUG__
