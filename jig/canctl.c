@@ -12,6 +12,7 @@
 #include <linux/can/raw.h>
 #include <stdbool.h>
 #include <poll.h>
+#include <api/menu.h>
 
 static int socks[8];
 static int sock;
@@ -377,3 +378,7 @@ int main(int argc, char **argv)
     }
 }
 #endif
+
+int can_ctrl(void)
+{
+}

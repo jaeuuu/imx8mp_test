@@ -7,7 +7,7 @@
 /* In my environment, max width 158, max height 60 */
 
 #define CONSOLE_TOTAL_W     120
-#define CONSOLE_TOTAL_H     60
+#define CONSOLE_TOTAL_H     50
 
 #define MAX_MENU_TITLE_W    50
 #define MAX_MENU_TITLE_H    5
@@ -20,10 +20,10 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
     int x, y;
     int h, w;
     int pos = 0;
-    WINDOW *menu_title;
-    WINDOW *menu_win;
-    WINDOW *menu_sub_win;
-    WINDOW *result_win;
+    WINDOW *menu_title = NULL;
+    WINDOW *menu_win = NULL;
+    WINDOW *menu_sub_win = NULL;
+    WINDOW *result_win = NULL;
     MEVENT event;
 
     if (menu_size <= 0) {
@@ -37,12 +37,6 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
     menu_title = newwin(MAX_MENU_TITLE_H, MAX_MENU_TITLE_W, 0, 0);
     menu_win = newwin(menu_size + 2, MAX_MENU_TITLE_W, MAX_MENU_TITLE_H, MAIN_MENU_START_X);     // +1 margin
     menu_sub_win = subwin(menu_win, menu_size, MAX_MENU_TITLE_W - 2, MAX_MENU_TITLE_H + 1, MAIN_MENU_START_X + 1);
-    //box(menu_win, 0, 0);
-
-    if (!menu_title || !menu_win || !menu_sub_win) {
-        printf("WINDOW is NULL!!!!!\n");
-        exit(1);
-    }
 
     /* result box */
     if (pr_win) {
@@ -53,7 +47,6 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
         scrollok(*pr_win, TRUE);
     }
 
-    //box(result_title, 0, 0);
     box(menu_title, 0, 0);
     wbkgd(menu_title, COLOR_PAIR(2));
     box(menu_win, 0, 0);
@@ -386,9 +379,9 @@ static int menu_args_input_print(char *buf, int size, const char *menu_des)
     int pos = 0;
     //unsigned char number[8];
     unsigned int num;
-    WINDOW *menu_title;
-    WINDOW *menu_win;
-    WINDOW *menu_sub_win;
+    WINDOW *input_title;
+    WINDOW *input_border;
+    WINDOW *input_box;
     WINDOW *input_menu;
     WINDOW *bottom_3d;
     WINDOW *right_3d;
@@ -397,155 +390,74 @@ static int menu_args_input_print(char *buf, int size, const char *menu_des)
         return -1;
 
     input_menu = newwin(15, MAX_MENU_TITLE_W, 0, 0);
-    menu_title = subwin(input_menu, 5, 30, 3, 10);
-    menu_win = subwin(input_menu, 3, 30, 8, 10);
-    keypad(menu_win, TRUE);
-    //menu_title = newwin(MAX_MENU_TITLE_H - 2, MAX_MENU_TITLE_W - 20, 5, 15);
-    //menu_win = newwin(15, MAX_MENU_TITLE_W - 20, MAX_MENU_TITLE_H + 3, 15);     // +1 margin
-    menu_sub_win = subwin(menu_win, 1, 28, 9, 11);
+    input_title = subwin(input_menu, 5, 30, 3, 10);
+    input_border = subwin(input_menu, 3, 30, 8, 10);
+    input_box = subwin(input_border, 1, 28, 9, 11);
+    keypad(input_box, TRUE);
     bottom_3d = subwin(input_menu, 1, 30, 11, 11);
     right_3d = subwin(input_menu, 8, 1, 4, 40);
 
-    //if (pr_win) {
-    //result_win = subwin(input_menu, 2, 30, 11, 10);
-    //scrollok(result_win, TRUE);
-    //   *pr_win = subwin(result_win, CONSOLE_TOTAL_H - MAX_MENU_TITLE_H - menu_size - 2 - 2, MAX_MENU_TITLE_W - 2, MAX_MENU_TITLE_H + menu_size + 2 + 1, MAIN_MENU_START_X + 1);
-    //   scrollok(*pr_win, TRUE);
-   //}
-
     wbkgd(input_menu, COLOR_PAIR(3));
-    werase(menu_title);
-    box(menu_title, 0, 0);
-    wbkgd(menu_title, COLOR_PAIR(2));
-    werase(menu_win);
-    box(menu_win, 0, 0);
-    wbkgd(menu_win, COLOR_PAIR(2));
-    wbkgd(menu_sub_win, COLOR_PAIR(2));
+    werase(input_title);
+    box(input_title, 0, 0);
+    wbkgd(input_title, COLOR_PAIR(2));
+    werase(input_border);
+    box(input_border, 0, 0);
+    wbkgd(input_border, COLOR_PAIR(2));
+    wbkgd(input_box, COLOR_PAIR(2));
     werase(bottom_3d);
     wbkgd(bottom_3d, COLOR_BLACK);
     werase(right_3d);
     wbkgd(right_3d, COLOR_BLACK);
-    //if (pr_win) {
-    // box(result_win, 0, 0);
-    // wbkgd(result_win, COLOR_PAIR(2));
-    //wbkgd(*pr_win, COLOR_PAIR(2));
-// }
 
-    h = getmaxy(menu_title);
-    w = getmaxx(menu_title);
-    wattron(menu_title, COLOR_PAIR(4));
-    mvwvline(menu_title, 0, 0, ACS_VLINE, h);
-    mvwhline(menu_title, 0, 0, ACS_HLINE, w - 1);
-    mvwaddch(menu_title, 0, 0, ACS_ULCORNER);
-    mvwaddch(menu_title, h - 1, 0, ACS_LLCORNER);
-    wattroff(menu_title, COLOR_PAIR(4));
-    h = getmaxy(menu_win);
-    w = getmaxx(menu_win);
-    wattron(menu_win, COLOR_PAIR(4));
-    mvwvline(menu_win, 0, w - 1, ACS_VLINE, h);
-    mvwhline(menu_win, h - 1, 1, ACS_HLINE, w - 1);
-    mvwaddch(menu_win, h - 1, w - 1, ACS_LRCORNER);
-    mvwaddch(menu_win, 0, w - 1, ACS_URCORNER);
-    wattroff(menu_win, COLOR_PAIR(4));
+    h = getmaxy(input_title);
+    w = getmaxx(input_title);
+    wattron(input_title, COLOR_PAIR(4));
+    mvwvline(input_title, 0, 0, ACS_VLINE, h);
+    mvwhline(input_title, 0, 0, ACS_HLINE, w - 1);
+    mvwaddch(input_title, 0, 0, ACS_ULCORNER);
+    mvwaddch(input_title, h - 1, 0, ACS_LLCORNER);
+    wattroff(input_title, COLOR_PAIR(4));
+    h = getmaxy(input_border);
+    w = getmaxx(input_border);
+    wattron(input_border, COLOR_PAIR(4));
+    mvwvline(input_border, 0, w - 1, ACS_VLINE, h);
+    mvwhline(input_border, h - 1, 1, ACS_HLINE, w - 1);
+    mvwaddch(input_border, h - 1, w - 1, ACS_LRCORNER);
+    mvwaddch(input_border, 0, w - 1, ACS_URCORNER);
+    wattroff(input_border, COLOR_PAIR(4));
 
-    // mvwvline(input_menu, 4, 41, ACS_VLINE, 8);
-    // mvwhline(input_menu, 12, 11, ACS_HLINE, 30);
-    // h = getmaxy(menu_sub_win);
-    // w = getmaxx(menu_sub_win);
-    // wattron(result_win, COLOR_PAIR(4));
-    // mvwvline(result_win, 0, w - 1, ACS_VLINE, h);
-    // mvwhline(result_win, h - 1, 1, ACS_HLINE, w - 1);
-    // mvwaddch(result_win, h - 1, w - 1, ACS_LRCORNER);
-    // mvwaddch(result_win, 0, w - 1, ACS_URCORNER);
-    // wattroff(result_win, COLOR_PAIR(4));
-
-    //memset(buf, 0x00, size);
     while (1) {
-        h = getmaxy(menu_title);
-        w = getmaxx(menu_title);
+        h = getmaxy(input_title);
+        w = getmaxx(input_title);
         y = h / 2;
         x = w / 2;
         if (menu_des) {
             x -= strlen(menu_des) / 2;
-            wattron(menu_title, COLOR_PAIR(5));
-            mvwprintw(menu_title, y, x, "%s", menu_des);
-            wattroff(menu_title, COLOR_PAIR(5));
+            wattron(input_title, COLOR_PAIR(5));
+            mvwprintw(input_title, y, x, "%s", menu_des);
+            wattroff(input_title, COLOR_PAIR(5));
         }
 
         touchwin(input_menu);
         wrefresh(input_menu);
 
-        touchwin(menu_title);
-        wrefresh(menu_title);
+        touchwin(input_title);
+        wrefresh(input_title);
 
-        touchwin(menu_win);
-        wrefresh(menu_win);
+        touchwin(input_border);
+        wrefresh(input_border);
 
-        //if (pr_win) {
-        //touchwin(result_win);
-        //wrefresh(result_win);
-        // }
-
-        // menu list
-        // for (i = 0; i < menu_size; i++) {
-        //     if (i == pos) {
-        //         wattron(result_win, COLOR_PAIR(3));
-        //         mvwprintw(result_win, i, 0, " %2d: %s\n", i + 1, (menus + i)->func_des);
-        //         wattroff(result_win, COLOR_PAIR(3));
-        //     } else
-        //         mvwprintw(result_win, i, 0, " %2d: %s\n", i + 1, (menus + i)->func_des);
-        // }
-
-        // touchwin(menu_sub_win);
-        // wrefresh(menu_sub_win);
-
-        //wgetnstr(menu_win, num, sizeof(num) - 1);
-        //num[3] = '\0';
-
-        //memset(number, 0x00, sizeof(number));
-        num = wgetch(menu_win);
-        //mvwprintw(result_win, 1, 1, "key_num: [%02X]\n", num);
+        num = wgetch(input_box);
         switch (num) {
-            // case KEY_LEFT:
-            //     pos = (pos - 1 + menu_size) % menu_size;
-            //     break;
-            // case KEY_RIGHT:
-            //     pos = (pos + 1 + menu_size) % menu_size;
-            //     break;
         case KEY_F(5):      // F5 key
             memset(buf, 0x00, sizeof(size));
-            werase(menu_sub_win);
+            werase(input_box);
             i = 0;
-            wrefresh(menu_sub_win);
+            wrefresh(input_box);
             clear();
             refresh();
             break;
-#if 0
-        case 0x30:
-        case 0x31:
-        case 0x32:
-        case 0x33:
-        case 0x34:
-        case 0x35:
-        case 0x36:
-        case 0x37:
-        case 0x38:
-        case 0x39:
-            //getyx(menu_sub_win, y, x);
-            //mvwprintw(menu_sub_win, 0, x, "%c", num);
-            //number[i++] = num;
-            if (i >= (size - 1)) {
-                memset(buf, 0x00, size);
-                werase(menu_sub_win);
-                i = 0;
-                //number[i] = num;
-            }
-            buf[i++] = num;
-            getyx(menu_sub_win, y, x);
-            mvwprintw(menu_sub_win, 0, x, "%c", num);
-            wrefresh(menu_sub_win);
-            break;
-#endif
         case 10:    // enter
             buf[i + 1] = '\0';
             return 0;
@@ -554,19 +466,16 @@ static int menu_args_input_print(char *buf, int size, const char *menu_des)
             refresh();
             return -1;
         default:
-            //getyx(menu_sub_win, y, x);
-            //mvwprintw(menu_sub_win, 0, x, "%c", num);
-            //number[i++] = num;
             if (i >= (size - 1)) {
                 memset(buf, 0x00, size);
-                werase(menu_sub_win);
+                werase(input_box);
                 i = 0;
                 //number[i] = num;
             }
             buf[i++] = num;
-            getyx(menu_sub_win, y, x);
-            mvwprintw(menu_sub_win, 0, x, "%c", num);
-            wrefresh(menu_sub_win);
+            getyx(input_box, y, x);
+            mvwprintw(input_box, 0, x, "%c", num);
+            wrefresh(input_box);
             break;
         }
     }
