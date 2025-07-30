@@ -403,7 +403,9 @@ static int can_init(void)
 static menu_t can_ctl_menu[] = {
     {can_init, "CAN1 INITIALIZE"},
     {can_init, "CAN2 INITIALIZE"},
-    {},
+    {"", "CAN1 RECEIVER"},
+    {"", "CAN2 RECEIVER"},
+    {"", "CAN1 SENDER"}
 };
 
 int can_ctl(void)
