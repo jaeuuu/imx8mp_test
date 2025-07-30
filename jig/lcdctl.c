@@ -1,80 +1,12 @@
 #include <api/menu.h>
 #include <api/uart.h>
 #include <ncurses.h>
-#include "uartctl.h"
+#include "lcdctl.h"
 
-#define UART_DEBUG
+#define MAX_LCD_MENU_DEPTH     2
+static WINDOW *pr_win_lcd[MAX_LCD_MENU_DEPTH];
+static int pr_win_lcd_depth = 0;
 
-#define MAX_UART_MENU_DEPTH     3
-static WINDOW *pr_win_uart[MAX_UART_MENU_DEPTH];
-static int pr_win_uart_depth = 0;
-
-static uart_t uarts[] = {
-    [UART_MXC1] = {
-        .dev = DEV_NXP_UART1,
-        .baud = BAUD_9600,
-        .fd = -1,
-        .sem = -1,
-    },
-    [UART_MXC3] = {
-        .dev = DEV_NXP_UART3,
-        .baud = BAUD_9600,
-        .fd = -1,
-        .sem = -1,
-    },
-    [UART_SERIAL1] = {
-        .dev = DEV_SERIAL_UART1,
-        .baud = BAUD_9600,
-        .fd = -1,
-        .sem = -1,
-    },
-    [UART_SERIAL2] = {
-        .dev = DEV_SERIAL_UART2,
-        .baud = BAUD_9600,
-        .fd = -1,
-        .sem = -1,
-    },
-    [UART_SERIAL3] = {
-        .dev = DEV_SERIAL_UART3,
-        .baud = BAUD_9600,
-        .fd = -1,
-        .sem = -1,
-    },
-    [UART_SERIAL4] = {
-        .dev = DEV_SERIAL_UART4,
-        .baud = BAUD_9600,
-        .fd = -1,
-        .sem = -1,
-    },
-};
-
-static void uart_hex_print(const char *buf, int size)
-{
-    int i;
-    char tmp[4096];
-    char tmp_cache[32];
-
-    memset(tmp, 0x00, sizeof(tmp));
-
-    for (i = 0; i < size; i++) {
-        snprintf(tmp_cache, sizeof(tmp_cache), "0x%02X ", buf[i]);
-        strcat(tmp, tmp_cache);
-        if ((i + 1) % 8 == 0) {
-            strcat(tmp, "\n");
-        }
-    }
-    /*
-        for (i = 0; i < size; i++) {
-            pr_win(pr_win_uart[pr_win_uart_depth], "0x%02X ", buf[i]);
-            if ((i + 1) % 8 == 0) {
-                pr_win(pr_win_uart[pr_win_uart_depth], "\n");
-            }
-        }
-    */
-    pr_win(pr_win_uart[pr_win_uart_depth], "%s\n", tmp);
-}
-
-struct pollfd uarts_poll[sizeof(uarts) / sizeof(uart_t)];
 static void uart_rx_thread(void)
 {
     //struct pollfd uarts_poll[sizeof(uarts) / sizeof(uart_t)];
@@ -652,22 +584,22 @@ static int serial_uart4(void)
 }
 
 static menu_t uart_menus[] = {
-    {mxc_uart1, "MXC UART1"},
-    {mxc_uart3, "MXC UART3"},
-    {serial_uart1, "SERIAL UART1(AX99100)"},
-    {serial_uart2, "SERIAL UART2(AX99100)"},
+    {mxc_uart1, "SHOW CUBE"},
+    {mxc_uart3, "SHOW TERMINAL"},
+    {serial_uart1, "TOUCH CALIBRATION"},
+    {serial_uart2, ""},
     {serial_uart3, "SERIAL UART3(AX99100)"},
     {serial_uart4, "SERIAL UART4(AX99100)"},
     {back, "back"},
 };
 
-int uart_ctl(void)
+int lcd_ctl(void)
 {
-    char *des = "UART TEST MENU";
-    menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des, &pr_win_uart[pr_win_uart_depth]);
+    char *des = "LCD Control Menu";
+    menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des, &pr_win_lcd[pr_win_lcd_depth]);
 }
 
-void uart_init(void)
+void lcd_init(void)
 {
     int i;
     pthread_t rx_thread;

@@ -13,7 +13,7 @@
 #define UART_SERIAL3    4
 #define UART_SERIAL4    5
 
-int uart_ctrl(void);
+int uart_ctl(void);
 void uart_init(void);
 
 #endif

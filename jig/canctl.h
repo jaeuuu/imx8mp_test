@@ -7,6 +7,7 @@ int init_can_fd(int *cansock, const char *ifname);
 int send_can(int *cansock, char *data, int size);
 int recv_can(int *cansock, char *data, int size);
 void close_can(int *cansock);
+int can_ctl(void);
 
 
 #endif

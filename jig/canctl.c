@@ -55,7 +55,7 @@ int init_can(int *cansock, const char *ifname, int tx_id, int rx_id)
     //fcopts.stmin = 0x01;
     //fcopts.wftmax = 8;
 
-    fcopts.bs = 0;
+    fcopts.bs = 8;
     fcopts.stmin = 0x01;
     fcopts.wftmax = 0;
 
@@ -106,7 +106,7 @@ int init_can_fd(int *cansock, const char *ifname, int tx_id, int rx_id)
     //fcopts.stmin = 0x01;
     //fcopts.wftmax = 8;
 
-    fcopts.bs = 0;
+    fcopts.bs = 8;
     fcopts.stmin = 0x01;
     fcopts.wftmax = 0;
 
@@ -234,7 +234,6 @@ int main(int argc, char **argv)
         sleep(1);
     }
 }
-#else
 int main(int argc, char **argv)
 {
     bool is_fd;
@@ -377,8 +376,36 @@ int main(int argc, char **argv)
 #endif
     }
 }
+#else
 #endif
 
-int can_ctrl(void)
+static int can_fd_init(const char *intf)
+{
+}
+
+static int can_classic_init(const char *intf)
+{
+}
+
+static menu_t can_ctl_init_menu[] = {
+    {can_classic_init, "CAN 2.0"},
+    {},
+};
+
+
+static int can_init(void)
+{
+    menu_args_t can_ctl_init_menu[] = {
+        {can_classic_init, "CAN 2.0"}
+    }
+}
+
+static menu_t can_ctl_menu[] = {
+    {can_init, "CAN1 INITIALIZE"},
+    {can_init, "CAN2 INITIALIZE"},
+    {},
+};
+
+int can_ctl(void)
 {
 }

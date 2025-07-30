@@ -349,12 +349,15 @@ int stream_pcm(pcm_info_t *pcm)
 	}
 }
 
+static int pcm_read()
+
 int record_pcm(pcm_info_t *pcm)
 {
 	/* make wave file */
 	SF_INFO sfinfo = { 0 };
 	SNDFILE *sf;
 	int count;
+	
 
 	sfinfo.samplerate = pcm->sample_rate;
 	sfinfo.channels = pcm->channels;
@@ -381,6 +384,7 @@ int record_pcm(pcm_info_t *pcm)
 
 	while (count > 0) {
 		int f = (count * 8) / (pcm->sample_rate * pcm->channels);
+		int r = snd_pcm_readi(pcm->handle, )
 	}
 
 	/* write pcm to file */

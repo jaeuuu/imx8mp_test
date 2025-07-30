@@ -87,7 +87,7 @@ static int gpio_input_monitor(void)
         {back2, "back", &on}
     };
 
-    char *des = "Select Input Monitoring(On/Off)";
+    char *des = "SELECT INPUT MONITORING";
     pr_win_gpio_depth++;
     menu_args_exec(input_monitor_menus, sizeof(input_monitor_menus) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
     pr_win_gpio_depth--;
@@ -105,22 +105,28 @@ static void gpio_cpld_det_thread(void)
     pr_win(pr_win_gpio[pr_win_gpio_depth], "ID[%d] = %s\n", id, old ? "active" : "inactive");
 
     while (1) {
+        /* PLD_OUT read */
         new = gpio_read(GPIO_PORT3, GPIO_PIN19);
         if (new) {
             if (old != new) {
+                /* PLD_OUT is changed */
                 old = new;
-                gpio_write(GPIO_PORT2, GPIO_PIN0, 0);   // act led on
+                /* PLD_IN write */
                 gpio_write(GPIO_PORT3, GPIO_PIN20, 0);
+                gpio_write(GPIO_PORT2, GPIO_PIN0, 0);   // act led on
                 pr_win(pr_win_gpio[pr_win_gpio_depth], "ID[%d] = %s\n", id, old ? "active" : "inactive");
             }
         } else {
             if (old != new) {
+                /* PLD_OUT is changed */
                 old = new;
-                gpio_write(GPIO_PORT2, GPIO_PIN0, 1);   // act led off
+                /* PLD_IN write */
                 gpio_write(GPIO_PORT3, GPIO_PIN20, 1);
+                gpio_write(GPIO_PORT2, GPIO_PIN0, 1);   // act led off
                 pr_win(pr_win_gpio[pr_win_gpio_depth], "ID[%d] = %s\n", id, old ? "active" : "inactive");
             }
         }
+        /* 100ms delay */
         usleep(100 * 1000);
     }
 }
@@ -2190,7 +2196,7 @@ static menu_t gpio_out_menu[] = {
 };
 
 static menu_t gpio_in_menu[] = {
-    {gpio_input_monitor, "GPIO Monitoring"},
+    {gpio_input_monitor, "GPIO MONITORING"},
     {gpio_in_ctrl_port1, "GPIO PORT1"},
     {gpio_in_ctrl_port2, "GPIO PORT2"},
     {gpio_in_ctrl_port3, "GPIO PORT3"},
@@ -2201,15 +2207,15 @@ static menu_t gpio_in_menu[] = {
     {back, "back"},
 };
 
-int gpio_in_ctrl(void)
+int gpio_in_ctl(void)
 {
-    char *des = "GPIO Input Control Menu";
+    char *des = "GPIO INPUT TEST MENU";
     menu_exec(gpio_in_menu, sizeof(gpio_in_menu) / sizeof(menu_t), des, &pr_win_gpio[pr_win_gpio_depth]);
 }
 
-int gpio_out_ctrl(void)
+int gpio_out_ctl(void)
 {
-    char *des = "GPIO Output Control Menu";
+    char *des = "GPIO OUTPUT TEST MENU";
     menu_exec(gpio_out_menu, sizeof(gpio_out_menu) / sizeof(menu_t), des, &pr_win_gpio[pr_win_gpio_depth]);
 }
 

@@ -7,6 +7,6 @@ struct network_info {
     char sub[32];
 };
 
-int net_ctrl(void);
+int net_ctl(void);
 
 #endif

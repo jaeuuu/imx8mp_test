@@ -73,8 +73,8 @@ typedef struct st_gpiostat {
 
 #define MAX_GPIO_DEV    7
 
-int gpio_in_ctrl(void);
-int gpio_out_ctrl(void);
+int gpio_in_ctl(void);
+int gpio_out_ctl(void);
 void gpio_init(void);
 
 #endif

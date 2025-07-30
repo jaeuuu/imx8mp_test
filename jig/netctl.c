@@ -129,7 +129,7 @@ static int setup_ping(void *intf)
         return 0;
     }
 
-    sprintf(cmd, "ping -c 5 %s -I %s", tmp, intf);
+    sprintf(cmd, "ping -c 5 %s -I %s", tmp, (char *)intf);
     fp = popen(cmd, "r");
     if (!fp)
         return 0;
@@ -148,7 +148,7 @@ static int setup_ping(void *intf)
 
 static int net_eth0(void)
 {
-    char *des = "Ethernet1 Control Menu";
+    char *des = "ETHERNET1 TEST MENU";
     menu_args_t eth_set_menu[] = {
         {setup_ip, "SET IP", "eth0"},
         {setup_gw, "SET GATEWAY", "eth0"},
@@ -166,7 +166,7 @@ static int net_eth0(void)
 
 static int net_eth1(void)
 {
-    char *des = "Ethernet2 Control Menu";
+    char *des = "ETHERNET2 TEST MENU";
     menu_args_t eth_set_menu[] = {
         {setup_ip, "SET IP", "eth1"},
         {setup_gw, "SET GATEWAY", "eth1"},
@@ -207,8 +207,8 @@ static menu_t net_menus[] = {
     {back, "back"}
 };
 
-int net_ctrl(void)
+int net_ctl(void)
 {
-    char *des = "Network Control Menu";
+    char *des = "NETWORK TEST MENU";
     menu_exec(net_menus, sizeof(net_menus) / sizeof(menu_t), des, &pr_win_net[pr_win_net_depth]);
 }

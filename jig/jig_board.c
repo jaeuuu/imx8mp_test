@@ -4,6 +4,7 @@
 #include "gpioctl.h"
 #include "uartctl.h"
 #include "netctl.h"
+#include "canctl.h"
 
 int hello_world1(void);
 int hello_world2(void);
@@ -57,15 +58,20 @@ int hello_world3(void)
     getyx(pr_hello_win, y, x);
     mvwprintw(pr_hello_win, y, x, "hello, world3\n");
     wrefresh(pr_hello_win);
+    sleep(10);
     return 0;
 }
 
 static menu_t main_menu[] = {
-    {gpio_in_ctrl, "GPIO INPUT CONTROL"},
-    {gpio_out_ctrl, "GPIO OUTPUT CONTROL"},
-    {uart_ctrl, "UART CONTROL"},
-    {net_ctrl, "NET CONTROL"},
-    {hello_world3, "Hello World 3"},
+    {gpio_in_ctl, "GPIO INPUT TEST"},
+    {gpio_out_ctl, "GPIO OUTPUT TEST"},
+    {uart_ctl, "UART TEST"},
+    {net_ctl, "NETWORK TEST"},
+    {can_ctl, "CAN TEST"},
+    {hello_world3, "LCD TEST"},
+    {hello_world3, "CAMERA TEST"},
+    {hello_world3, "AUDIO TEST"},
+    {hello_world3, "STRESS TEST"},
     {sub_hello_world, "Sub Hello World"},
     {back, "back"},
 };

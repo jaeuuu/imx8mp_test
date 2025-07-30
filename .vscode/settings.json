@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "unistd.h": "c",
-        "if.h": "c"
+        "if.h": "c",
+        "asoundlib.h": "c",
+        "pcm.h": "c"
     }
 }

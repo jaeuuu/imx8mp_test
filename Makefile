@@ -7,8 +7,9 @@ SOM_TARGET = som_board_test
 
 JIG_BOARD_DIR = jig
 JIG_BOARD_SRC = main.c $(JIG_BOARD_DIR)/jig_board.c $(API_DIR)/menu.c $(JIG_BOARD_DIR)/gpioctl.c \
-				$(JIG_BOARD_DIR)/uartctl.c $(API_DIR)/uart.c $(API_DIR)/utils.c $(JIG_BOARD_DIR)/netctl.c
-JIG_BOARD_OBJ = main.o jig_board.o menu.o gpioctl.o uartctl.o uart.o utils.o netctl.o
+				$(JIG_BOARD_DIR)/uartctl.c $(API_DIR)/uart.c $(API_DIR)/utils.c $(JIG_BOARD_DIR)/netctl.c \
+				$(JIG_BOARD_DIR)/canctl.c
+JIG_BOARD_OBJ = main.o jig_board.o menu.o gpioctl.o uartctl.o uart.o utils.o netctl.o canctl.o
 JIG_TARGET = jig_board_test
 
 all: som_board jig_board
