@@ -357,7 +357,7 @@ int record_pcm(pcm_info_t *pcm)
 	SF_INFO sfinfo = { 0 };
 	SNDFILE *sf;
 	int count;
-	
+
 
 	sfinfo.samplerate = pcm->sample_rate;
 	sfinfo.channels = pcm->channels;

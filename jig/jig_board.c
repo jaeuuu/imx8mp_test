@@ -5,6 +5,9 @@
 #include "uartctl.h"
 #include "netctl.h"
 #include "canctl.h"
+#include "lcdctl.h"
+#include "cameractl.h"
+#include "audioctl2.h"
 
 int hello_world1(void);
 int hello_world2(void);
@@ -68,9 +71,9 @@ static menu_t main_menu[] = {
     {uart_ctl, "UART TEST"},
     {net_ctl, "NETWORK TEST"},
     {can_ctl, "CAN TEST"},
-    {hello_world3, "LCD TEST"},
-    {hello_world3, "CAMERA TEST"},
-    {hello_world3, "AUDIO TEST"},
+    {lcd_ctl, "LCD TEST"},
+    {camera_ctl, "CAMERA TEST"},
+    {audio2_ctl, "AUDIO TEST"},
     {hello_world3, "STRESS TEST"},
     {sub_hello_world, "Sub Hello World"},
     {back, "back"},
@@ -82,6 +85,7 @@ void board_init(void)
     menu_init();
     gpio_init();
     uart_init();
+    can_init();
 }
 
 void start_board(void)

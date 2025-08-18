@@ -1,5 +1,6 @@
 #include "ltectl.h"
 
+
 static queue_t lte_queue;
 static char lte_modem_number[MAX_PHONE_NUM_SIZE];
 static bool sms_incoming = false;
@@ -110,14 +111,12 @@ static int pdu_encode_num(char *src, char *des)
     if (len > MAX_PHONE_NUM_SIZE)
         return -1;
 
-    if (len % 2)
-    {
+    if (len % 2) {
         src[len] = 'F';
         len++;
     }
 
-    for (i = 0; i < len; i++)
-    {
+    for (i = 0; i < len; i++) {
         if (i % 2 == 0)
             des[i + 1] = src[i];
         else
@@ -133,8 +132,7 @@ static int pdu_encode_sms(char *src, char *des)
     if (len > MAX_SMS_SIZE)
         return -1;
 
-    for (i = 0, j = 0; i < len; i++, j += 2)
-    {
+    for (i = 0, j = 0; i < len; i++, j += 2) {
         des[j] = htoa((src[i] >> 4) & 0x0f);
         des[j + 1] = htoa(src[i] & 0x0f);
     }
@@ -164,14 +162,18 @@ static char *lte_sms_pdu_encode(char *receiver, char *sms)
 
     sprintf(ret,
         SMS_PDU_SUBMIT
-        "%c%c" SMS_PDU_INTL_FORMAT
-        "%s" SMS_PDU_INDEX
-        "%c%c" SMS_PDU_INTL_FORMAT
+        "%c%c"
+        SMS_PDU_INTL_FORMAT
+        "%s"
+        SMS_PDU_INDEX
+        "%c%c"
+        SMS_PDU_INTL_FORMAT
         "%s%s",
         htoa(((receiver_len >> 4) & 0x0f)), htoa((receiver_len & 0x0f)),
         encoded_receiver,
         htoa(((sender_len >> 4) & 0x0f)), htoa((sender_len & 0x0f)),
-        encoded_sender, encoded_sms);
+        encoded_sender, encoded_sms
+    );
 
     return ret;
 
@@ -186,8 +188,7 @@ static void pdu_decode_7bit_gsm(char *src, char *des)
     int carry_bits = 0, carry_cnt = 0;
     char byte;
 
-    for (i = 0, j = 0; i < src_len; i += 2, j++)
-    {
+    for (i = 0, j = 0; i < src_len; i += 2, j++) {
         byte = (src[i] >= 'A') ? (src[i] - 'A' + 10) : (src[i] - '0');
         if (i % 2 == 0)
             byte <<= 4;
@@ -199,14 +200,13 @@ static void pdu_decode_7bit_gsm(char *src, char *des)
 
         des[j] = septet & 0x7f;
 
-        if (carry_bits == 7)
-        {
+        if (carry_bits == 7) {
             des[j++] = carry_bits & 0x7f;
             carry_bits = 0;
             carry_cnt = 0;
         }
     }
-    // printf("decoded_7bit : %s\n", des);
+    //printf("decoded_7bit : %s\n", des);
 }
 
 static void pdu_decode_8bit(char *src, char *des)
@@ -214,8 +214,7 @@ static void pdu_decode_8bit(char *src, char *des)
     int i, j, src_len = strlen(src);
     char byte;
 
-    for (i = 0, j = 0; i < src_len; i += 2, j++)
-    {
+    for (i = 0, j = 0; i < src_len; i += 2, j++) {
         byte = (src[i] >= 'A') ? (src[i] - 'A' + 10) : (src[i] - '0');
         if (i % 2 == 0)
             byte <<= 4;
@@ -223,7 +222,7 @@ static void pdu_decode_8bit(char *src, char *des)
 
         des[j] = byte;
     }
-    // printf("decoded_8bit : %s\n", des);
+    //printf("decoded_8bit : %s\n", des);
 }
 
 static void pdu_decode_ucs2(char *src, char *des)
@@ -243,88 +242,85 @@ static char *lte_sms_pdu_decode(char *buf, int len)
     if (!ret)
         return NULL;
 
-    for (i = 0, step = PDU_SMSC_STEP; i < len; step++)
-    {
-        switch (step)
-        {
+    for (i = 0, step = PDU_SMSC_STEP; i < len; step++) {
+        switch (step) {
         case PDU_SMSC_STEP:
             strncpy(tmp, &buf[i], 2);
             tmp[2] = '\0';
             smsc_len = strtol(tmp, NULL, 16);
             i += (smsc_len + 1) * 2;
-            // printf("smsc_len : %ld\n", smsc_len);
+            //printf("smsc_len : %ld\n", smsc_len);
             break;
         case PDU_FOCT_STEP:
             strncpy(tmp, &buf[i], 2);
             tmp[2] = '\0';
             foct = strtol(tmp, NULL, 16);
             i += 2;
-            // printf("foct : %ld\n", foct);
+            //printf("foct : %ld\n", foct);
             break;
         case PDU_SENDER_STEP:
             strncpy(tmp, &buf[i], 2);
             tmp[2] = '\0';
             sender_len = strtol(tmp, NULL, 16);
             i += 4 + sender_len + (sender_len % 2);
-            // printf("sender_len : %ld\n", sender_len);
+            //printf("sender_len : %ld\n", sender_len);
             break;
         case PDU_PID_STEP:
             strncpy(tmp, &buf[i], 2);
             tmp[2] = '\0';
             pid = strtol(tmp, NULL, 16);
             i += 2;
-            // printf("pid : %ld\n", pid);
+            //printf("pid : %ld\n", pid);
             break;
         case PDU_DCS_STEP:
             strncpy(tmp, &buf[i], 2);
             tmp[2] = '\0';
             dcs = strtol(tmp, NULL, 16);
             i += 2;
-            // printf("dcs : %ld\n", dcs);
+            //printf("dcs : %ld\n", dcs);
             break;
         case PDU_TIME_STEP:
             i += 14;
-            // printf("timestamp\n");
+            //printf("timestamp\n");
             break;
         case PDU_UDL_STEP:
             strncpy(tmp, &buf[i], 2);
             tmp[2] = '\0';
             udl = strtol(tmp, NULL, 16);
             i += 2;
-            if (foct & 0x40)
-            {
+            if (foct & 0x40) {
                 strncpy(tmp, &buf[i], 2);
                 tmp[2] = '\0';
                 udhl = strtol(tmp, NULL, 16);
                 i += 2;
-                // printf("udhl : %ld\n", udhl);
+                //printf("udhl : %ld\n", udhl);
 
                 strncpy(tmp, &buf[i], 2);
                 tmp[2] = '\0';
                 iei = strtol(tmp, NULL, 16);
                 i += 2;
-                // printf("iei : %ld\n", iei);
+                //printf("iei : %ld\n", iei);
 
                 strncpy(tmp, &buf[i], 2);
                 tmp[2] = '\0';
                 iedl = strtol(tmp, NULL, 16);
                 i += 2;
-                // printf("iedl : %ld\n", iedl);
+                //printf("iedl : %ld\n", iedl);
 
                 memset(ied, 0x00, sizeof(ied));
                 strncpy(ied, &buf[i], iedl * 2);
                 i += iedl * 2;
-                // printf("ied : %s\n", ied);
+                //printf("ied : %s\n", ied);
 
                 udl = (udl - (iedl + 3));
             }
-            // printf("udl : %ld\n", udl);
+            //printf("udl : %ld\n", udl);
             break;
         case PDU_UD_STEP:
             memset(ud, 0x00, sizeof(ud));
             strncpy(ud, &buf[i], udl * 2);
             i += udl * 2;
-            // printf("ud : %s\n", ud);
+            //printf("ud : %s\n", ud);
             break;
         default:
             goto free;
@@ -347,20 +343,16 @@ static int lte_rssi(char *rssi_str)
 {
     int rssi = atoi(rssi_str);
 
-    if (rssi < 99)
-    {
+    if (rssi < 99) {
         rssi += (rssi * 2) - 113;
     }
-    else if (rssi == 99)
-    {
+    else if (rssi == 99) {
         rssi = 999;
     }
-    else if (rssi < 199)
-    {
+    else if (rssi < 199) {
         rssi += rssi - 116;
     }
-    else if (rssi == 199)
-    {
+    else if (rssi == 199) {
         rssi = 999;
     }
     else
@@ -372,8 +364,7 @@ static int lte_ber(char *ber_str)
 {
     int ber = atoi(ber_str);
 
-    if (ber < 99)
-    {
+    if (ber < 99) {
     }
     else
         ber = 99;
@@ -387,8 +378,7 @@ static void lte_sms(void)
     char c, tmp[MAX_PHONE_NUM_SIZE + MAX_SMS_SIZE];
     char *phone_num, *sms, *encoded_sms;
 
-    while (1)
-    {
+    while (1) {
         memset(tmp, 0x00, sizeof(tmp));
         printf("\n\n***********************************************\n");
         printf("\n  Input Format: [target phone number, message]\n");
@@ -399,8 +389,7 @@ static void lte_sms(void)
         printf(">> ");
 
         i = 0;
-        for (;;)
-        {
+        for (;;) {
             if (scanf("%c", &c) < 0)
                 continue;
             if (c == 0x0a)
@@ -445,8 +434,7 @@ static void lte_call(void)
     long long num;
     char c, phone_num[MAX_PHONE_NUM_SIZE], tmp[MAX_PHONE_NUM_SIZE + 1];
 
-    while (1)
-    {
+    while (1) {
         memset(phone_num, 0x00, sizeof(phone_num));
         printf("\n\n***********************************************\n");
         printf("\n\tInput Format: [phone number]\n\n");
@@ -457,8 +445,7 @@ static void lte_call(void)
         printf(">> ");
 
         i = 0;
-        for (;;)
-        {
+        for (;;) {
             if (scanf("%c", &c) < 0)
                 continue;
             if (c == 0x0a)
@@ -509,51 +496,41 @@ static void lte_uart115200(void)
 
 static void lte_handle_at(lte_packet_t *packet)
 {
-    if (!strncmp(packet->packet, "OK", strlen("OK")))
-    {
+    if (!strncmp(packet->packet, "OK", strlen("OK"))) {
     }
-    else if (!strncmp(packet->packet, "ERROR", strlen("ERROR")))
-    {
+    else if (!strncmp(packet->packet, "ERROR", strlen("ERROR"))) {
     }
-    else if (!strncmp(packet->packet, "+CNUM", strlen("+CNUM")))
-    {
+    else if (!strncmp(packet->packet, "+CNUM", strlen("+CNUM"))) {
         strtok(packet->packet, ",");
         char *number = strtok(NULL, ",");
         memset(lte_modem_number, 0x00, sizeof(lte_modem_number));
-        number++;                                             // front " erase
+        number++; // front " erase
         memcpy(lte_modem_number, number, strlen(number) - 1); // rear " erase
         printf("\n***********************************************\n");
         printf("\n\t\tModem Number\n\n\t      > %s\n", lte_modem_number);
         printf("\n***********************************************\n");
     }
-    else if (!strncmp(packet->packet, "RING", strlen("RING")))
-    {
+    else if (!strncmp(packet->packet, "RING", strlen("RING"))) {
         lte_tx_atcmd(AT_A, "");
     }
-    else if (!strncmp(packet->packet, "+CLIP", strlen("+CLIP")))
-    {
+    else if (!strncmp(packet->packet, "+CLIP", strlen("+CLIP"))) {
     }
-    else if (!strncmp(packet->packet, "+CHUP", strlen("+CHUP")))
-    {
+    else if (!strncmp(packet->packet, "+CHUP", strlen("+CHUP"))) {
     }
-    else if (!strncmp(packet->packet, "+CMTI", strlen("+CMTI")))
-    {
+    else if (!strncmp(packet->packet, "+CMTI", strlen("+CMTI"))) {
         strtok(packet->packet, ",");
         char *msg = strtok(NULL, ","), tmp[8] = { 0 };
         sprintf(tmp, "=%s", msg);
         lte_tx_atcmd(AT_CMGR, tmp);
     }
-    else if (!strncmp(packet->packet, "+CMGR", strlen("+CMGR")))
-    {
+    else if (!strncmp(packet->packet, "+CMGR", strlen("+CMGR"))) {
         sms_incoming = true;
         lte_tx_atcmd(AT_CMGD, "=0,4");
     }
-    else if (!strncmp(packet->packet, "NO CARRIER", strlen("NO CARRIER")))
-    {
+    else if (!strncmp(packet->packet, "NO CARRIER", strlen("NO CARRIER"))) {
         lte_tx_atcmd(AT_CHUP, "");
     }
-    else if (!strncmp(packet->packet, "+CSQ", strlen("+CSQ")))
-    {
+    else if (!strncmp(packet->packet, "+CSQ", strlen("+CSQ"))) {
         strtok(packet->packet, " ");
         char *rssi = strtok(NULL, ",");
         char *ber = strtok(NULL, ",");
@@ -561,12 +538,12 @@ static void lte_handle_at(lte_packet_t *packet)
         printf("\n\t  Signal Quality Report\n\n\t    RSSI : %ddBm\n\t     BER : %d\n", lte_rssi(rssi), lte_ber(ber));
         printf("\n***********************************************\n");
     }
-    else if (!strncmp(packet->packet, "+CMGS", strlen("+CMGS")))
-    {
+    else if (!strncmp(packet->packet, "+CMGS", strlen("+CMGS"))) {
     }
     else
         printf("Unexpected Packet!\n");
 }
+
 
 static void lte_handle_sms(lte_packet_t *packet)
 {
@@ -588,23 +565,19 @@ void lte_parser(char *buf, int len)
     static lte_packet_t packet;
     int i;
 
-    for (i = 0; i < len; i++)
-    {
-        switch (lte_parser_step)
-        {
+    for (i = 0; i < len; i++) {
+        switch (lte_parser_step) {
         case LTE_STEP_HEADER1:
             memset(&packet, 0x00, sizeof(packet));
             if (buf[i] == '\r')
                 lte_parser_step = LTE_STEP_HEADER2;
-            if (sms_incoming)
-            {
+            if (sms_incoming) {
                 packet.packet[packet.plen++] = buf[i];
                 lte_parser_step = LTE_STEP_DATA;
             }
             break;
         case LTE_STEP_HEADER2:
-            if (buf[i] == '\n')
-            {
+            if (buf[i] == '\n') {
                 if (buf[i + 1] == '>')
                     lte_parser_step = LTE_STEP_HEADER1;
                 else
@@ -614,31 +587,26 @@ void lte_parser(char *buf, int len)
                 lte_parser_step = LTE_STEP_HEADER1;
             break;
         case LTE_STEP_DATA:
-            if (buf[i] == '\r')
-            {
+            if (buf[i] == '\r') {
                 lte_parser_step = LTE_STEP_TRAILER;
                 break;
             }
-            if (packet.plen > MAX_UART_XFER_SIZE)
-            {
+            if (packet.plen > MAX_UART_XFER_SIZE) {
                 lte_parser_step = LTE_STEP_HEADER1;
                 break;
             }
             packet.packet[packet.plen++] = buf[i];
             break;
         case LTE_STEP_TRAILER:
-            if (buf[i] == '\n')
-            {
-                if (sms_incoming)
-                {
+            if (buf[i] == '\n') {
+                if (sms_incoming) {
                     lte_handle_sms(&packet);
                     sms_incoming = false;
                 }
                 else
                     lte_handle_at(&packet);
             }
-            else
-            {
+            else {
                 if (sms_incoming)
                     sms_incoming = false;
             }
@@ -682,10 +650,10 @@ void lte_init(void)
     lte_tx_atcmd(AT_CLVL, "=3");
     lte_tx_atcmd(AT_CCLK, "");
     lte_tx_atcmd(AT_CMGF, "=0");
-    // lte_tx_atcmd(AT_CMMS, "=0");
+    //lte_tx_atcmd(AT_CMMS, "=0");
     lte_tx_atcmd(AT_URCCFG, "=\"urcport\",\"all\"");
     lte_tx_atcmd(AT_CLIP, "=1");
-    lte_tx_atcmd(AT_CNMI, "=2,1,0,0,0"); // URC TE 즉시 전달, URC(+CMTI) 이용하여 TE 알람,
+    lte_tx_atcmd(AT_CNMI, "=2,1,0,0,0"); // URC TE 즉시 전달, URC(+CMTI) 이용하여 TE 알람, 
     // CMD disabled, SMS_STATUS_REPORT disabled
     lte_tx_atcmd(AT_QCDS, "");
     lte_tx_atcmd(AT_CSQ, "");
