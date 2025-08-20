@@ -8,6 +8,8 @@
 #include "lcdctl.h"
 #include "cameractl.h"
 #include "audioctl2.h"
+#include "stressctl.h"
+#include "usbctl.h"
 
 int hello_world1(void);
 int hello_world2(void);
@@ -74,8 +76,8 @@ static menu_t main_menu[] = {
     {lcd_ctl, "LCD TEST"},
     {camera_ctl, "CAMERA TEST"},
     {audio2_ctl, "AUDIO TEST"},
-    {hello_world3, "STRESS TEST"},
-    {sub_hello_world, "Sub Hello World"},
+    {stress_ctl, "STRESS TEST"},
+    {show_usb_info, "SHOW USB INFO"},
     {back, "back"},
 };
 

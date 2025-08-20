@@ -128,7 +128,7 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
                 // wattroff(menu_sub_win, COLOR_PAIR(3));
                 /* new */
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-                mvwprintw(menu_sub_win, i, 0, " %2d) ", i + 1);
+                mvwprintw(menu_sub_win, i, 0, " %2d)  ", i + 1);
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 getyx(menu_sub_win, y, x);
                 mvwaddch(menu_sub_win, i, x, (menus + i)->func_des[0] | COLOR_PAIR(COLOR_YELLOW_BLUE));
@@ -136,12 +136,13 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 mvwprintw(menu_sub_win, i, x, "%s\n", &((menus + i)->func_des[1]));
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-            } else {
+            }
+            else {
                 /* old */
                 //mvwprintw(menu_sub_win, i, 0, " %2d: %s\n", i + 1, (menus + i)->func_des);
                 //getyx(menu_sub_win, y, x);
                 /* new */
-                mvwprintw(menu_sub_win, i, 0, " %2d) ", i + 1);
+                mvwprintw(menu_sub_win, i, 0, " %2d)  ", i + 1);
                 getyx(menu_sub_win, y, x);
                 mvwaddch(menu_sub_win, i, x, (menus + i)->func_des[0] | COLOR_PAIR(COLOR_BLUE_WHITE));
                 getyx(menu_sub_win, y, x);
@@ -280,7 +281,7 @@ static void menu_args_print(menu_args_t *menus, int menu_size, const char *menu_
         for (i = 0; i < menu_size; i++) {
             if (i == pos) {
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-                mvwprintw(menu_sub_win, i, 0, " %2d) ", i + 1);
+                mvwprintw(menu_sub_win, i, 0, " %2d)  ", i + 1);
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 getyx(menu_sub_win, y, x);
                 mvwaddch(menu_sub_win, i, x, (menus + i)->func_des[0] | COLOR_PAIR(COLOR_YELLOW_BLUE));
@@ -288,8 +289,9 @@ static void menu_args_print(menu_args_t *menus, int menu_size, const char *menu_
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 mvwprintw(menu_sub_win, i, x, "%s\n", &((menus + i)->func_des[1]));
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-            } else {
-                mvwprintw(menu_sub_win, i, 0, " %2d) ", i + 1);
+            }
+            else {
+                mvwprintw(menu_sub_win, i, 0, " %2d)  ", i + 1);
                 getyx(menu_sub_win, y, x);
                 mvwaddch(menu_sub_win, i, x, (menus + i)->func_des[0] | COLOR_PAIR(COLOR_BLUE_WHITE));
                 getyx(menu_sub_win, y, x);
@@ -565,7 +567,7 @@ int menu_exit(void)
                 wattroff(menu_sub_win, COLOR_PAIR(3));
                 */
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-                mvwprintw(menu_sub_win, i, 0, " %2d) ", i + 1);
+                mvwprintw(menu_sub_win, i, 0, " %2d)  ", i + 1);
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 getyx(menu_sub_win, y, x);
                 mvwaddch(menu_sub_win, i, x, (exit_menu + i)->func_des[0] | COLOR_PAIR(COLOR_YELLOW_BLUE));
@@ -573,8 +575,9 @@ int menu_exit(void)
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 mvwprintw(menu_sub_win, i, x, "%s\n", &((exit_menu + i)->func_des[1]));
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-            } else {
-                mvwprintw(menu_sub_win, i, 0, " %2d) ", i + 1);
+            }
+            else {
+                mvwprintw(menu_sub_win, i, 0, " %2d)  ", i + 1);
                 getyx(menu_sub_win, y, x);
                 mvwaddch(menu_sub_win, i, x, (exit_menu + i)->func_des[0] | COLOR_PAIR(COLOR_BLUE_WHITE));
                 getyx(menu_sub_win, y, x);

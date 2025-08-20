@@ -528,6 +528,31 @@ static int can_classic_enable(const char *intf)
     return 0;
 }
 
+static int can_enable_loopback(const char *intf)
+{
+    if (!strcmp(intf, "can0")) {
+        can_down("ip link set can0 down");
+        if (is_fd[0]) {
+            can_up("ip link set can0 up type can bitrate 1000000 dbitrate 2000000 fd on loopback on");
+            is_fd[0] = true;
+        } else {
+            can_up("ip link set can0 up type can bitrate 1000000 loopback on");
+            is_fd[0] = false;
+        }
+    } else if (!strcmp(intf, "can1")) {
+        can_down("ip link set can1 down");
+        if (is_fd[1]) {
+            can_up("ip link set can1 up type can bitrate 1000000 dbitrate 2000000 fd on loopback on");
+            is_fd[1] = true;
+        } else {
+            can_up("ip link set can1 up type can bitrate 1000000 loopback on");
+            is_fd[1] = false;
+        }
+    }
+    return 0;
+}
+
+
 static pthread_t can_trx_pthread[2];
 static int can_trx_test_on(const char *intf)
 {
@@ -608,11 +633,109 @@ static int can_enable(void *intf)
     pr_win_can_depth--;
 }
 
+static int can_dump(void *intf)
+{
+    char cmd[32];
+
+    memset(cmd, 0x00, sizeof(cmd));
+    sprintf(cmd, "candump %s", (char *)intf);
+    //pr_win(pr_win_can[pr_win_can_depth], "Running command: %s\n", cmd);
+    endwin();
+    system("clear");
+    system(cmd);
+
+    clear();
+    refresh();
+    return 0;
+}
+
+static int can_send(void *intf)
+{
+    char cmd[1024];
+    char *data_8 = "0123456789abcdef";      // 8 characters
+    char *data_64 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"; // 64 characters
+
+    memset(cmd, 0x00, sizeof(cmd));
+    if (!strcmp((char *)intf, "can0")) {
+        if (is_fd[0])
+            sprintf(cmd, "while true; do cansend %s 123##1%s; sleep 1; done;", (char *)intf, data_64);
+        else
+            sprintf(cmd, "while true; do cansend %s 123#%s; sleep 1; done;", (char *)intf, data_8);
+    } else if (!strcmp((char *)intf, "can1")) {
+        if (is_fd[1])
+            sprintf(cmd, "while true; do cansend %s 456##1%s; sleep 1; done;", (char *)intf, data_64);
+        else
+            sprintf(cmd, "while true; do cansend %s 456#%s; sleep 1; done;", (char *)intf, data_64);
+    } else {
+        pr_win(pr_win_can[pr_win_can_depth], "Unknown CAN interface [%s]\n", (char *)intf);
+        return 0;
+    }
+
+    endwin();
+    system("clear");
+    system(cmd);
+
+    clear();
+    refresh();
+    return 0;
+}
+
+// static int back_on_can(void *arg)
+// {
+//     system("killall candump > /dev/null 2>&1");
+//     return -1;
+// }
+
+static int can_loopback(void *intf)
+{
+    char cmd[1024];
+    char *data_8 = "0123456789abcdef";      // 8 characters
+    char *data_64 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"; // 64 characters
+
+    can_enable_loopback((char *)intf);
+
+    memset(cmd, 0x00, sizeof(cmd));
+    sprintf(cmd, "candump %s &", (char *)intf);
+    //pr_win(pr_win_can[pr_win_can_depth], "Running command: %s\n", cmd);
+    //system("clear");
+    system(cmd);
+
+    memset(cmd, 0x00, sizeof(cmd));
+    if (!strcmp((char *)intf, "can0")) {
+        if (is_fd[0])
+            sprintf(cmd, "while true; do cansend %s 123##1%s; sleep 1; done;", (char *)intf, data_64);
+        else
+            sprintf(cmd, "while true; do cansend %s 123#%s; sleep 1; done;", (char *)intf, data_8);
+    } else if (!strcmp((char *)intf, "can1")) {
+        if (is_fd[1])
+            sprintf(cmd, "while true; do cansend %s 456##1%s; sleep 1; done;", (char *)intf, data_64);
+        else
+            sprintf(cmd, "while true; do cansend %s 456#%s; sleep 1; done;", (char *)intf, data_64);
+    } else {
+        pr_win(pr_win_can[pr_win_can_depth], "Unknown CAN interface [%s]\n", (char *)intf);
+        return 0;
+    }
+
+    endwin();
+    system("clear");
+    system(cmd);
+
+    clear();
+    refresh();
+    return 0;
+}
+
 static menu_args_t can_ctl_menu[] = {
     {can_enable, "CAN1 ENABLE", "can0"},
     {can_enable, "CAN2 ENABLE", "can1"},
-    {can_trx_test, "CAN1 TRX TEST", "can0"},
-    {can_trx_test, "CAN2 TRX TEST", "can1"},
+    //{can_trx_test, "CAN1 TRX TEST", "can0"},
+    //{can_trx_test, "CAN2 TRX TEST", "can1"},
+    {can_dump, "CAN1 RECV", "can0"},
+    {can_dump, "CAN2 RECV", "can1"},
+    {can_send, "CAN1 SEND", "can0"},
+    {can_send, "CAN2 SEND", "can1"},
+    {can_loopback, "CAN1 LOOPBACK", "can0"},
+    {can_loopback, "CAN2 LOOPBACK", "can1"},
     {back2, "back", ""},
 };
 

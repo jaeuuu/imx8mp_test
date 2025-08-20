@@ -1,12 +1,11 @@
-#ifndef STRESSCTL_H_
-#define STRESSCTL_H_
+#ifndef USBCTL_H_
+#define USBCTL_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <poll.h>
 #include <pthread.h>
 
-void stress_init(void);
-int stress_ctl(void);
+int show_usb_info(void);
 
 #endif
