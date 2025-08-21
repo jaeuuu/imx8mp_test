@@ -101,14 +101,14 @@ static void uart_rx_thread(void)
                 switch (i) {
                 case UART_MXC1:
 #ifdef UART_DEBUG
-                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART MXC1][READ]: \n");
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[MXC UART1][READ]: \n");
                     uart_hex_print(tmp, ret);
 #endif
                     break;
                 case UART_MXC3:
 #ifdef UART_DEBUG
                     wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
-                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART MXC3][READ]: \n");
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[MXC UART3][READ]: \n");
                     wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
@@ -116,7 +116,7 @@ static void uart_rx_thread(void)
                 case UART_SERIAL1:
 #ifdef UART_DEBUG
                     wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
-                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART SERIAL1][READ]: \n");
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[PCIe UART1]][READ]: \n");
                     wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
@@ -124,7 +124,7 @@ static void uart_rx_thread(void)
                 case UART_SERIAL2:
 #ifdef UART_DEBUG
                     wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
-                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART SERIAL2][READ]: \n");
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[PCIe UART2][READ]: \n");
                     wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
@@ -132,7 +132,7 @@ static void uart_rx_thread(void)
                 case UART_SERIAL3:
 #ifdef UART_DEBUG
                     wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
-                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART SERIAL3][READ]: \n");
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[PCIe UART3][READ]: \n");
                     wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
@@ -140,7 +140,7 @@ static void uart_rx_thread(void)
                 case UART_SERIAL4:
 #ifdef UART_DEBUG
                     wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
-                    pr_win(pr_win_uart[pr_win_uart_depth], "[UART SERIAL4][READ]: \n");
+                    pr_win(pr_win_uart[pr_win_uart_depth], "[PCIe UART4][READ]: \n");
                     wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
@@ -157,22 +157,22 @@ static void uart_rx_thread(void)
 
                 switch (i) {
                 case UART_MXC1:
-                    port_name = "UART MXC1";
+                    port_name = "MXC UART1";
                     break;
                 case UART_MXC3:
-                    port_name = "UART MXC3";
+                    port_name = "MXC UART3";
                     break;
                 case UART_SERIAL1:
-                    port_name = "UART SERIAL1";
+                    port_name = "PCIe UART1";
                     break;
                 case UART_SERIAL2:
-                    port_name = "UART SERIAL2";
+                    port_name = "PCIe UART2";
                     break;
                 case UART_SERIAL3:
-                    port_name = "UART SERIAL3";
+                    port_name = "PCIe UART3";
                     break;
                 case UART_SERIAL4:
-                    port_name = "UART SERIAL4";
+                    port_name = "PCIe UART4";
                     break;
                 }
 
@@ -201,22 +201,22 @@ static int uart_speed_9600(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     }
 
@@ -239,22 +239,22 @@ static int uart_speed_19200(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     }
 
@@ -277,22 +277,22 @@ static int uart_speed_38400(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     }
 
@@ -315,22 +315,22 @@ static int uart_speed_57600(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     }
 
@@ -353,22 +353,22 @@ static int uart_speed_115200(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     }
 
@@ -391,22 +391,22 @@ static int uart_speed_230400(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     }
 
@@ -429,22 +429,22 @@ static int uart_speed_460800(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     }
 
@@ -467,22 +467,22 @@ static int uart_speed_921600(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     }
 
@@ -500,18 +500,18 @@ static int uart_speed_921600(void *port)
 static int set_speed(void *port)
 {
     menu_args_t spd_menu[] = {
-        {uart_speed_9600, "9600", port},
-        {uart_speed_19200, "19200", port},
-        {uart_speed_38400, "38400", port},
-        {uart_speed_57600, "57600", port},
-        {uart_speed_115200, "115200", port},
-        {uart_speed_230400, "230400", port},
-        {uart_speed_460800, "460800", port},
-        {uart_speed_921600, "921600", port},
+        {uart_speed_9600, "9600 bps", port},
+        {uart_speed_19200, "19200 bps", port},
+        {uart_speed_38400, "38400 bps", port},
+        {uart_speed_57600, "57600 bps", port},
+        {uart_speed_115200, "115200 bps", port},
+        {uart_speed_230400, "230400 bps", port},
+        {uart_speed_460800, "460800 bps", port},
+        {uart_speed_921600, "921600 bps", port},
         {back2, "back", port},
     };
 
-    char *des = "UART Baudrate Control Menu";
+    char *des = "UART BAUDRATE MENU";
     pr_win_uart_depth++;
     menu_args_exec(spd_menu, sizeof(spd_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
     pr_win_uart_depth--;
@@ -526,22 +526,22 @@ static int uart_tx_test(void *port)
 
     switch (*p) {
     case UART_MXC1:
-        port_name = "UART MXC1";
+        port_name = "MXC UART1";
         break;
     case UART_MXC3:
-        port_name = "UART MXC3";
+        port_name = "MXC UART3";
         break;
     case UART_SERIAL1:
-        port_name = "UART SERIAL1";
+        port_name = "PCIe UART1";
         break;
     case UART_SERIAL2:
-        port_name = "UART SERIAL2";
+        port_name = "PCIe UART2";
         break;
     case UART_SERIAL3:
-        port_name = "UART SERIAL3";
+        port_name = "PCIe UART3";
         break;
     case UART_SERIAL4:
-        port_name = "UART SERIAL4";
+        port_name = "PCIe UART4";
         break;
     default:
         return -1;
@@ -569,7 +569,7 @@ static int mxc_uart1(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "UART MXC1 Control Menu";
+    char *des = "MXC UART1 MENU";
 
     pr_win_uart_depth++;
     menu_args_exec(muart1_menu, sizeof(muart1_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
@@ -584,7 +584,7 @@ static int mxc_uart3(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "UART MXC3 Control Menu";
+    char *des = "MXC UART3 MENU";
 
     pr_win_uart_depth++;
     menu_args_exec(muart3_menu, sizeof(muart3_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
@@ -599,7 +599,7 @@ static int serial_uart1(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "UART SERIAL1 Control Menu";
+    char *des = "PCIe UART1 MENU";
 
     pr_win_uart_depth++;
     menu_args_exec(suart1_menu, sizeof(suart1_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
@@ -614,7 +614,7 @@ static int serial_uart2(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "UART SERIAL2 Control Menu";
+    char *des = "PCIe UART2 MENU";
 
     pr_win_uart_depth++;
     menu_args_exec(suart2_menu, sizeof(suart2_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
@@ -629,7 +629,7 @@ static int serial_uart3(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "UART SERIAL3 Control Menu";
+    char *des = "PCIe UART3 MENU";
 
     pr_win_uart_depth++;
     menu_args_exec(suart3_menu, sizeof(suart3_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
@@ -644,7 +644,7 @@ static int serial_uart4(void)
         {uart_tx_test, "TX TEST", &port},
         {back2, "back", &port},
     };
-    char *des = "UART SERIAL4 Control Menu";
+    char *des = "PCIe UART4 MENU";
 
     pr_win_uart_depth++;
     menu_args_exec(suart4_menu, sizeof(suart4_menu) / sizeof(menu_args_t), des, &pr_win_uart[pr_win_uart_depth]);
@@ -654,10 +654,10 @@ static int serial_uart4(void)
 static menu_t uart_menus[] = {
     {mxc_uart1, "MXC UART1"},
     {mxc_uart3, "MXC UART3"},
-    {serial_uart1, "SERIAL UART1(AX99100)"},
-    {serial_uart2, "SERIAL UART2(AX99100)"},
-    {serial_uart3, "SERIAL UART3(AX99100)"},
-    {serial_uart4, "SERIAL UART4(AX99100)"},
+    {serial_uart1, "PCIe UART1"},
+    {serial_uart2, "PCIe UART2"},
+    {serial_uart3, "PCIe UART3"},
+    {serial_uart4, "PCIe UART4"},
     {back, "back"},
 };
 
@@ -674,7 +674,7 @@ void uart_init(void)
 
     for (i = 0; i < sizeof(uarts) / sizeof(uart_t); i++) {
         if (open_uart(&uarts[i]) < 0) {
-            printf("uart_init() fail\n");
+            //printf("uart_init() fail\n");
             exit(1);
         }
     }
@@ -682,5 +682,5 @@ void uart_init(void)
     if (pthread_create(&rx_thread, NULL, (void *)uart_rx_thread, NULL) < 0)
         exit(1);
 
-    printf("UART Init Ok.\n");
+    //printf("UART Init Ok.\n");
 }
