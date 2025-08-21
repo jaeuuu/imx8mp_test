@@ -9,14 +9,14 @@
 
 int show_usb_info(void)
 {
-    system("lsusb > /home/root/usb_info.log");
-    system("echo \"\" >> /home/root/usb_info.log");
-    system("echo \"\" >> /home/root/usb_info.log");
-    system("lsusb -t >> /home/root/usb_info.log");
-    system("echo \"\" >> /home/root/usb_info.log");
-    system("echo \"\" >> /home/root/usb_info.log");
-    system("usb-devices >> /home/root/usb_info.log");
-    system("nano -v -0 /home/root/usb_info.log");
+    system("lsusb > /home/root/Logs/usb_info.log");
+    system("echo \"\" >> /home/root/Logs/usb_info.log");
+    system("echo \"\" >> /home/root/Logs/usb_info.log");
+    system("lsusb -t >> /home/root/Logs/usb_info.log");
+    system("echo \"\" >> /home/root/Logs/usb_info.log");
+    system("echo \"\" >> /home/root/Logs/usb_info.log");
+    system("usb-devices >> /home/root/Logs/usb_info.log");
+    system("nano -v -0 /home/root/Logs/usb_info.log");
     keypad(stdscr, TRUE);
     clear();
     refresh();

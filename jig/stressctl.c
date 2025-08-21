@@ -44,35 +44,35 @@ static int set_test_duration(void)
 static int all_in_one_test(void)
 {
     char cmd[256];
-    snprintf(cmd, sizeof(cmd), "stress-ng --cpu 0 --cpu-load 100 --cpu-method all --matrix 0 --vm 0 --vm-bytes 95%% --timeout %dm --metrics --tz > /home/root/stress.log 2>&1", duration);
+    snprintf(cmd, sizeof(cmd), "stress-ng --cpu 0 --cpu-load 100 --cpu-method all --matrix 0 --vm 0 --vm-bytes 95%% --timeout %dm --metrics --tz > /home/root/Logs/stress.log 2>&1", duration);
     return stress_exec(cmd);
 }
 
 static int cpu_load_test(void)
 {
     char cmd[256];
-    snprintf(cmd, sizeof(cmd), "stress-ng --cpu 0 --cpu-load 100 --cpu-method all --timeout %dm --metrics --tz > /home/root/stress.log 2>&1", duration);
+    snprintf(cmd, sizeof(cmd), "stress-ng --cpu 0 --cpu-load 100 --cpu-method all --timeout %dm --metrics --tz > /home/root/Logs/stress.log 2>&1", duration);
     return stress_exec(cmd);
 }
 
 static int memory_load_test(void)
 {
     char cmd[256];
-    snprintf(cmd, sizeof(cmd), "stress-ng --vm 0 --vm-bytes 95%% --timeout %dm --metrics --tz > /home/root/stress.log 2>&1", duration);
+    snprintf(cmd, sizeof(cmd), "stress-ng --vm 0 --vm-bytes 95%% --timeout %dm --metrics --tz > /home/root/Logs/stress.log 2>&1", duration);
     return stress_exec(cmd);
 }
 
 static int matrix_ops_test(void)
 {
     char cmd[256];
-    snprintf(cmd, sizeof(cmd), "stress-ng --matrix 0 --timeout %dm --metrics --tz > /home/root/stress.log 2>&1", duration);
+    snprintf(cmd, sizeof(cmd), "stress-ng --matrix 0 --timeout %dm --metrics --tz > /home/root/Logs/stress.log 2>&1", duration);
     return stress_exec(cmd);
 }
 
 static int show_test_log(void)
 {
     //pr_win(pr_win_stress[pr_win_stress_depth], "Showing test log...\n");
-    system("nano -v -0 /home/root/stress.log");
+    system("nano -v -0 /home/root/Logs/stress.log");
     //pr_win(pr_win_stress[pr_win_stress_depth], "End of test log.\n");
     keypad(stdscr, TRUE);
     clear();

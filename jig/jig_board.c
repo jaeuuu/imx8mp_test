@@ -7,9 +7,9 @@
 #include "canctl.h"
 #include "lcdctl.h"
 #include "cameractl.h"
-#include "audioctl2.h"
 #include "stressctl.h"
 #include "usbctl.h"
+#include "audioctl2.h"
 
 int hello_world1(void);
 int hello_world2(void);
