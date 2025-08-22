@@ -10,6 +10,6 @@
 //void uart_init(void);
 
 int lcd_ctl(void);
-void lcd_init(void);
+void lcd_init(const char *type);
 
 #endif

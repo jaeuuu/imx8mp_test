@@ -77,22 +77,29 @@ static menu_t main_menu[] = {
     {camera_ctl, "CAMERA TEST"},
     {audio2_ctl, "AUDIO TEST"},
     {stress_ctl, "STRESS TEST"},
-    {show_usb_info, "SHOW USB INFO"},
+    {usb_ctl, "USB TEST"},
     {back, "back"},
 };
 
-void board_init(void)
+void board_init(int argc, char **argv)
 {
-    printf("jig board_init()\r\n");
+    // printf("jig board_init()\r\n");
+
+    if (argc < 2) {
+        printf("\nUsage: %s <lcd_type>\n\n@example\n\t@1. jigtest lvds\n\t@2. jigtest dsi\n\n", argv[0]);
+        exit(1);
+    }
+
+    lcd_init(argv[1]);
     menu_init();
     gpio_init();
     uart_init();
     can_init();
 }
 
-void start_board(void)
+void start_board(int argc, char **argv)
 {
-    printf("jig start_board()\r\n");
+    // printf("jig start_board()\r\n");
 restart:
     menu_exec(main_menu, sizeof(main_menu) / sizeof(menu_t), "IMX8M-PLUS JIG BOARD TEST PROGRAM", NULL);
 

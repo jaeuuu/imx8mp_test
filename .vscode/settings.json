@@ -4,6 +4,8 @@
         "if.h": "c",
         "asoundlib.h": "c",
         "pcm.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "libmount.h": "c",
+        "libudev.h": "c"
     }
 }

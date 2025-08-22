@@ -129,16 +129,23 @@ static int setup_ping(void *intf)
         return 0;
     }
 
-    sprintf(cmd, "ping -c 5 %s -I %s", tmp, (char *)intf);
-    fp = popen(cmd, "r");
-    if (!fp)
-        return 0;
-    //pr_win(pr_win_net[pr_win_net_depth], "%s\n", cmd);
+    //sprintf(cmd, "ping -c 5 %s -I %s > /home/root/Logs/ping.log 2>&1 &", tmp, (char *)intf);
+    sprintf(cmd, "ping %s -I %s > /home/root/Logs/ping.log 2>&1 &", tmp, (char *)intf);
+    //system(cmd);
+    endwin();
+    system("clear");
+    system(cmd);
+    system("tail -f /home/root/Logs/ping.log");
+    system("killall ping > /dev/null 2>&1");
+    // fp = popen(cmd, "r");
+    // if (!fp)
+    //     return 0;
+    // //pr_win(pr_win_net[pr_win_net_depth], "%s\n", cmd);
 
-    memset(buf, 0x00, sizeof(buf));
-    fread(buf, sizeof(buf), 1, fp);
-    pr_win(pr_win_net[pr_win_net_depth], "%s\n%s\n", cmd, buf);
-    pclose(fp);
+    // memset(buf, 0x00, sizeof(buf));
+    // fread(buf, sizeof(buf), 1, fp);
+    // pr_win(pr_win_net[pr_win_net_depth], "%s\n%s\n", cmd, buf);
+    // pclose(fp);
     return 0;
 }
 
@@ -187,15 +194,24 @@ static int net_info(void)
     FILE *fp;
     char buf[1024];
 
-    fp = popen("ifconfig", "r");
-    if (!fp)
-        return 0;
+    // fp = popen("ifconfig", "r");
+    // if (!fp)
+    //     return 0;
 
-    memset(buf, 0x00, sizeof(buf));
-    fread(buf, sizeof(buf), 1, fp);
+    // memset(buf, 0x00, sizeof(buf));
+    // fread(buf, sizeof(buf), 1, fp);
 
-    pr_win(pr_win_net[pr_win_net_depth], "%s\n", buf);
-    pclose(fp);
+    // pr_win(pr_win_net[pr_win_net_depth], "%s\n", buf);
+    // pclose(fp);
+
+    system("ifconfig > /home/root/Logs/net_info.log 2>&1");
+    system("echo \"\" >> /home/root/Logs/net_info.log 2>&1");
+    system("echo \"\" >> /home/root/Logs/net_info.log 2>&1");
+    system("route -n >> /home/root/Logs/net_info.log 2>&1");
+
+    endwin();
+    system("clear");
+    system("nano -v -0 /home/root/Logs/net_info.log");
 
     return 0;
 }

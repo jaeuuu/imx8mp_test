@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <board.h>
 
-void main(void)
+void main(int argc, char **argv)
 {
-    board_init();
-    start_board();
+    board_init(argc, argv);
+    start_board(argc, argv);
 }

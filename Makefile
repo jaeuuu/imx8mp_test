@@ -14,7 +14,7 @@ JIG_BOARD_SRC = main.c $(JIG_BOARD_DIR)/jig_board.c $(API_DIR)/menu.c $(JIG_BOAR
 JIG_BOARD_OBJ = main.o jig_board.o menu.o gpioctl.o uartctl.o uart.o utils.o netctl.o canctl.o lcdctl.o cameractl.o	audioctl2.o \
 				stressctl.o usbctl.o
 
-JIG_TARGET = jig_board_test
+JIG_TARGET = jigtest
 
 all: som_board jig_board
 
@@ -37,7 +37,7 @@ som_board: .obj_som_board
 	$(CC) -c $^ -I./include
 
 jig_board: .obj_jig_board
-	$(CC) -g -o $(JIG_TARGET) $(JIG_BOARD_OBJ) -lreadline -lncurses -lgpiod
+	$(CC) -g -o $(JIG_TARGET) $(JIG_BOARD_OBJ) -lreadline -lncurses -lgpiod -ludev -lmount -lpthread
 
 clean:
 	- rm *.o

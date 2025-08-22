@@ -166,17 +166,73 @@ static void gpio_det_thread(void)
                 if (!gpio_stat[port][pin].init_flag)
                     continue;
 
-                /* CPLD IN control pin */
-                if (port == GPIO_PORT3 && pin == GPIO_PIN20)
+                if (port == GPIO_PORT1 &&
+                    (pin == GPIO_PIN14 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
+                        pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN9 ||
+                        pin == GPIO_PIN10 || pin == GPIO_PIN11 || pin == GPIO_PIN12 || pin == GPIO_PIN15 ||
+                        pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 || pin == GPIO_PIN19 ||
+                        pin == GPIO_PIN20 || pin == GPIO_PIN21 || pin == GPIO_PIN22 ||
+                        pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
+                        pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
+                        pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
                     continue;
 
-                /* CPLD MS LED control pin */
-                if (port == GPIO_PORT1 && pin == GPIO_PIN8)
+                if (port == GPIO_PORT2 &&
+                    (pin == GPIO_PIN11 || pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
+                        pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 || pin == GPIO_PIN19 ||
+                        pin == GPIO_PIN21 || pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 ||
+                        pin == GPIO_PIN25 || pin == GPIO_PIN26 || pin == GPIO_PIN27 ||
+                        pin == GPIO_PIN28 || pin == GPIO_PIN29 || pin == GPIO_PIN30 ||
+                        pin == GPIO_PIN31))
                     continue;
 
-                /* CPLD ACT LED control pin */
-                if (port == GPIO_PORT2 && pin == GPIO_PIN0)
+                if (port == GPIO_PORT3 &&
+                    (pin == GPIO_PIN0 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
+                        pin == GPIO_PIN4 || pin == GPIO_PIN5 ||
+                        pin == GPIO_PIN6 || pin == GPIO_PIN7 || pin == GPIO_PIN8 ||
+                        pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
+                        pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 ||
+                        pin == GPIO_PIN15 || pin == GPIO_PIN16 || pin == GPIO_PIN17 ||
+                        pin == GPIO_PIN18 || pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
+                        pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
+                        pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
                     continue;
+
+                if (port == GPIO_PORT4 &&
+                    (pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
+                        pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN7 ||
+                        pin == GPIO_PIN8 || pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
+                        pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
+                        pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN19 || pin == GPIO_PIN21 ||
+                        pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
+                        pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
+                        pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
+                    continue;
+
+                if (port == GPIO_PORT5 &&
+                    (pin == GPIO_PIN0 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
+                        pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN7 ||
+                        pin == GPIO_PIN8 || pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
+                        pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
+                        pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 ||
+                        pin == GPIO_PIN19 || pin == GPIO_PIN20 || pin == GPIO_PIN21 ||
+                        pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 ||
+                        pin == GPIO_PIN25 || pin == GPIO_PIN26 || pin == GPIO_PIN27 ||
+                        pin == GPIO_PIN28 || pin == GPIO_PIN29 || pin == GPIO_PIN30 ||
+                        pin == GPIO_PIN31))
+                    continue;
+
+                // /* CPLD IN control pin */
+                // if (port == GPIO_PORT3 && pin == GPIO_PIN20)
+                //     continue;
+
+                // /* CPLD MS LED control pin */
+                // if (port == GPIO_PORT1 && pin == GPIO_PIN8)
+                //     continue;
+
+                // /* CPLD ACT LED control pin */
+                // if (port == GPIO_PORT2 && pin == GPIO_PIN0)
+                //     continue;
 
                 new = gpio_read(port, pin);
                 if (new < 0) {
@@ -1043,42 +1099,42 @@ static int gpio_out_ctrl_pin31(void *port)
 
 static int gpio_out_ctrl_port1(void)
 {
-    char *des = "GPIO PORT1 Control Menu";
+    char *des = "GPIO PORT1 OUTPUT TEST MENU";
     int port = GPIO_PORT1;
 
     menu_args_t gpio_port1_menu[] = {
         {gpio_out_ctrl_pin0, "GPIO1_IO00", &port},
-        {gpio_out_ctrl_pin1, "GPIO1_IO01", &port},
-        {gpio_out_ctrl_pin2, "GPIO1_IO02", &port},
-        {gpio_out_ctrl_pin3, "GPIO1_IO03", &port},
-        {gpio_out_ctrl_pin4, "GPIO1_IO04", &port},
-        {gpio_out_ctrl_pin5, "GPIO1_IO05", &port},
-        {gpio_out_ctrl_pin6, "GPIO1_IO06", &port},
+        // {gpio_out_ctrl_pin1, "GPIO1_IO01", &port},
+        // {gpio_out_ctrl_pin2, "GPIO1_IO02", &port},
+        // {gpio_out_ctrl_pin3, "GPIO1_IO03", &port},
+        // {gpio_out_ctrl_pin4, "GPIO1_IO04", &port},
+        // {gpio_out_ctrl_pin5, "GPIO1_IO05", &port},
+        // {gpio_out_ctrl_pin6, "GPIO1_IO06", &port},
         {gpio_out_ctrl_pin7, "GPIO1_IO07", &port},
         {gpio_out_ctrl_pin8, "GPIO1_IO08", &port},
-        {gpio_out_ctrl_pin9, "GPIO1_IO09", &port},
-        {gpio_out_ctrl_pin10, "GPIO1_IO10", &port},
-        {gpio_out_ctrl_pin11, "GPIO1_IO11", &port},
-        {gpio_out_ctrl_pin12, "GPIO1_IO12", &port},
-        {gpio_out_ctrl_pin13, "GPIO1_IO13", &port},
-        {gpio_out_ctrl_pin14, "GPIO1_IO14", &port},
-        {gpio_out_ctrl_pin15, "GPIO1_IO15", &port},
-        {gpio_out_ctrl_pin16, "GPIO1_IO16", &port},
-        {gpio_out_ctrl_pin17, "GPIO1_IO17", &port},
-        {gpio_out_ctrl_pin18, "GPIO1_IO18", &port},
-        {gpio_out_ctrl_pin19, "GPIO1_IO19", &port},
-        {gpio_out_ctrl_pin20, "GPIO1_IO20", &port},
-        {gpio_out_ctrl_pin21, "GPIO1_IO21", &port},
-        {gpio_out_ctrl_pin22, "GPIO1_IO22", &port},
-        {gpio_out_ctrl_pin23, "GPIO1_IO23", &port},
-        {gpio_out_ctrl_pin24, "GPIO1_IO24", &port},
-        {gpio_out_ctrl_pin25, "GPIO1_IO25", &port},
-        {gpio_out_ctrl_pin26, "GPIO1_IO26", &port},
-        {gpio_out_ctrl_pin27, "GPIO1_IO27", &port},
-        {gpio_out_ctrl_pin28, "GPIO1_IO28", &port},
-        {gpio_out_ctrl_pin29, "GPIO1_IO29", &port},
-        {gpio_out_ctrl_pin30, "GPIO1_IO30", &port},
-        {gpio_out_ctrl_pin31, "GPIO1_IO31", &port},
+        // {gpio_out_ctrl_pin9, "GPIO1_IO09", &port},
+        // {gpio_out_ctrl_pin10, "GPIO1_IO10", &port},
+        // {gpio_out_ctrl_pin11, "GPIO1_IO11", &port},
+        // {gpio_out_ctrl_pin12, "GPIO1_IO12", &port},
+        {gpio_out_ctrl_pin13, "GPIO1_IO13", &port},     // i2c-io rst pin, not used in gpio test
+        // {gpio_out_ctrl_pin14, "GPIO1_IO14", &port},
+        // {gpio_out_ctrl_pin15, "GPIO1_IO15", &port},
+        // {gpio_out_ctrl_pin16, "GPIO1_IO16", &port},
+        // {gpio_out_ctrl_pin17, "GPIO1_IO17", &port},
+        // {gpio_out_ctrl_pin18, "GPIO1_IO18", &port},
+        // {gpio_out_ctrl_pin19, "GPIO1_IO19", &port},
+        // {gpio_out_ctrl_pin20, "GPIO1_IO20", &port},
+        // {gpio_out_ctrl_pin21, "GPIO1_IO21", &port},
+        // {gpio_out_ctrl_pin22, "GPIO1_IO22", &port},
+        // {gpio_out_ctrl_pin23, "GPIO1_IO23", &port},
+        // {gpio_out_ctrl_pin24, "GPIO1_IO24", &port},
+        // {gpio_out_ctrl_pin25, "GPIO1_IO25", &port},
+        // {gpio_out_ctrl_pin26, "GPIO1_IO26", &port},
+        // {gpio_out_ctrl_pin27, "GPIO1_IO27", &port},
+        // {gpio_out_ctrl_pin28, "GPIO1_IO28", &port},
+        // {gpio_out_ctrl_pin29, "GPIO1_IO29", &port},
+        // {gpio_out_ctrl_pin30, "GPIO1_IO30", &port},
+        // {gpio_out_ctrl_pin31, "GPIO1_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -1089,7 +1145,7 @@ static int gpio_out_ctrl_port1(void)
 
 static int gpio_out_ctrl_port2(void)
 {
-    char *des = "GPIO PORT2 Control Menu";
+    char *des = "GPIO PORT2 OUTPUT TEST MENU";
     int port = GPIO_PORT2;
 
     menu_args_t gpio_port2_menu[] = {
@@ -1104,27 +1160,27 @@ static int gpio_out_ctrl_port2(void)
         {gpio_out_ctrl_pin8, "GPIO2_IO08", &port},
         {gpio_out_ctrl_pin9, "GPIO2_IO09", &port},
         {gpio_out_ctrl_pin10, "GPIO2_IO10", &port},
-        {gpio_out_ctrl_pin11, "GPIO2_IO11", &port},
-        {gpio_out_ctrl_pin12, "GPIO2_IO12", &port},
-        {gpio_out_ctrl_pin13, "GPIO2_IO13", &port},
-        {gpio_out_ctrl_pin14, "GPIO2_IO14", &port},
-        {gpio_out_ctrl_pin15, "GPIO2_IO15", &port},
-        {gpio_out_ctrl_pin16, "GPIO2_IO16", &port},
-        {gpio_out_ctrl_pin17, "GPIO2_IO17", &port},
-        {gpio_out_ctrl_pin18, "GPIO2_IO18", &port},
-        {gpio_out_ctrl_pin19, "GPIO2_IO19", &port},
+        // {gpio_out_ctrl_pin11, "GPIO2_IO11", &port},
+        // {gpio_out_ctrl_pin12, "GPIO2_IO12", &port},
+        // {gpio_out_ctrl_pin13, "GPIO2_IO13", &port},
+        // {gpio_out_ctrl_pin14, "GPIO2_IO14", &port},
+        // {gpio_out_ctrl_pin15, "GPIO2_IO15", &port},
+        // {gpio_out_ctrl_pin16, "GPIO2_IO16", &port},
+        // {gpio_out_ctrl_pin17, "GPIO2_IO17", &port},
+        // {gpio_out_ctrl_pin18, "GPIO2_IO18", &port},
+        // {gpio_out_ctrl_pin19, "GPIO2_IO19", &port},
         {gpio_out_ctrl_pin20, "GPIO2_IO20", &port},
-        {gpio_out_ctrl_pin21, "GPIO2_IO21", &port},
-        {gpio_out_ctrl_pin22, "GPIO2_IO22", &port},
-        {gpio_out_ctrl_pin23, "GPIO2_IO23", &port},
-        {gpio_out_ctrl_pin24, "GPIO2_IO24", &port},
-        {gpio_out_ctrl_pin25, "GPIO2_IO25", &port},
-        {gpio_out_ctrl_pin26, "GPIO2_IO26", &port},
-        {gpio_out_ctrl_pin27, "GPIO2_IO27", &port},
-        {gpio_out_ctrl_pin28, "GPIO2_IO28", &port},
-        {gpio_out_ctrl_pin29, "GPIO2_IO29", &port},
-        {gpio_out_ctrl_pin30, "GPIO2_IO30", &port},
-        {gpio_out_ctrl_pin31, "GPIO2_IO31", &port},
+        // {gpio_out_ctrl_pin21, "GPIO2_IO21", &port},
+        // {gpio_out_ctrl_pin22, "GPIO2_IO22", &port},
+        // {gpio_out_ctrl_pin23, "GPIO2_IO23", &port},
+        // {gpio_out_ctrl_pin24, "GPIO2_IO24", &port},
+        // {gpio_out_ctrl_pin25, "GPIO2_IO25", &port},
+        // {gpio_out_ctrl_pin26, "GPIO2_IO26", &port},
+        // {gpio_out_ctrl_pin27, "GPIO2_IO27", &port},
+        // {gpio_out_ctrl_pin28, "GPIO2_IO28", &port},
+        // {gpio_out_ctrl_pin29, "GPIO2_IO29", &port},
+        // {gpio_out_ctrl_pin30, "GPIO2_IO30", &port},
+        // {gpio_out_ctrl_pin31, "GPIO2_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -1135,42 +1191,42 @@ static int gpio_out_ctrl_port2(void)
 
 static int gpio_out_ctrl_port3(void)
 {
-    char *des = "GPIO PORT3 Control Menu";
+    char *des = "GPIO PORT3 OUTPUT TEST MENU";
     int port = GPIO_PORT3;
 
     menu_args_t gpio_port3_menu[] = {
-        {gpio_out_ctrl_pin0, "GPIO3_IO00", &port},
-        {gpio_out_ctrl_pin1, "GPIO3_IO01", &port},
-        {gpio_out_ctrl_pin2, "GPIO3_IO02", &port},
-        {gpio_out_ctrl_pin3, "GPIO3_IO03", &port},
-        {gpio_out_ctrl_pin4, "GPIO3_IO04", &port},
-        {gpio_out_ctrl_pin5, "GPIO3_IO05", &port},
-        {gpio_out_ctrl_pin6, "GPIO3_IO06", &port},
-        {gpio_out_ctrl_pin7, "GPIO3_IO07", &port},
-        {gpio_out_ctrl_pin8, "GPIO3_IO08", &port},
-        {gpio_out_ctrl_pin9, "GPIO3_IO09", &port},
-        {gpio_out_ctrl_pin10, "GPIO3_IO10", &port},
-        {gpio_out_ctrl_pin11, "GPIO3_IO11", &port},
-        {gpio_out_ctrl_pin12, "GPIO3_IO12", &port},
-        {gpio_out_ctrl_pin13, "GPIO3_IO13", &port},
-        {gpio_out_ctrl_pin14, "GPIO3_IO14", &port},
-        {gpio_out_ctrl_pin15, "GPIO3_IO15", &port},
-        {gpio_out_ctrl_pin16, "GPIO3_IO16", &port},
-        {gpio_out_ctrl_pin17, "GPIO3_IO17", &port},
-        {gpio_out_ctrl_pin18, "GPIO3_IO18", &port},
-        {gpio_out_ctrl_pin19, "GPIO3_IO19(PLD-OUT)", &port},
-        {gpio_out_ctrl_pin20, "GPIO3_IO20(PLD-IN)", &port},
+        // {gpio_out_ctrl_pin0, "GPIO3_IO00", &port},
+        // {gpio_out_ctrl_pin1, "GPIO3_IO01", &port},
+        // {gpio_out_ctrl_pin2, "GPIO3_IO02", &port},
+        // {gpio_out_ctrl_pin3, "GPIO3_IO03", &port},
+        // {gpio_out_ctrl_pin4, "GPIO3_IO04", &port},
+        // {gpio_out_ctrl_pin5, "GPIO3_IO05", &port},
+        // {gpio_out_ctrl_pin6, "GPIO3_IO06", &port},
+        // {gpio_out_ctrl_pin7, "GPIO3_IO07", &port},
+        // {gpio_out_ctrl_pin8, "GPIO3_IO08", &port},
+        // {gpio_out_ctrl_pin9, "GPIO3_IO09", &port},
+        // {gpio_out_ctrl_pin10, "GPIO3_IO10", &port},
+        // {gpio_out_ctrl_pin11, "GPIO3_IO11", &port},
+        // {gpio_out_ctrl_pin12, "GPIO3_IO12", &port},
+        // {gpio_out_ctrl_pin13, "GPIO3_IO13", &port},
+        // {gpio_out_ctrl_pin14, "GPIO3_IO14", &port},
+        // {gpio_out_ctrl_pin15, "GPIO3_IO15", &port},
+        // {gpio_out_ctrl_pin16, "GPIO3_IO16", &port},
+        // {gpio_out_ctrl_pin17, "GPIO3_IO17", &port},
+        // {gpio_out_ctrl_pin18, "GPIO3_IO18", &port},
+        {gpio_out_ctrl_pin19, "GPIO3_IO19", &port},
+        {gpio_out_ctrl_pin20, "GPIO3_IO20", &port},
         {gpio_out_ctrl_pin21, "GPIO3_IO21", &port},
         {gpio_out_ctrl_pin22, "GPIO3_IO22", &port},
-        {gpio_out_ctrl_pin23, "GPIO3_IO23", &port},
-        {gpio_out_ctrl_pin24, "GPIO3_IO24", &port},
-        {gpio_out_ctrl_pin25, "GPIO3_IO25", &port},
-        {gpio_out_ctrl_pin26, "GPIO3_IO26", &port},
-        {gpio_out_ctrl_pin27, "GPIO3_IO27", &port},
-        {gpio_out_ctrl_pin28, "GPIO3_IO28", &port},
-        {gpio_out_ctrl_pin29, "GPIO3_IO29", &port},
-        {gpio_out_ctrl_pin30, "GPIO3_IO30", &port},
-        {gpio_out_ctrl_pin31, "GPIO3_IO31", &port},
+        // {gpio_out_ctrl_pin23, "GPIO3_IO23", &port},
+        // {gpio_out_ctrl_pin24, "GPIO3_IO24", &port},
+        // {gpio_out_ctrl_pin25, "GPIO3_IO25", &port},
+        // {gpio_out_ctrl_pin26, "GPIO3_IO26", &port},
+        // {gpio_out_ctrl_pin27, "GPIO3_IO27", &port},
+        // {gpio_out_ctrl_pin28, "GPIO3_IO28", &port},
+        // {gpio_out_ctrl_pin29, "GPIO3_IO29", &port},
+        // {gpio_out_ctrl_pin30, "GPIO3_IO30", &port},
+        // {gpio_out_ctrl_pin31, "GPIO3_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -1181,42 +1237,42 @@ static int gpio_out_ctrl_port3(void)
 
 static int gpio_out_ctrl_port4(void)
 {
-    char *des = "GPIO PORT4 Control Menu";
+    char *des = "GPIO PORT4 OUTPUT TEST MENU";
     int port = GPIO_PORT4;
 
     menu_args_t gpio_port4_menu[] = {
         {gpio_out_ctrl_pin0, "GPIO4_IO00", &port},
-        {gpio_out_ctrl_pin1, "GPIO4_IO01", &port},
-        {gpio_out_ctrl_pin2, "GPIO4_IO02", &port},
-        {gpio_out_ctrl_pin3, "GPIO4_IO03", &port},
-        {gpio_out_ctrl_pin4, "GPIO4_IO04", &port},
-        {gpio_out_ctrl_pin5, "GPIO4_IO05", &port},
-        {gpio_out_ctrl_pin6, "GPIO4_IO06", &port},
-        {gpio_out_ctrl_pin7, "GPIO4_IO07", &port},
-        {gpio_out_ctrl_pin8, "GPIO4_IO08", &port},
-        {gpio_out_ctrl_pin9, "GPIO4_IO09", &port},
-        {gpio_out_ctrl_pin10, "GPIO4_IO10", &port},
-        {gpio_out_ctrl_pin11, "GPIO4_IO11", &port},
-        {gpio_out_ctrl_pin12, "GPIO4_IO12", &port},
-        {gpio_out_ctrl_pin13, "GPIO4_IO13", &port},
-        {gpio_out_ctrl_pin14, "GPIO4_IO14", &port},
-        {gpio_out_ctrl_pin15, "GPIO4_IO15", &port},
-        {gpio_out_ctrl_pin16, "GPIO4_IO16", &port},
-        {gpio_out_ctrl_pin17, "GPIO4_IO17", &port},
+        // {gpio_out_ctrl_pin1, "GPIO4_IO01", &port},
+        // {gpio_out_ctrl_pin2, "GPIO4_IO02", &port},
+        // {gpio_out_ctrl_pin3, "GPIO4_IO03", &port},
+        // {gpio_out_ctrl_pin4, "GPIO4_IO04", &port},
+        // {gpio_out_ctrl_pin5, "GPIO4_IO05", &port},
+        // {gpio_out_ctrl_pin6, "GPIO4_IO06", &port},
+        // {gpio_out_ctrl_pin7, "GPIO4_IO07", &port},
+        // {gpio_out_ctrl_pin8, "GPIO4_IO08", &port},
+        // {gpio_out_ctrl_pin9, "GPIO4_IO09", &port},
+        // {gpio_out_ctrl_pin10, "GPIO4_IO10", &port},
+        // {gpio_out_ctrl_pin11, "GPIO4_IO11", &port},
+        // {gpio_out_ctrl_pin12, "GPIO4_IO12", &port},
+        // {gpio_out_ctrl_pin13, "GPIO4_IO13", &port},
+        // {gpio_out_ctrl_pin14, "GPIO4_IO14", &port},
+        // {gpio_out_ctrl_pin15, "GPIO4_IO15", &port},
+        // {gpio_out_ctrl_pin16, "GPIO4_IO16", &port},
+        // {gpio_out_ctrl_pin17, "GPIO4_IO17", &port},
         {gpio_out_ctrl_pin18, "GPIO4_IO18", &port},
-        {gpio_out_ctrl_pin19, "GPIO4_IO19", &port},
+        // {gpio_out_ctrl_pin19, "GPIO4_IO19", &port},
         {gpio_out_ctrl_pin20, "GPIO4_IO20", &port},
-        {gpio_out_ctrl_pin21, "GPIO4_IO21", &port},
-        {gpio_out_ctrl_pin22, "GPIO4_IO22", &port},
-        {gpio_out_ctrl_pin23, "GPIO4_IO23", &port},
-        {gpio_out_ctrl_pin24, "GPIO4_IO24", &port},
-        {gpio_out_ctrl_pin25, "GPIO4_IO25", &port},
-        {gpio_out_ctrl_pin26, "GPIO4_IO26", &port},
-        {gpio_out_ctrl_pin27, "GPIO4_IO27", &port},
-        {gpio_out_ctrl_pin28, "GPIO4_IO28", &port},
-        {gpio_out_ctrl_pin29, "GPIO4_IO29", &port},
-        {gpio_out_ctrl_pin30, "GPIO4_IO30", &port},
-        {gpio_out_ctrl_pin31, "GPIO4_IO31", &port},
+        // {gpio_out_ctrl_pin21, "GPIO4_IO21", &port},
+        // {gpio_out_ctrl_pin22, "GPIO4_IO22", &port},
+        // {gpio_out_ctrl_pin23, "GPIO4_IO23", &port},
+        // {gpio_out_ctrl_pin24, "GPIO4_IO24", &port},
+        // {gpio_out_ctrl_pin25, "GPIO4_IO25", &port},
+        // {gpio_out_ctrl_pin26, "GPIO4_IO26", &port},
+        // {gpio_out_ctrl_pin27, "GPIO4_IO27", &port},
+        // {gpio_out_ctrl_pin28, "GPIO4_IO28", &port},
+        // {gpio_out_ctrl_pin29, "GPIO4_IO29", &port},
+        // {gpio_out_ctrl_pin30, "GPIO4_IO30", &port},
+        // {gpio_out_ctrl_pin31, "GPIO4_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -1227,42 +1283,42 @@ static int gpio_out_ctrl_port4(void)
 
 static int gpio_out_ctrl_port5(void)
 {
-    char *des = "GPIO PORT5 Control Menu";
+    char *des = "GPIO PORT5 OUTPUT TEST MENU";
     int port = GPIO_PORT5;
 
     menu_args_t gpio_port5_menu[] = {
-        {gpio_out_ctrl_pin0, "GPIO5_IO00", &port},
-        {gpio_out_ctrl_pin1, "GPIO5_IO01", &port},
-        {gpio_out_ctrl_pin2, "GPIO5_IO02", &port},
-        {gpio_out_ctrl_pin3, "GPIO5_IO03", &port},
-        {gpio_out_ctrl_pin4, "GPIO5_IO04", &port},
+        // {gpio_out_ctrl_pin0, "GPIO5_IO00", &port},
+        // {gpio_out_ctrl_pin1, "GPIO5_IO01", &port},
+        // {gpio_out_ctrl_pin2, "GPIO5_IO02", &port},
+        // {gpio_out_ctrl_pin3, "GPIO5_IO03", &port},
+        // {gpio_out_ctrl_pin4, "GPIO5_IO04", &port},
         {gpio_out_ctrl_pin5, "GPIO5_IO05", &port},
-        {gpio_out_ctrl_pin6, "GPIO5_IO06", &port},
-        {gpio_out_ctrl_pin7, "GPIO5_IO07", &port},
-        {gpio_out_ctrl_pin8, "GPIO5_IO08", &port},
-        {gpio_out_ctrl_pin9, "GPIO5_IO09", &port},
-        {gpio_out_ctrl_pin10, "GPIO5_IO10", &port},
-        {gpio_out_ctrl_pin11, "GPIO5_IO11", &port},
-        {gpio_out_ctrl_pin12, "GPIO5_IO12", &port},
-        {gpio_out_ctrl_pin13, "GPIO5_IO13", &port},
-        {gpio_out_ctrl_pin14, "GPIO5_IO14", &port},
-        {gpio_out_ctrl_pin15, "GPIO5_IO15", &port},
-        {gpio_out_ctrl_pin16, "GPIO5_IO16", &port},
-        {gpio_out_ctrl_pin17, "GPIO5_IO17", &port},
-        {gpio_out_ctrl_pin18, "GPIO5_IO18", &port},
-        {gpio_out_ctrl_pin19, "GPIO5_IO19", &port},
-        {gpio_out_ctrl_pin20, "GPIO5_IO20", &port},
-        {gpio_out_ctrl_pin21, "GPIO5_IO21", &port},
-        {gpio_out_ctrl_pin22, "GPIO5_IO22", &port},
-        {gpio_out_ctrl_pin23, "GPIO5_IO23", &port},
-        {gpio_out_ctrl_pin24, "GPIO5_IO24", &port},
-        {gpio_out_ctrl_pin25, "GPIO5_IO25", &port},
-        {gpio_out_ctrl_pin26, "GPIO5_IO26", &port},
-        {gpio_out_ctrl_pin27, "GPIO5_IO27", &port},
-        {gpio_out_ctrl_pin28, "GPIO5_IO28", &port},
-        {gpio_out_ctrl_pin29, "GPIO5_IO29", &port},
-        {gpio_out_ctrl_pin30, "GPIO5_IO30", &port},
-        {gpio_out_ctrl_pin31, "GPIO5_IO31", &port},
+        // {gpio_out_ctrl_pin6, "GPIO5_IO06", &port},
+        // {gpio_out_ctrl_pin7, "GPIO5_IO07", &port},
+        // {gpio_out_ctrl_pin8, "GPIO5_IO08", &port},
+        // {gpio_out_ctrl_pin9, "GPIO5_IO09", &port},
+        // {gpio_out_ctrl_pin10, "GPIO5_IO10", &port},
+        // {gpio_out_ctrl_pin11, "GPIO5_IO11", &port},
+        // {gpio_out_ctrl_pin12, "GPIO5_IO12", &port},
+        // {gpio_out_ctrl_pin13, "GPIO5_IO13", &port},
+        // {gpio_out_ctrl_pin14, "GPIO5_IO14", &port},
+        // {gpio_out_ctrl_pin15, "GPIO5_IO15", &port},
+        // {gpio_out_ctrl_pin16, "GPIO5_IO16", &port},
+        // {gpio_out_ctrl_pin17, "GPIO5_IO17", &port},
+        // {gpio_out_ctrl_pin18, "GPIO5_IO18", &port},
+        // {gpio_out_ctrl_pin19, "GPIO5_IO19", &port},
+        // {gpio_out_ctrl_pin20, "GPIO5_IO20", &port},
+        // {gpio_out_ctrl_pin21, "GPIO5_IO21", &port},
+        // {gpio_out_ctrl_pin22, "GPIO5_IO22", &port},
+        // {gpio_out_ctrl_pin23, "GPIO5_IO23", &port},
+        // {gpio_out_ctrl_pin24, "GPIO5_IO24", &port},
+        // {gpio_out_ctrl_pin25, "GPIO5_IO25", &port},
+        // {gpio_out_ctrl_pin26, "GPIO5_IO26", &port},
+        // {gpio_out_ctrl_pin27, "GPIO5_IO27", &port},
+        // {gpio_out_ctrl_pin28, "GPIO5_IO28", &port},
+        // {gpio_out_ctrl_pin29, "GPIO5_IO29", &port},
+        // {gpio_out_ctrl_pin30, "GPIO5_IO30", &port},
+        // {gpio_out_ctrl_pin31, "GPIO5_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -1273,7 +1329,7 @@ static int gpio_out_ctrl_port5(void)
 
 static int gpio_out_ctrl_port6(void)
 {
-    char *des = "GPIO PORT6 Control Menu";
+    char *des = "GPIO PORT6(I2C-IO) OUTPUT TEST MENU";
     int port = GPIO_PORT6;
 
     menu_args_t gpio_port6_menu[] = {
@@ -1321,7 +1377,7 @@ static int gpio_out_ctrl_port6(void)
 
 static int gpio_out_ctrl_port7(void)
 {
-    char *des = "GPIO PORT7 Control Menu";
+    char *des = "GPIO PORT7(SPI-IO) OUTPUT TEST MENU";
     int port = GPIO_PORT7;
 
     menu_args_t gpio_port7_menu[] = {
@@ -1860,42 +1916,42 @@ static int gpio_in_ctrl_pin31(void *port)
 
 static int gpio_in_ctrl_port1(void)
 {
-    char *des = "GPIO PORT1 Control Menu";
+    char *des = "GPIO PORT1 INPUT TEST MENU";
     int port = GPIO_PORT1;
 
     menu_args_t gpio_port1_menu[] = {
         {gpio_in_ctrl_pin0, "GPIO1_IO00", &port},
-        {gpio_in_ctrl_pin1, "GPIO1_IO01", &port},
-        {gpio_in_ctrl_pin2, "GPIO1_IO02", &port},
-        {gpio_in_ctrl_pin3, "GPIO1_IO03", &port},
-        {gpio_in_ctrl_pin4, "GPIO1_IO04", &port},
-        {gpio_in_ctrl_pin5, "GPIO1_IO05", &port},
-        {gpio_in_ctrl_pin6, "GPIO1_IO06", &port},
+        // {gpio_in_ctrl_pin1, "GPIO1_IO01", &port},
+        // {gpio_in_ctrl_pin2, "GPIO1_IO02", &port},
+        // {gpio_in_ctrl_pin3, "GPIO1_IO03", &port},
+        // {gpio_in_ctrl_pin4, "GPIO1_IO04", &port},
+        // {gpio_in_ctrl_pin5, "GPIO1_IO05", &port},
+        // {gpio_in_ctrl_pin6, "GPIO1_IO06", &port},
         {gpio_in_ctrl_pin7, "GPIO1_IO07", &port},
         {gpio_in_ctrl_pin8, "GPIO1_IO08", &port},
-        {gpio_in_ctrl_pin9, "GPIO1_IO09", &port},
-        {gpio_in_ctrl_pin10, "GPIO1_IO10", &port},
-        {gpio_in_ctrl_pin11, "GPIO1_IO11", &port},
-        {gpio_in_ctrl_pin12, "GPIO1_IO12", &port},
+        // {gpio_in_ctrl_pin9, "GPIO1_IO09", &port},
+        // {gpio_in_ctrl_pin10, "GPIO1_IO10", &port},
+        // {gpio_in_ctrl_pin11, "GPIO1_IO11", &port},
+        // {gpio_in_ctrl_pin12, "GPIO1_IO12", &port},
         {gpio_in_ctrl_pin13, "GPIO1_IO13", &port},
-        {gpio_in_ctrl_pin14, "GPIO1_IO14", &port},
-        {gpio_in_ctrl_pin15, "GPIO1_IO15", &port},
-        {gpio_in_ctrl_pin16, "GPIO1_IO16", &port},
-        {gpio_in_ctrl_pin17, "GPIO1_IO17", &port},
-        {gpio_in_ctrl_pin18, "GPIO1_IO18", &port},
-        {gpio_in_ctrl_pin19, "GPIO1_IO19", &port},
-        {gpio_in_ctrl_pin20, "GPIO1_IO20", &port},
-        {gpio_in_ctrl_pin21, "GPIO1_IO21", &port},
-        {gpio_in_ctrl_pin22, "GPIO1_IO22", &port},
-        {gpio_in_ctrl_pin23, "GPIO1_IO23", &port},
-        {gpio_in_ctrl_pin24, "GPIO1_IO24", &port},
-        {gpio_in_ctrl_pin25, "GPIO1_IO25", &port},
-        {gpio_in_ctrl_pin26, "GPIO1_IO26", &port},
-        {gpio_in_ctrl_pin27, "GPIO1_IO27", &port},
-        {gpio_in_ctrl_pin28, "GPIO1_IO28", &port},
-        {gpio_in_ctrl_pin29, "GPIO1_IO29", &port},
-        {gpio_in_ctrl_pin30, "GPIO1_IO30", &port},
-        {gpio_in_ctrl_pin31, "GPIO1_IO31", &port},
+        // {gpio_in_ctrl_pin14, "GPIO1_IO14", &port},       // i2c-io rst pin
+        // {gpio_in_ctrl_pin15, "GPIO1_IO15", &port},
+        // {gpio_in_ctrl_pin16, "GPIO1_IO16", &port},
+        // {gpio_in_ctrl_pin17, "GPIO1_IO17", &port},
+        // {gpio_in_ctrl_pin18, "GPIO1_IO18", &port},
+        // {gpio_in_ctrl_pin19, "GPIO1_IO19", &port},
+        // {gpio_in_ctrl_pin20, "GPIO1_IO20", &port},
+        // {gpio_in_ctrl_pin21, "GPIO1_IO21", &port},
+        // {gpio_in_ctrl_pin22, "GPIO1_IO22", &port},
+        // {gpio_in_ctrl_pin23, "GPIO1_IO23", &port},
+        // {gpio_in_ctrl_pin24, "GPIO1_IO24", &port},
+        // {gpio_in_ctrl_pin25, "GPIO1_IO25", &port},
+        // {gpio_in_ctrl_pin26, "GPIO1_IO26", &port},
+        // {gpio_in_ctrl_pin27, "GPIO1_IO27", &port},
+        // {gpio_in_ctrl_pin28, "GPIO1_IO28", &port},
+        // {gpio_in_ctrl_pin29, "GPIO1_IO29", &port},
+        // {gpio_in_ctrl_pin30, "GPIO1_IO30", &port},
+        // {gpio_in_ctrl_pin31, "GPIO1_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -1906,7 +1962,7 @@ static int gpio_in_ctrl_port1(void)
 
 static int gpio_in_ctrl_port2(void)
 {
-    char *des = "GPIO PORT2 Control Menu";
+    char *des = "GPIO PORT2 INPUT TEST MENU";
     int port = GPIO_PORT2;
 
     menu_args_t gpio_port2_menu[] = {
@@ -1921,27 +1977,27 @@ static int gpio_in_ctrl_port2(void)
         {gpio_in_ctrl_pin8, "GPIO2_IO08", &port},
         {gpio_in_ctrl_pin9, "GPIO2_IO09", &port},
         {gpio_in_ctrl_pin10, "GPIO2_IO10", &port},
-        {gpio_in_ctrl_pin11, "GPIO2_IO11", &port},
-        {gpio_in_ctrl_pin12, "GPIO2_IO12", &port},
-        {gpio_in_ctrl_pin13, "GPIO2_IO13", &port},
-        {gpio_in_ctrl_pin14, "GPIO2_IO14", &port},
-        {gpio_in_ctrl_pin15, "GPIO2_IO15", &port},
-        {gpio_in_ctrl_pin16, "GPIO2_IO16", &port},
-        {gpio_in_ctrl_pin17, "GPIO2_IO17", &port},
-        {gpio_in_ctrl_pin18, "GPIO2_IO18", &port},
-        {gpio_in_ctrl_pin19, "GPIO2_IO19", &port},
+        // {gpio_in_ctrl_pin11, "GPIO2_IO11", &port},
+        // {gpio_in_ctrl_pin12, "GPIO2_IO12", &port},
+        // {gpio_in_ctrl_pin13, "GPIO2_IO13", &port},
+        // {gpio_in_ctrl_pin14, "GPIO2_IO14", &port},
+        // {gpio_in_ctrl_pin15, "GPIO2_IO15", &port},
+        // {gpio_in_ctrl_pin16, "GPIO2_IO16", &port},
+        // {gpio_in_ctrl_pin17, "GPIO2_IO17", &port},
+        // {gpio_in_ctrl_pin18, "GPIO2_IO18", &port},
+        // {gpio_in_ctrl_pin19, "GPIO2_IO19", &port},
         {gpio_in_ctrl_pin20, "GPIO2_IO20", &port},
-        {gpio_in_ctrl_pin21, "GPIO2_IO21", &port},
-        {gpio_in_ctrl_pin22, "GPIO2_IO22", &port},
-        {gpio_in_ctrl_pin23, "GPIO2_IO23", &port},
-        {gpio_in_ctrl_pin24, "GPIO2_IO24", &port},
-        {gpio_in_ctrl_pin25, "GPIO2_IO25", &port},
-        {gpio_in_ctrl_pin26, "GPIO2_IO26", &port},
-        {gpio_in_ctrl_pin27, "GPIO2_IO27", &port},
-        {gpio_in_ctrl_pin28, "GPIO2_IO28", &port},
-        {gpio_in_ctrl_pin29, "GPIO2_IO29", &port},
-        {gpio_in_ctrl_pin30, "GPIO2_IO30", &port},
-        {gpio_in_ctrl_pin31, "GPIO2_IO31", &port},
+        // {gpio_in_ctrl_pin21, "GPIO2_IO21", &port},
+        // {gpio_in_ctrl_pin22, "GPIO2_IO22", &port},
+        // {gpio_in_ctrl_pin23, "GPIO2_IO23", &port},
+        // {gpio_in_ctrl_pin24, "GPIO2_IO24", &port},
+        // {gpio_in_ctrl_pin25, "GPIO2_IO25", &port},
+        // {gpio_in_ctrl_pin26, "GPIO2_IO26", &port},
+        // {gpio_in_ctrl_pin27, "GPIO2_IO27", &port},
+        // {gpio_in_ctrl_pin28, "GPIO2_IO28", &port},
+        // {gpio_in_ctrl_pin29, "GPIO2_IO29", &port},
+        // {gpio_in_ctrl_pin30, "GPIO2_IO30", &port},
+        // {gpio_in_ctrl_pin31, "GPIO2_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -1952,42 +2008,42 @@ static int gpio_in_ctrl_port2(void)
 
 static int gpio_in_ctrl_port3(void)
 {
-    char *des = "GPIO PORT3 Control Menu";
+    char *des = "GPIO PORT3 INPUT TEST MENU";
     int port = GPIO_PORT3;
 
     menu_args_t gpio_port3_menu[] = {
-        {gpio_in_ctrl_pin0, "GPIO3_IO00", &port},
-        {gpio_in_ctrl_pin1, "GPIO3_IO01", &port},
-        {gpio_in_ctrl_pin2, "GPIO3_IO02", &port},
-        {gpio_in_ctrl_pin3, "GPIO3_IO03", &port},
-        {gpio_in_ctrl_pin4, "GPIO3_IO04", &port},
-        {gpio_in_ctrl_pin5, "GPIO3_IO05", &port},
-        {gpio_in_ctrl_pin6, "GPIO3_IO06", &port},
-        {gpio_in_ctrl_pin7, "GPIO3_IO07", &port},
-        {gpio_in_ctrl_pin8, "GPIO3_IO08", &port},
-        {gpio_in_ctrl_pin9, "GPIO3_IO09", &port},
-        {gpio_in_ctrl_pin10, "GPIO3_IO10", &port},
-        {gpio_in_ctrl_pin11, "GPIO3_IO11", &port},
-        {gpio_in_ctrl_pin12, "GPIO3_IO12", &port},
-        {gpio_in_ctrl_pin13, "GPIO3_IO13", &port},
-        {gpio_in_ctrl_pin14, "GPIO3_IO14", &port},
-        {gpio_in_ctrl_pin15, "GPIO3_IO15", &port},
-        {gpio_in_ctrl_pin16, "GPIO3_IO16", &port},
-        {gpio_in_ctrl_pin17, "GPIO3_IO17", &port},
-        {gpio_in_ctrl_pin18, "GPIO3_IO18", &port},
-        {gpio_in_ctrl_pin19, "GPIO3_IO19(PLD-OUT)", &port},
-        {gpio_in_ctrl_pin20, "GPIO3_IO20(PLD-IN)", &port},
+        // {gpio_in_ctrl_pin0, "GPIO3_IO00", &port},
+        // {gpio_in_ctrl_pin1, "GPIO3_IO01", &port},
+        // {gpio_in_ctrl_pin2, "GPIO3_IO02", &port},
+        // {gpio_in_ctrl_pin3, "GPIO3_IO03", &port},
+        // {gpio_in_ctrl_pin4, "GPIO3_IO04", &port},
+        // {gpio_in_ctrl_pin5, "GPIO3_IO05", &port},
+        // {gpio_in_ctrl_pin6, "GPIO3_IO06", &port},
+        // {gpio_in_ctrl_pin7, "GPIO3_IO07", &port},
+        // {gpio_in_ctrl_pin8, "GPIO3_IO08", &port},
+        // {gpio_in_ctrl_pin9, "GPIO3_IO09", &port},
+        // {gpio_in_ctrl_pin10, "GPIO3_IO10", &port},
+        // {gpio_in_ctrl_pin11, "GPIO3_IO11", &port},
+        // {gpio_in_ctrl_pin12, "GPIO3_IO12", &port},
+        // {gpio_in_ctrl_pin13, "GPIO3_IO13", &port},
+        // {gpio_in_ctrl_pin14, "GPIO3_IO14", &port},
+        // {gpio_in_ctrl_pin15, "GPIO3_IO15", &port},
+        // {gpio_in_ctrl_pin16, "GPIO3_IO16", &port},
+        // {gpio_in_ctrl_pin17, "GPIO3_IO17", &port},
+        // {gpio_in_ctrl_pin18, "GPIO3_IO18", &port},
+        // {gpio_in_ctrl_pin19, "GPIO3_IO19", &port},
+        // {gpio_in_ctrl_pin20, "GPIO3_IO20", &port},
         {gpio_in_ctrl_pin21, "GPIO3_IO21", &port},
         {gpio_in_ctrl_pin22, "GPIO3_IO22", &port},
-        {gpio_in_ctrl_pin23, "GPIO3_IO23", &port},
-        {gpio_in_ctrl_pin24, "GPIO3_IO24", &port},
-        {gpio_in_ctrl_pin25, "GPIO3_IO25", &port},
-        {gpio_in_ctrl_pin26, "GPIO3_IO26", &port},
-        {gpio_in_ctrl_pin27, "GPIO3_IO27", &port},
-        {gpio_in_ctrl_pin28, "GPIO3_IO28", &port},
-        {gpio_in_ctrl_pin29, "GPIO3_IO29", &port},
-        {gpio_in_ctrl_pin30, "GPIO3_IO30", &port},
-        {gpio_in_ctrl_pin31, "GPIO3_IO31", &port},
+        // {gpio_in_ctrl_pin23, "GPIO3_IO23", &port},
+        // {gpio_in_ctrl_pin24, "GPIO3_IO24", &port},
+        // {gpio_in_ctrl_pin25, "GPIO3_IO25", &port},
+        // {gpio_in_ctrl_pin26, "GPIO3_IO26", &port},
+        // {gpio_in_ctrl_pin27, "GPIO3_IO27", &port},
+        // {gpio_in_ctrl_pin28, "GPIO3_IO28", &port},
+        // {gpio_in_ctrl_pin29, "GPIO3_IO29", &port},
+        // {gpio_in_ctrl_pin30, "GPIO3_IO30", &port},
+        // {gpio_in_ctrl_pin31, "GPIO3_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -1998,42 +2054,42 @@ static int gpio_in_ctrl_port3(void)
 
 static int gpio_in_ctrl_port4(void)
 {
-    char *des = "GPIO PORT4 Control Menu";
+    char *des = "GPIO PORT4 INPUT TEST MENU";
     int port = GPIO_PORT4;
 
     menu_args_t gpio_port4_menu[] = {
         {gpio_in_ctrl_pin0, "GPIO4_IO00", &port},
-        {gpio_in_ctrl_pin1, "GPIO4_IO01", &port},
-        {gpio_in_ctrl_pin2, "GPIO4_IO02", &port},
-        {gpio_in_ctrl_pin3, "GPIO4_IO03", &port},
-        {gpio_in_ctrl_pin4, "GPIO4_IO04", &port},
-        {gpio_in_ctrl_pin5, "GPIO4_IO05", &port},
-        {gpio_in_ctrl_pin6, "GPIO4_IO06", &port},
-        {gpio_in_ctrl_pin7, "GPIO4_IO07", &port},
-        {gpio_in_ctrl_pin8, "GPIO4_IO08", &port},
-        {gpio_in_ctrl_pin9, "GPIO4_IO09", &port},
-        {gpio_in_ctrl_pin10, "GPIO4_IO10", &port},
-        {gpio_in_ctrl_pin11, "GPIO4_IO11", &port},
-        {gpio_in_ctrl_pin12, "GPIO4_IO12", &port},
-        {gpio_in_ctrl_pin13, "GPIO4_IO13", &port},
-        {gpio_in_ctrl_pin14, "GPIO4_IO14", &port},
-        {gpio_in_ctrl_pin15, "GPIO4_IO15", &port},
-        {gpio_in_ctrl_pin16, "GPIO4_IO16", &port},
-        {gpio_in_ctrl_pin17, "GPIO4_IO17", &port},
+        // {gpio_in_ctrl_pin1, "GPIO4_IO01", &port},
+        // {gpio_in_ctrl_pin2, "GPIO4_IO02", &port},
+        // {gpio_in_ctrl_pin3, "GPIO4_IO03", &port},
+        // {gpio_in_ctrl_pin4, "GPIO4_IO04", &port},
+        // {gpio_in_ctrl_pin5, "GPIO4_IO05", &port},
+        // {gpio_in_ctrl_pin6, "GPIO4_IO06", &port},
+        // {gpio_in_ctrl_pin7, "GPIO4_IO07", &port},
+        // {gpio_in_ctrl_pin8, "GPIO4_IO08", &port},
+        // {gpio_in_ctrl_pin9, "GPIO4_IO09", &port},
+        // {gpio_in_ctrl_pin10, "GPIO4_IO10", &port},
+        // {gpio_in_ctrl_pin11, "GPIO4_IO11", &port},
+        // {gpio_in_ctrl_pin12, "GPIO4_IO12", &port},
+        // {gpio_in_ctrl_pin13, "GPIO4_IO13", &port},
+        // {gpio_in_ctrl_pin14, "GPIO4_IO14", &port},
+        // {gpio_in_ctrl_pin15, "GPIO4_IO15", &port},
+        // {gpio_in_ctrl_pin16, "GPIO4_IO16", &port},
+        // {gpio_in_ctrl_pin17, "GPIO4_IO17", &port},
         {gpio_in_ctrl_pin18, "GPIO4_IO18", &port},
-        {gpio_in_ctrl_pin19, "GPIO4_IO19", &port},
+        // {gpio_in_ctrl_pin19, "GPIO4_IO19", &port},
         {gpio_in_ctrl_pin20, "GPIO4_IO20", &port},
-        {gpio_in_ctrl_pin21, "GPIO4_IO21", &port},
-        {gpio_in_ctrl_pin22, "GPIO4_IO22", &port},
-        {gpio_in_ctrl_pin23, "GPIO4_IO23", &port},
-        {gpio_in_ctrl_pin24, "GPIO4_IO24", &port},
-        {gpio_in_ctrl_pin25, "GPIO4_IO25", &port},
-        {gpio_in_ctrl_pin26, "GPIO4_IO26", &port},
-        {gpio_in_ctrl_pin27, "GPIO4_IO27", &port},
-        {gpio_in_ctrl_pin28, "GPIO4_IO28", &port},
-        {gpio_in_ctrl_pin29, "GPIO4_IO29", &port},
-        {gpio_in_ctrl_pin30, "GPIO4_IO30", &port},
-        {gpio_in_ctrl_pin31, "GPIO4_IO31", &port},
+        // {gpio_in_ctrl_pin21, "GPIO4_IO21", &port},
+        // {gpio_in_ctrl_pin22, "GPIO4_IO22", &port},
+        // {gpio_in_ctrl_pin23, "GPIO4_IO23", &port},
+        // {gpio_in_ctrl_pin24, "GPIO4_IO24", &port},
+        // {gpio_in_ctrl_pin25, "GPIO4_IO25", &port},
+        // {gpio_in_ctrl_pin26, "GPIO4_IO26", &port},
+        // {gpio_in_ctrl_pin27, "GPIO4_IO27", &port},
+        // {gpio_in_ctrl_pin28, "GPIO4_IO28", &port},
+        // {gpio_in_ctrl_pin29, "GPIO4_IO29", &port},
+        // {gpio_in_ctrl_pin30, "GPIO4_IO30", &port},
+        // {gpio_in_ctrl_pin31, "GPIO4_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -2044,42 +2100,42 @@ static int gpio_in_ctrl_port4(void)
 
 static int gpio_in_ctrl_port5(void)
 {
-    char *des = "GPIO PORT5 Control Menu";
+    char *des = "GPIO PORT5 INPUT TEST MENU";
     int port = GPIO_PORT5;
 
     menu_args_t gpio_port5_menu[] = {
-        {gpio_in_ctrl_pin0, "GPIO5_IO00", &port},
-        {gpio_in_ctrl_pin1, "GPIO5_IO01", &port},
-        {gpio_in_ctrl_pin2, "GPIO5_IO02", &port},
-        {gpio_in_ctrl_pin3, "GPIO5_IO03", &port},
-        {gpio_in_ctrl_pin4, "GPIO5_IO04", &port},
+        // {gpio_in_ctrl_pin0, "GPIO5_IO00", &port},
+        // {gpio_in_ctrl_pin1, "GPIO5_IO01", &port},
+        // {gpio_in_ctrl_pin2, "GPIO5_IO02", &port},
+        // {gpio_in_ctrl_pin3, "GPIO5_IO03", &port},
+        // {gpio_in_ctrl_pin4, "GPIO5_IO04", &port},
         {gpio_in_ctrl_pin5, "GPIO5_IO05", &port},
-        {gpio_in_ctrl_pin6, "GPIO5_IO06", &port},
-        {gpio_in_ctrl_pin7, "GPIO5_IO07", &port},
-        {gpio_in_ctrl_pin8, "GPIO5_IO08", &port},
-        {gpio_in_ctrl_pin9, "GPIO5_IO09", &port},
-        {gpio_in_ctrl_pin10, "GPIO5_IO10", &port},
-        {gpio_in_ctrl_pin11, "GPIO5_IO11", &port},
-        {gpio_in_ctrl_pin12, "GPIO5_IO12", &port},
-        {gpio_in_ctrl_pin13, "GPIO5_IO13", &port},
-        {gpio_in_ctrl_pin14, "GPIO5_IO14", &port},
-        {gpio_in_ctrl_pin15, "GPIO5_IO15", &port},
-        {gpio_in_ctrl_pin16, "GPIO5_IO16", &port},
-        {gpio_in_ctrl_pin17, "GPIO5_IO17", &port},
-        {gpio_in_ctrl_pin18, "GPIO5_IO18", &port},
-        {gpio_in_ctrl_pin19, "GPIO5_IO19", &port},
-        {gpio_in_ctrl_pin20, "GPIO5_IO20", &port},
-        {gpio_in_ctrl_pin21, "GPIO5_IO21", &port},
-        {gpio_in_ctrl_pin22, "GPIO5_IO22", &port},
-        {gpio_in_ctrl_pin23, "GPIO5_IO23", &port},
-        {gpio_in_ctrl_pin24, "GPIO5_IO24", &port},
-        {gpio_in_ctrl_pin25, "GPIO5_IO25", &port},
-        {gpio_in_ctrl_pin26, "GPIO5_IO26", &port},
-        {gpio_in_ctrl_pin27, "GPIO5_IO27", &port},
-        {gpio_in_ctrl_pin28, "GPIO5_IO28", &port},
-        {gpio_in_ctrl_pin29, "GPIO5_IO29", &port},
-        {gpio_in_ctrl_pin30, "GPIO5_IO30", &port},
-        {gpio_in_ctrl_pin31, "GPIO5_IO31", &port},
+        // {gpio_in_ctrl_pin6, "GPIO5_IO06", &port},
+        // {gpio_in_ctrl_pin7, "GPIO5_IO07", &port},
+        // {gpio_in_ctrl_pin8, "GPIO5_IO08", &port},
+        // {gpio_in_ctrl_pin9, "GPIO5_IO09", &port},
+        // {gpio_in_ctrl_pin10, "GPIO5_IO10", &port},
+        // {gpio_in_ctrl_pin11, "GPIO5_IO11", &port},
+        // {gpio_in_ctrl_pin12, "GPIO5_IO12", &port},
+        // {gpio_in_ctrl_pin13, "GPIO5_IO13", &port},
+        // {gpio_in_ctrl_pin14, "GPIO5_IO14", &port},
+        // {gpio_in_ctrl_pin15, "GPIO5_IO15", &port},
+        // {gpio_in_ctrl_pin16, "GPIO5_IO16", &port},
+        // {gpio_in_ctrl_pin17, "GPIO5_IO17", &port},
+        // {gpio_in_ctrl_pin18, "GPIO5_IO18", &port},
+        // {gpio_in_ctrl_pin19, "GPIO5_IO19", &port},
+        // {gpio_in_ctrl_pin20, "GPIO5_IO20", &port},
+        // {gpio_in_ctrl_pin21, "GPIO5_IO21", &port},
+        // {gpio_in_ctrl_pin22, "GPIO5_IO22", &port},
+        // {gpio_in_ctrl_pin23, "GPIO5_IO23", &port},
+        // {gpio_in_ctrl_pin24, "GPIO5_IO24", &port},
+        // {gpio_in_ctrl_pin25, "GPIO5_IO25", &port},
+        // {gpio_in_ctrl_pin26, "GPIO5_IO26", &port},
+        // {gpio_in_ctrl_pin27, "GPIO5_IO27", &port},
+        // {gpio_in_ctrl_pin28, "GPIO5_IO28", &port},
+        // {gpio_in_ctrl_pin29, "GPIO5_IO29", &port},
+        // {gpio_in_ctrl_pin30, "GPIO5_IO30", &port},
+        // {gpio_in_ctrl_pin31, "GPIO5_IO31", &port},
         { back2, "back", &port }
     };
 
@@ -2090,7 +2146,7 @@ static int gpio_in_ctrl_port5(void)
 
 static int gpio_in_ctrl_port6(void)
 {
-    char *des = "GPIO PORT6 Control Menu";
+    char *des = "GPIO PORT6(I2C-IO) INPUT TEST MENU";
     int port = GPIO_PORT6;
 
     menu_args_t gpio_port6_menu[] = {
@@ -2138,7 +2194,7 @@ static int gpio_in_ctrl_port6(void)
 
 static int gpio_in_ctrl_port7(void)
 {
-    char *des = "GPIO PORT7 Control Menu";
+    char *des = "GPIO PORT7(SPI-IO) INPUT TEST MENU";
     int port = GPIO_PORT7;
 
     menu_args_t gpio_port7_menu[] = {
@@ -2189,7 +2245,7 @@ static menu_t gpio_out_menu[] = {
     {gpio_out_ctrl_port2, "GPIO PORT2"},
     {gpio_out_ctrl_port3, "GPIO PORT3"},
     {gpio_out_ctrl_port4, "GPIO PORT4"},
-    {gpio_out_ctrl_port5, "GPIO PORT5"},
+    // {gpio_out_ctrl_port5, "GPIO PORT5"},
     {gpio_out_ctrl_port6, "GPIO PORT6(I2C-IO)"},
     {gpio_out_ctrl_port7, "GPIO PORT7(SPI-IO)"},
     {back, "back"},
@@ -2201,7 +2257,7 @@ static menu_t gpio_in_menu[] = {
     {gpio_in_ctrl_port2, "GPIO PORT2"},
     {gpio_in_ctrl_port3, "GPIO PORT3"},
     {gpio_in_ctrl_port4, "GPIO PORT4"},
-    {gpio_in_ctrl_port5, "GPIO PORT5"},
+    // {gpio_in_ctrl_port5, "GPIO PORT5"},
     {gpio_in_ctrl_port6, "GPIO PORT6(I2C-IO)"},
     {gpio_in_ctrl_port7, "GPIO PORT7(SPI-IO)"},
     {back, "back"},
@@ -2242,20 +2298,61 @@ void gpio_init(void)
 
     for (port = GPIO_PORT1; port < MAX_GPIO_PORT; port++) {
         for (pin = GPIO_PIN0; pin < MAX_GPIO_PIN; pin++) {
-            if (port == GPIO_PORT3 && pin == GPIO_PIN20) {
-                gpio_stat[port][pin].init_flag = true;
+            if (port == GPIO_PORT1 &&
+                (pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
+                    pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN9 ||
+                    pin == GPIO_PIN10 || pin == GPIO_PIN11 || pin == GPIO_PIN12 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
+                    pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 || pin == GPIO_PIN19 ||
+                    pin == GPIO_PIN20 || pin == GPIO_PIN21 || pin == GPIO_PIN22 ||
+                    pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
+                    pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
+                    pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
                 continue;
-            }
 
-            if (port == GPIO_PORT1 && pin == GPIO_PIN8) {
-                gpio_stat[port][pin].init_flag = true;
+            if (port == GPIO_PORT2 &&
+                (pin == GPIO_PIN11 || pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
+                    pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 || pin == GPIO_PIN19 ||
+                    pin == GPIO_PIN21 || pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 ||
+                    pin == GPIO_PIN25 || pin == GPIO_PIN26 || pin == GPIO_PIN27 ||
+                    pin == GPIO_PIN28 || pin == GPIO_PIN29 || pin == GPIO_PIN30 ||
+                    pin == GPIO_PIN31))
                 continue;
-            }
 
-            if (port == GPIO_PORT2 && pin == GPIO_PIN0) {
-                gpio_stat[port][pin].init_flag = true;
+            if (port == GPIO_PORT3 &&
+                (pin == GPIO_PIN0 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
+                    pin == GPIO_PIN4 || pin == GPIO_PIN5 ||
+                    pin == GPIO_PIN6 || pin == GPIO_PIN7 || pin == GPIO_PIN8 ||
+                    pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
+                    pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 ||
+                    pin == GPIO_PIN15 || pin == GPIO_PIN16 || pin == GPIO_PIN17 ||
+                    pin == GPIO_PIN18 || pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
+                    pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
+                    pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
                 continue;
-            }
+
+            if (port == GPIO_PORT4 &&
+                (pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
+                    pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN7 ||
+                    pin == GPIO_PIN8 || pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
+                    pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
+                    pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN19 || pin == GPIO_PIN21 ||
+                    pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
+                    pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
+                    pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
+                continue;
+
+            if (port == GPIO_PORT5 &&
+                (pin == GPIO_PIN0 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
+                    pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN7 ||
+                    pin == GPIO_PIN8 || pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
+                    pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
+                    pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 ||
+                    pin == GPIO_PIN19 || pin == GPIO_PIN20 || pin == GPIO_PIN21 ||
+                    pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 ||
+                    pin == GPIO_PIN25 || pin == GPIO_PIN26 || pin == GPIO_PIN27 ||
+                    pin == GPIO_PIN28 || pin == GPIO_PIN29 || pin == GPIO_PIN30 ||
+                    pin == GPIO_PIN31))
+                continue;
 
             sig = gpio_read(port, pin);
             if (sig < 0)
@@ -2271,8 +2368,8 @@ void gpio_init(void)
     if (pthread_create(&det_thread, NULL, (void *)gpio_det_thread, NULL) < 0)
         exit(1);
 
-    if (pthread_create(&cpld_det_thread, NULL, (void *)gpio_cpld_det_thread, NULL) < 0)
-        exit(1);
+    // if (pthread_create(&cpld_det_thread, NULL, (void *)gpio_cpld_det_thread, NULL) < 0)
+    //     exit(1);
 
     printf("GPIO Init Ok.\n");
 }

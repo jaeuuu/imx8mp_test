@@ -50,17 +50,21 @@ static int touch_calibration_exec(const char *cmd)
     return 0;
 }
 
+static const char *lcd_type = NULL;
 static int touch_calibration(void)
 {
-    menu_args_t touch_calibration_menu[] = {
-        {touch_calibration_exec, "LVDS TOUCH", "weston-touch-calibrator LVDS-1 > /dev/null 2>&1"},
-        {touch_calibration_exec, "MIPI-DSI TOUCH", "weston-touch-calibrator DSI-1 > /dev/null 2>&1"},
-        {back2, "back", ""}
-    };
+    char cmd[256];
+    sprintf(cmd, "weston-touch-calibrator %s > /dev/null 2>&1", lcd_type);
+    system(cmd);
+    // menu_args_t touch_calibration_menu[] = {
+    //     {touch_calibration_exec, "LVDS TOUCH", "weston-touch-calibrator LVDS-1 > /dev/null 2>&1"},
+    //     {touch_calibration_exec, "MIPI-DSI TOUCH", "weston-touch-calibrator DSI-1 > /dev/null 2>&1"},
+    //     {back2, "back", ""}
+    // };
 
-    pr_win_lcd_depth++;
-    menu_args_exec(touch_calibration_menu, sizeof(touch_calibration_menu) / sizeof(menu_args_t), "TOUCH CALIBRATION MENU", &pr_win_lcd[pr_win_lcd_depth]);
-    pr_win_lcd_depth--;
+    // pr_win_lcd_depth++;
+    // menu_args_exec(touch_calibration_menu, sizeof(touch_calibration_menu) / sizeof(menu_args_t), "TOUCH CALIBRATION MENU", &pr_win_lcd[pr_win_lcd_depth]);
+    // pr_win_lcd_depth--;
 }
 
 static menu_t uart_menus[] = {
@@ -75,6 +79,18 @@ int lcd_ctl(void)
     menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des, &pr_win_lcd[pr_win_lcd_depth]);
 }
 
-void lcd_init(void)
+void lcd_init(const char *type)
 {
+    if (!strcmp(type, "dsi")) {
+        system("cp /etc/xdg/weston/weston_dsi.ini /etc/xdg/weston/weston.ini");
+        lcd_type = "DSI-1";
+    } else if (!strcmp(type, "lvds")) {
+        system("cp /etc/xdg/weston/weston_lvds.ini /etc/xdg/weston/weston.ini");
+        lcd_type = "LVDS-1";
+    } else {
+        printf("Unknown LCD type: %s\n", type);
+        exit(1);
+    }
+
+    system("systemctl restart weston");
 }
