@@ -265,6 +265,7 @@ int main(int argc, char **argv)
 #define for_each_cantp_id_map(s, e) \
     for (int i = s; i < e; i++)
 static bool is_fd[2] = { false, false };
+static bool is_enabled[2] = { false, false };
 
 struct st_can_tx_data {
     int fd;
@@ -462,8 +463,9 @@ static int can_fd_enable(const char *intf)
 {
     if (!strcmp(intf, "can0")) {
         can_down("ip link set can0 down");
-        can_up("ip link set can0 up type can bitrate 1000000 dbitrate 2000000 fd on");
+        can_up("ip link set can0 up type can bitrate 1000000 dbitrate 2000000 fd on loopback off");
         is_fd[0] = true;
+        is_enabled[0] = true;
         /*
         menu_args_t can_clas_en_menu[] = {
             {can_up, "ENABLE", "ip link set can0 up type can bitrate 1000000 dbitrate 2000000 fd on"},
@@ -476,8 +478,9 @@ static int can_fd_enable(const char *intf)
         */
     } else if (!strcmp(intf, "can1")) {
         can_down("ip link set can1 down");
-        can_up("ip link set can1 up type can bitrate 1000000 dbitrate 2000000 fd on");
+        can_up("ip link set can1 up type can bitrate 1000000 dbitrate 2000000 fd on loopback off");
         is_fd[1] = true;
+        is_enabled[1] = true;
         /*
         menu_args_t can_clas_en_menu[] = {
             {can_up, "ENABLE", "ip link set can1 up type can bitrate 1000000 dbitrate 2000000 fd on"},
@@ -497,8 +500,9 @@ static int can_classic_enable(const char *intf)
 {
     if (!strcmp(intf, "can0")) {
         can_down("ip link set can0 down");
-        can_up("ip link set can0 up type can bitrate 1000000");
+        can_up("ip link set can0 up type can bitrate 1000000 loopback off");
         is_fd[0] = false;
+        is_enabled[0] = true;
         /*
         menu_args_t can_clas_en_menu[] = {
             {can_up, "ENABLE", "ip link set can0 up type can bitrate 1000000"},
@@ -511,8 +515,44 @@ static int can_classic_enable(const char *intf)
         */
     } else if (!strcmp(intf, "can1")) {
         can_down("ip link set can1 down");
-        can_up("ip link set can1 up type can bitrate 1000000");
+        can_up("ip link set can1 up type can bitrate 1000000 loopback off");
         is_fd[1] = false;
+        is_enabled[1] = true;
+        /*
+        menu_args_t can_clas_en_menu[] = {
+            {can_up, "ENABLE", "ip link set can1 up type can bitrate 1000000"},
+            {can_down, "DISABLE", "ip link set can1 down"},
+            {back2, "back", ""}
+        };
+        pr_win_can_depth++;
+        menu_args_exec(can_clas_en_menu, sizeof(can_clas_en_menu) / sizeof(menu_args_t), "CAN 2.0 ENABLE MENU", &pr_win_can[pr_win_can_depth]);
+        pr_win_can_depth--;
+        */
+    }
+
+    return 0;
+}
+
+static int can_disable(const char *intf)
+{
+    if (!strcmp(intf, "can0")) {
+        can_down("ip link set can0 down");
+        is_fd[0] = false;
+        is_enabled[0] = false;
+        /*
+        menu_args_t can_clas_en_menu[] = {
+            {can_up, "ENABLE", "ip link set can0 up type can bitrate 1000000"},
+            {can_down, "DISABLE", "ip link set can0 down"},
+            {back2, "back", ""}
+        };
+        pr_win_can_depth++;
+        menu_args_exec(can_clas_en_menu, sizeof(can_clas_en_menu) / sizeof(menu_args_t), "CAN 2.0 ENABLE MENU", &pr_win_can[pr_win_can_depth]);
+        pr_win_can_depth--;
+        */
+    } else if (!strcmp(intf, "can1")) {
+        can_down("ip link set can1 down");
+        is_fd[1] = false;
+        is_enabled[1] = false;
         /*
         menu_args_t can_clas_en_menu[] = {
             {can_up, "ENABLE", "ip link set can1 up type can bitrate 1000000"},
@@ -624,7 +664,7 @@ static int can_enable(void *intf)
     menu_args_t can_enable_menu[] = {
         {can_classic_enable, "CAN 2.0 ENABLE", intf},
         {can_fd_enable, "CAN FD ENABLE", intf},
-        {can_down, "CAN DISABLE", cmd},
+        {can_disable, "CAN DISABLE", intf},
         {back2, "back", ""}
     };
 
@@ -651,21 +691,43 @@ static int can_dump(void *intf)
 
 static int can_send(void *intf)
 {
+    char tmp[16];
+    char des[64];
     char cmd[1024];
     char *data_8 = "0123456789abcdef";      // 8 characters
     char *data_64 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"; // 64 characters
+    __u32 id;
+
+    sprintf(des, "Input %s ID (0 ~ 1023)", (char *)intf);
+    memset(tmp, 0x00, sizeof(tmp));
+    if (menu_args_input_exec(tmp, sizeof(tmp), des) < 0)
+        return 0;
+
+    id = atoi(tmp);
+    if (id < 0 || id > 1024) {
+        pr_win(pr_win_can[pr_win_can_depth], "Invalid ID: [%d], should be (0 ~ 1023)\n", id);
+        return 0;
+    }
 
     memset(cmd, 0x00, sizeof(cmd));
     if (!strcmp((char *)intf, "can0")) {
+        if (!is_enabled[0]) {
+            pr_win(pr_win_can[pr_win_can_depth], "%s Interface is disabled.\n", (char *)intf);
+            return 0;
+        }
         if (is_fd[0])
-            sprintf(cmd, "while true; do cansend %s 123##1%s; sleep 1; done;", (char *)intf, data_64);
+            sprintf(cmd, "while true; do cansend %s %03X##1%s; sleep 1; done &", (char *)intf, id, data_64);
         else
-            sprintf(cmd, "while true; do cansend %s 123#%s; sleep 1; done;", (char *)intf, data_8);
+            sprintf(cmd, "while true; do cansend %s %03X#%s; sleep 1; done &", (char *)intf, id, data_8);
     } else if (!strcmp((char *)intf, "can1")) {
+        if (!is_enabled[1]) {
+            pr_win(pr_win_can[pr_win_can_depth], "%s Interface is disabled.\n", (char *)intf);
+            return 0;
+        }
         if (is_fd[1])
-            sprintf(cmd, "while true; do cansend %s 456##1%s; sleep 1; done;", (char *)intf, data_64);
+            sprintf(cmd, "while true; do cansend %s %03X##1%s; sleep 1; done &", (char *)intf, id, data_64);
         else
-            sprintf(cmd, "while true; do cansend %s 456#%s; sleep 1; done;", (char *)intf, data_64);
+            sprintf(cmd, "while true; do cansend %s %03X#%s; sleep 1; done &", (char *)intf, id, data_64);
     } else {
         pr_win(pr_win_can[pr_win_can_depth], "Unknown CAN interface [%s]\n", (char *)intf);
         return 0;
@@ -720,9 +782,17 @@ static int can_loopback(void *intf)
     system("clear");
     system(cmd);
 
+    system("killall candump");
+
     clear();
     refresh();
     return 0;
+}
+
+static int back_in_can(void *intf)
+{
+    system("killall sh");
+    return -1;
 }
 
 static menu_args_t can_ctl_menu[] = {
@@ -736,7 +806,7 @@ static menu_args_t can_ctl_menu[] = {
     {can_send, "CAN2 SEND", "can1"},
     {can_loopback, "CAN1 LOOPBACK", "can0"},
     {can_loopback, "CAN2 LOOPBACK", "can1"},
-    {back2, "back", ""},
+    {back_in_can, "back", ""},
 };
 
 void can_init(void)
@@ -747,4 +817,5 @@ void can_init(void)
 int can_ctl(void)
 {
     menu_args_exec(can_ctl_menu, sizeof(can_ctl_menu) / sizeof(menu_args_t), "CAN TEST MENU", &pr_win_can[pr_win_can_depth]);
+    return 0;
 }

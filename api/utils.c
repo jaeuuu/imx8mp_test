@@ -64,15 +64,15 @@ void eth_up(const char *eth, const char *ip, const char *gw, const char *sub)
             system(cmd);
         }
 
-        if (gw) {
-            memset(cmd, 0x00, sizeof(cmd));
-            sprintf(cmd, "route add default gw %s dev %s", gw, eth);
-            system(cmd);
-        }
-
         if (sub) {
             memset(cmd, 0x00, sizeof(cmd));
             sprintf(cmd, "ifconfig %s netmask %s", eth, sub);
+            system(cmd);
+        }
+
+        if (gw) {
+            memset(cmd, 0x00, sizeof(cmd));
+            sprintf(cmd, "route add default gw %s dev %s", gw, eth);
             system(cmd);
         }
     }

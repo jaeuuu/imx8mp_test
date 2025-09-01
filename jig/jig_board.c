@@ -10,6 +10,7 @@
 #include "stressctl.h"
 #include "usbctl.h"
 #include "audioctl2.h"
+#include "gpuctl.h"
 
 int hello_world1(void);
 int hello_world2(void);
@@ -78,6 +79,7 @@ static menu_t main_menu[] = {
     {audio2_ctl, "AUDIO TEST"},
     {stress_ctl, "STRESS TEST"},
     {usb_ctl, "USB TEST"},
+    {gpu_ctl, "GPU TEST"},
     {back, "back"},
 };
 
@@ -86,12 +88,15 @@ void board_init(int argc, char **argv)
     // printf("jig board_init()\r\n");
 
     if (argc < 2) {
-        printf("\nUsage: %s <lcd_type>\n\n@example\n\t@1. jigtest lvds\n\t@2. jigtest dsi\n\n", argv[0]);
+        printf("\nUsage: %s <lcd_type> [term_type]\n\n@example\n\t@1. jigtest lvds\t\t# lvds panel, xterm-256color \
+            \n\t@2. jigtest dsi\t\t\t# dsi panel, xterm-256color \
+            \n\t@3. jigtest lvds xterm\t\t# lvds panel, xterm-8color \
+            \n\t@4. jigtest dsi xterm\t\t# dsi panel, xterm-8color\n\n", argv[0]);
         exit(1);
     }
 
     lcd_init(argv[1]);
-    menu_init();
+    menu_init(argv[2]);
     gpio_init();
     uart_init();
     can_init();
@@ -100,8 +105,9 @@ void board_init(int argc, char **argv)
 void start_board(int argc, char **argv)
 {
     // printf("jig start_board()\r\n");
+    char *des = "IMX8M-PLUS JIG BOARD TEST";
 restart:
-    menu_exec(main_menu, sizeof(main_menu) / sizeof(menu_t), "IMX8M-PLUS JIG BOARD TEST PROGRAM", NULL);
+    menu_exec(main_menu, sizeof(main_menu) / sizeof(menu_t), des, NULL);
 
     if (menu_exit() < 0)
         goto restart;

@@ -665,6 +665,8 @@ int uart_ctl(void)
 {
     char *des = "UART TEST MENU";
     menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des, &pr_win_uart[pr_win_uart_depth]);
+
+    return 0;
 }
 
 void uart_init(void)

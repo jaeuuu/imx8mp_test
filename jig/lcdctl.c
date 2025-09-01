@@ -55,6 +55,7 @@ static int touch_calibration(void)
 {
     char cmd[256];
     sprintf(cmd, "weston-touch-calibrator %s > /dev/null 2>&1", lcd_type);
+    pr_win(pr_win_lcd[pr_win_lcd_depth], "Press ctrl-c to stop showing touch calibration.\n");
     system(cmd);
     // menu_args_t touch_calibration_menu[] = {
     //     {touch_calibration_exec, "LVDS TOUCH", "weston-touch-calibrator LVDS-1 > /dev/null 2>&1"},
@@ -77,6 +78,7 @@ int lcd_ctl(void)
 {
     char *des = "LCD TEST MENU";
     menu_exec(uart_menus, sizeof(uart_menus) / sizeof(menu_t), des, &pr_win_lcd[pr_win_lcd_depth]);
+    return 0;
 }
 
 void lcd_init(const char *type)

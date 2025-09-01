@@ -100,7 +100,7 @@ static int setup_sub(void *intf)
     }
 
     strcpy(info->sub, tmp);
-    eth_up(intf, NULL, NULL, info->sub);
+    eth_up(intf, NULL, info->gw, info->sub);
     pr_win(pr_win_net[pr_win_net_depth], "[SET SUBNET]: [%s]\n", info->sub);
     return 0;
 }
@@ -227,4 +227,6 @@ int net_ctl(void)
 {
     char *des = "NETWORK TEST MENU";
     menu_exec(net_menus, sizeof(net_menus) / sizeof(menu_t), des, &pr_win_net[pr_win_net_depth]);
+
+    return 0;
 }

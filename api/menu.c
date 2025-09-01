@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ncurses.h>
 #include <api/menu.h>
 #include <stdarg.h>
 #include <semaphore.h>
+#include <locale.h>
 
 /* Color pair list (COLOR_x_y)
  * x: text color
@@ -27,13 +29,19 @@
 
 static sem_t pr_sem;
 
+static bool is_xterm_8 = false;
+
 static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDOW **pr_win)
 {
     int i;
     int x, y;
     int h, w;
     int pos = 0;
+    int ch;
+    int cnum = 0;
+    char num[3];
     WINDOW *menu_title = NULL;
+    WINDOW *menu_sub_title = NULL;
     WINDOW *menu_win = NULL;
     WINDOW *menu_sub_win = NULL;
     WINDOW *result_win = NULL;
@@ -48,6 +56,7 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
     }
 
     menu_title = newwin(MAX_MENU_TITLE_H, MAX_MENU_TITLE_W, 0, 0);
+    //menu_sub_title = subwin(menu_title, MAX_MENU_TITLE_H -2, MAX_MENU_TITLE_W -2, 1, MAIN_MENU_START_X + 1);
     menu_win = newwin(menu_size + 2, MAX_MENU_TITLE_W, MAX_MENU_TITLE_H, MAIN_MENU_START_X);     // +1 margin
     menu_sub_win = subwin(menu_win, menu_size, MAX_MENU_TITLE_W - 2, MAX_MENU_TITLE_H + 1, MAIN_MENU_START_X + 1);
 
@@ -68,34 +77,40 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
         wbkgd(result_win, COLOR_PAIR(COLOR_BLACK_WHITE));
         wbkgd(*pr_win, COLOR_PAIR(COLOR_BLACK_WHITE));
     }
-
-    /* raised block */
-    h = getmaxy(menu_title);
-    w = getmaxx(menu_title);
-    wattron(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(menu_title, 0, 0, ACS_VLINE, h);
-    mvwhline(menu_title, 0, 0, ACS_HLINE, w - 1);
-    mvwaddch(menu_title, 0, 0, ACS_ULCORNER);
-    mvwaddch(menu_title, h - 1, 0, ACS_LLCORNER);
-    wattroff(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    /* lowered block */
-    h = getmaxy(menu_win);
-    w = getmaxx(menu_win);
-    wattron(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(menu_win, 0, w - 1, ACS_VLINE, h);
-    mvwhline(menu_win, h - 1, 1, ACS_HLINE, w - 1);
-    mvwaddch(menu_win, h - 1, w - 1, ACS_LRCORNER);
-    mvwaddch(menu_win, 0, w - 1, ACS_URCORNER);
-    wattroff(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    /* lowered block */
-    h = getmaxy(result_win);
-    w = getmaxx(result_win);
-    wattron(result_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(result_win, 0, w - 1, ACS_VLINE, h);
-    mvwhline(result_win, h - 1, 1, ACS_HLINE, w - 1);
-    mvwaddch(result_win, h - 1, w - 1, ACS_LRCORNER);
-    mvwaddch(result_win, 0, w - 1, ACS_URCORNER);
-    wattroff(result_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+#if 1   /* raised or lowerd option off.. acs charactors issue... */
+    if (!is_xterm_8) {
+        /* raised block */
+        h = getmaxy(menu_title);
+        w = getmaxx(menu_title);
+        wattron(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(menu_title, 0, 0, ACS_VLINE, h);
+        mvwhline(menu_title, 0, 0, ACS_HLINE, w - 1);
+        //mvwhline(menu_title, 0, 0, '-', w - 1);
+        mvwaddch(menu_title, 0, 0, ACS_ULCORNER);
+        mvwaddch(menu_title, h - 1, 0, ACS_LLCORNER);
+        wattroff(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        /* lowered block */
+        h = getmaxy(menu_win);
+        w = getmaxx(menu_win);
+        wattron(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(menu_win, 0, w - 1, ACS_VLINE, h);
+        mvwhline(menu_win, h - 1, 1, ACS_HLINE, w - 1);
+        //mvwhline(menu_win, h - 1, 1, '-', w - 1);
+        mvwaddch(menu_win, h - 1, w - 1, ACS_LRCORNER);
+        mvwaddch(menu_win, 0, w - 1, ACS_URCORNER);
+        wattroff(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        /* lowered block */
+        h = getmaxy(result_win);
+        w = getmaxx(result_win);
+        wattron(result_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(result_win, 0, w - 1, ACS_VLINE, h);
+        mvwhline(result_win, h - 1, 1, ACS_HLINE, w - 1);
+        //mvwhline(result_win, h - 1, 1, '-', w - 1);
+        mvwaddch(result_win, h - 1, w - 1, ACS_LRCORNER);
+        mvwaddch(result_win, 0, w - 1, ACS_URCORNER);
+        wattroff(result_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+    }
+#endif
 
     while (1) {
         h = getmaxy(menu_title);
@@ -136,8 +151,7 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 mvwprintw(menu_sub_win, i, x, "%s\n", &((menus + i)->func_des[1]));
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-            }
-            else {
+            } else {
                 /* old */
                 //mvwprintw(menu_sub_win, i, 0, " %2d: %s\n", i + 1, (menus + i)->func_des);
                 //getyx(menu_sub_win, y, x);
@@ -153,20 +167,53 @@ static void menu_print(menu_t *menus, int menu_size, const char *menu_des, WINDO
         touchwin(menu_sub_win);
         wrefresh(menu_sub_win);
 
-        switch (getch()) {
+        ch = getch();
+        switch (ch) {
         case KEY_F(5):  // F5 key
+            //getmaxyx(stdscr, h, w);
+            system("resize");
+            resize_term(0, 0);
+            //wresize(stdscr, h, w);
+            //werase(stdscr);
+            cnum = 0;
             if (pr_win)
                 werase(*pr_win);
+            //resize_term(0, 0);
             clear();
             refresh();
             break;
         case KEY_UP:
+            cnum = 0;
             pos = (pos - 1 + menu_size) % menu_size;
             break;
         case KEY_DOWN:
+            cnum = 0;
             pos = (pos + 1 + menu_size) % menu_size;
             break;
+        case 0x30:
+        case 0x31:
+        case 0x32:
+        case 0x33:
+        case 0x34:
+        case 0x35:
+        case 0x36:
+        case 0x37:
+        case 0x38:
+        case 0x39:
+            num[cnum++] = ch;
+            if (cnum > 2)
+                cnum = 0;
+            break;
         case 10:    // enter
+            if (cnum > 0) {
+                num[cnum] = '\0';
+                char tmp_pos = atoi(num) - 1;
+                cnum = 0;
+                if (tmp_pos + 1 > menu_size)
+                    break;
+                pos = tmp_pos;
+            }
+
             if ((menus + pos)->func() < 0) {
                 clear();
                 refresh();
@@ -192,6 +239,9 @@ static void menu_args_print(menu_args_t *menus, int menu_size, const char *menu_
     int x, y;
     int h, w;
     int pos = 0;
+    int ch;
+    int cnum = 0;
+    char num[3];
     WINDOW *menu_title;
     WINDOW *menu_win;
     WINDOW *menu_sub_win;
@@ -226,33 +276,37 @@ static void menu_args_print(menu_args_t *menus, int menu_size, const char *menu_
         wbkgd(*pr_win, COLOR_PAIR(COLOR_BLACK_WHITE));
     }
 
-    /* raised block */
-    h = getmaxy(menu_title);
-    w = getmaxx(menu_title);
-    wattron(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(menu_title, 0, 0, ACS_VLINE, h);
-    mvwhline(menu_title, 0, 0, ACS_HLINE, w - 1);
-    mvwaddch(menu_title, 0, 0, ACS_ULCORNER);
-    mvwaddch(menu_title, h - 1, 0, ACS_LLCORNER);
-    wattroff(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    /* lowered block */
-    h = getmaxy(menu_win);
-    w = getmaxx(menu_win);
-    wattron(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(menu_win, 0, w - 1, ACS_VLINE, h);
-    mvwhline(menu_win, h - 1, 1, ACS_HLINE, w - 1);
-    mvwaddch(menu_win, h - 1, w - 1, ACS_LRCORNER);
-    mvwaddch(menu_win, 0, w - 1, ACS_URCORNER);
-    wattroff(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    /* lowered block */
-    h = getmaxy(result_win);
-    w = getmaxx(result_win);
-    wattron(result_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(result_win, 0, w - 1, ACS_VLINE, h);
-    mvwhline(result_win, h - 1, 1, ACS_HLINE, w - 1);
-    mvwaddch(result_win, h - 1, w - 1, ACS_LRCORNER);
-    mvwaddch(result_win, 0, w - 1, ACS_URCORNER);
-    wattroff(result_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+#if 1   /* acs issue */
+    if (!is_xterm_8) {
+        /* raised block */
+        h = getmaxy(menu_title);
+        w = getmaxx(menu_title);
+        wattron(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(menu_title, 0, 0, ACS_VLINE, h);
+        mvwhline(menu_title, 0, 0, ACS_HLINE, w - 1);
+        mvwaddch(menu_title, 0, 0, ACS_ULCORNER);
+        mvwaddch(menu_title, h - 1, 0, ACS_LLCORNER);
+        wattroff(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        /* lowered block */
+        h = getmaxy(menu_win);
+        w = getmaxx(menu_win);
+        wattron(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(menu_win, 0, w - 1, ACS_VLINE, h);
+        mvwhline(menu_win, h - 1, 1, ACS_HLINE, w - 1);
+        mvwaddch(menu_win, h - 1, w - 1, ACS_LRCORNER);
+        mvwaddch(menu_win, 0, w - 1, ACS_URCORNER);
+        wattroff(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        /* lowered block */
+        h = getmaxy(result_win);
+        w = getmaxx(result_win);
+        wattron(result_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(result_win, 0, w - 1, ACS_VLINE, h);
+        mvwhline(result_win, h - 1, 1, ACS_HLINE, w - 1);
+        mvwaddch(result_win, h - 1, w - 1, ACS_LRCORNER);
+        mvwaddch(result_win, 0, w - 1, ACS_URCORNER);
+        wattroff(result_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+    }
+#endif
 
     while (1) {
         h = getmaxy(menu_title);
@@ -289,8 +343,7 @@ static void menu_args_print(menu_args_t *menus, int menu_size, const char *menu_
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 mvwprintw(menu_sub_win, i, x, "%s\n", &((menus + i)->func_des[1]));
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-            }
-            else {
+            } else {
                 mvwprintw(menu_sub_win, i, 0, " %2d)  ", i + 1);
                 getyx(menu_sub_win, y, x);
                 mvwaddch(menu_sub_win, i, x, (menus + i)->func_des[0] | COLOR_PAIR(COLOR_BLUE_WHITE));
@@ -302,19 +355,49 @@ static void menu_args_print(menu_args_t *menus, int menu_size, const char *menu_
         touchwin(menu_sub_win);
         wrefresh(menu_sub_win);
 
-        switch (getch()) {
+        ch = getch();
+        switch (ch) {
         case KEY_F(5):
+            system("resize");
+            resize_term(0, 0);
+            cnum = 0;
             werase(*pr_win);
+            //resize_term(0, 0);
             clear();
             refresh();
             break;
         case KEY_UP:
+            cnum = 0;
             pos = (pos - 1 + menu_size) % menu_size;
             break;
         case KEY_DOWN:
+            cnum = 0;
             pos = (pos + 1 + menu_size) % menu_size;
             break;
+        case 0x30:
+        case 0x31:
+        case 0x32:
+        case 0x33:
+        case 0x34:
+        case 0x35:
+        case 0x36:
+        case 0x37:
+        case 0x38:
+        case 0x39:
+            num[cnum++] = ch;
+            if (cnum > 2)
+                cnum = 0;
+            break;
         case 10:    // enter
+            if (cnum > 0) {
+                num[cnum] = '\0';
+                char tmp_pos = atoi(num) - 1;
+                cnum = 0;
+                if (tmp_pos + 1 > menu_size)
+                    break;
+                pos = tmp_pos;
+            }
+
             if ((menus + pos)->func((menus + pos)->args) < 0) {
                 clear();
                 refresh();
@@ -372,25 +455,29 @@ static int menu_args_input_print(char *buf, int size, const char *menu_des)
     werase(right_3d);
     wbkgd(right_3d, COLOR_BLACK);
 
-    /* raised block */
-    h = getmaxy(input_title);
-    w = getmaxx(input_title);
-    wattron(input_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(input_title, 0, 0, ACS_VLINE, h);
-    mvwhline(input_title, 0, 0, ACS_HLINE, w - 1);
-    mvwaddch(input_title, 0, 0, ACS_ULCORNER);
-    mvwaddch(input_title, h - 1, 0, ACS_LLCORNER);
-    wattroff(input_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
+#if 1   /* acs issue */
+    if (!is_xterm_8) {
+        /* raised block */
+        h = getmaxy(input_title);
+        w = getmaxx(input_title);
+        wattron(input_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(input_title, 0, 0, ACS_VLINE, h);
+        mvwhline(input_title, 0, 0, ACS_HLINE, w - 1);
+        mvwaddch(input_title, 0, 0, ACS_ULCORNER);
+        mvwaddch(input_title, h - 1, 0, ACS_LLCORNER);
+        wattroff(input_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
 
-    /* lowered bloack */
-    h = getmaxy(input_border);
-    w = getmaxx(input_border);
-    wattron(input_border, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(input_border, 0, w - 1, ACS_VLINE, h);
-    mvwhline(input_border, h - 1, 1, ACS_HLINE, w - 1);
-    mvwaddch(input_border, h - 1, w - 1, ACS_LRCORNER);
-    mvwaddch(input_border, 0, w - 1, ACS_URCORNER);
-    wattroff(input_border, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        /* lowered bloack */
+        h = getmaxy(input_border);
+        w = getmaxx(input_border);
+        wattron(input_border, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(input_border, 0, w - 1, ACS_VLINE, h);
+        mvwhline(input_border, h - 1, 1, ACS_HLINE, w - 1);
+        mvwaddch(input_border, h - 1, w - 1, ACS_LRCORNER);
+        mvwaddch(input_border, 0, w - 1, ACS_URCORNER);
+        wattroff(input_border, COLOR_PAIR(COLOR_RWHITE_WHITE));
+    }
+#endif
 
     while (1) {
         h = getmaxy(input_title);
@@ -416,6 +503,8 @@ static int menu_args_input_print(char *buf, int size, const char *menu_des)
         num = wgetch(input_box);
         switch (num) {
         case KEY_F(5):      // F5 key
+            system("resize");
+            resize_term(0, 0);
             memset(buf, 0x00, sizeof(size));
             werase(input_box);
             i = 0;
@@ -467,9 +556,22 @@ int menu_args_input_exec(char *buf, int size, const char *menu_des)
     return menu_args_input_print(buf, size, menu_des);
 }
 
-void menu_init(void)
+void menu_init(const char *term_type)
 {
+    if (term_type) {
+        if (!strcmp(term_type, "xterm")) {
+            setenv("TERM", term_type, 1);
+            is_xterm_8 = true;
+        } else {
+            setenv("TERM", "xterm-256color", 1);
+            is_xterm_8 = false;
+        }
+    } else {
+        setenv("TERM", "xterm-256color", 1);
+        is_xterm_8 = false;
+    }
     system("dmesg -n 1");
+    //setlocale(LC_ALL, "");
     initscr();
     cbreak();
     noecho();
@@ -525,22 +627,26 @@ int menu_exit(void)
     wbkgd(menu_win, COLOR_PAIR(COLOR_BLACK_WHITE));
     wbkgd(menu_sub_win, COLOR_PAIR(COLOR_BLACK_WHITE));
 
-    h = getmaxy(menu_title);
-    w = getmaxx(menu_title);
-    wattron(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(menu_title, 0, 0, ACS_VLINE, h);
-    mvwhline(menu_title, 0, 0, ACS_HLINE, w - 1);
-    mvwaddch(menu_title, 0, 0, ACS_ULCORNER);
-    mvwaddch(menu_title, h - 1, 0, ACS_LLCORNER);
-    wattroff(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    h = getmaxy(menu_win);
-    w = getmaxx(menu_win);
-    wattron(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
-    mvwvline(menu_win, 0, w - 1, ACS_VLINE, h);
-    mvwhline(menu_win, h - 1, 1, ACS_HLINE, w - 1);
-    mvwaddch(menu_win, h - 1, w - 1, ACS_LRCORNER);
-    mvwaddch(menu_win, 0, w - 1, ACS_URCORNER);
-    wattroff(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+#if 1   /* acs issue.. */
+    if (!is_xterm_8) {
+        h = getmaxy(menu_title);
+        w = getmaxx(menu_title);
+        wattron(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(menu_title, 0, 0, ACS_VLINE, h);
+        mvwhline(menu_title, 0, 0, ACS_HLINE, w - 1);
+        mvwaddch(menu_title, 0, 0, ACS_ULCORNER);
+        mvwaddch(menu_title, h - 1, 0, ACS_LLCORNER);
+        wattroff(menu_title, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        h = getmaxy(menu_win);
+        w = getmaxx(menu_win);
+        wattron(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+        mvwvline(menu_win, 0, w - 1, ACS_VLINE, h);
+        mvwhline(menu_win, h - 1, 1, ACS_HLINE, w - 1);
+        mvwaddch(menu_win, h - 1, w - 1, ACS_LRCORNER);
+        mvwaddch(menu_win, 0, w - 1, ACS_URCORNER);
+        wattroff(menu_win, COLOR_PAIR(COLOR_RWHITE_WHITE));
+    }
+#endif
 
     while (1) {
         h = getmaxy(menu_title);
@@ -575,8 +681,7 @@ int menu_exit(void)
                 wattron(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
                 mvwprintw(menu_sub_win, i, x, "%s\n", &((exit_menu + i)->func_des[1]));
                 wattroff(menu_sub_win, COLOR_PAIR(COLOR_WHITE_BLUE));
-            }
-            else {
+            } else {
                 mvwprintw(menu_sub_win, i, 0, " %2d)  ", i + 1);
                 getyx(menu_sub_win, y, x);
                 mvwaddch(menu_sub_win, i, x, (exit_menu + i)->func_des[0] | COLOR_PAIR(COLOR_BLUE_WHITE));
@@ -591,6 +696,7 @@ int menu_exit(void)
 
         switch (getch()) {
         case KEY_F(5):
+            resize_term(0, 0);
             clear();
             refresh();
             break;

@@ -2267,12 +2267,14 @@ int gpio_in_ctl(void)
 {
     char *des = "GPIO INPUT TEST MENU";
     menu_exec(gpio_in_menu, sizeof(gpio_in_menu) / sizeof(menu_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    return 0;
 }
 
 int gpio_out_ctl(void)
 {
     char *des = "GPIO OUTPUT TEST MENU";
     menu_exec(gpio_out_menu, sizeof(gpio_out_menu) / sizeof(menu_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    return 0;
 }
 
 void gpio_init(void)
