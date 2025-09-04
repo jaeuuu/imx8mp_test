@@ -10,16 +10,13 @@ args = parser.parse_args()
 Gst.init(None)
 
 PIPELINE = f"""
-alsasrc device=plughw:dir9001audio,0 !
-  audio/x-raw,rate=96000,channels=1,format=S32LE ! volume volume={args.volume} !
-  tee name=t
-    t. ! queue ! audioconvert !
-        wavescope shader=0 style=0 !
-        videoconvert ! autovideosink sync=false
-    t. ! queue ! audioconvert !
-        level interval=50000000 post-messages=true ! fakesink
-    t. ! queue ! audioconvert !
-        alsasink device=plughw:max98357aaudio,0 sync=false
+audiomixer name=mix ! audio/x-raw,rate=96000,channels=1,format=S16LE ! tee name=t 
+    t. ! queue ! level interval=50000000 post-messages=true ! fakesink
+    t. ! queue ! audioconvert ! alsasink device=plughw:max98357aaudio,0 sync=false 
+    audiotestsrc wave=sine freq={args.freq} is-live=true ! audio/x-raw,rate=96000,channels=1,format=S16LE !
+    volume volume={args.volume} ! queue ! mix.
+    alsasrc device=plughw:dir9001audio,0 ! audio/x-raw,rate=96000,channels=1,format=S16LE !
+    volume volume={args.volume} ! queue ! mix.
 """
 
 # PIPELINE = f"""

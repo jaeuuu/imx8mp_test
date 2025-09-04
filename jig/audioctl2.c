@@ -60,6 +60,7 @@ static int play_music(const char *fname)
     pr_win_audio2_depth++;
     menu_args_exec(play_music_vol_menu, sizeof(play_music_vol_menu) / sizeof(menu_args_t), "PLAY MUSIC VOLUME MENU", &pr_win_media[pr_win_audio2_depth]);
     pr_win_audio2_depth--;
+
     return 0;
 }
 
@@ -120,9 +121,43 @@ static int play_tone(void)
 
 static int stream_audio(void)
 {
-    pr_win(pr_win_media[pr_win_audio2_depth], "Audio streaming started...\nPress ctrl-c to stop streaming.\n");
-    system("gst-launch-1.0 alsasrc device=plughw:dir9001audio,0 ! audio/x-raw,rate=96000,channels=2,format=S32LE ! volume volume=0.5 ! alsasink device=plughw:max98357aaudio,0 sync=false > /dev/null 2>&1");
-    pr_win(pr_win_media[pr_win_audio2_depth], "Audio streaming stopped.\n");
+    //pr_win(pr_win_media[pr_win_audio2_depth], "Audio streaming started...\nPress ctrl-c to stop streaming.\n");
+    //system("gst-launch-1.0 alsasrc device=plughw:dir9001audio,0 ! audio/x-raw,rate=96000,channels=2,format=S32LE ! volume volume=0.5 ! alsasink device=plughw:max98357aaudio,0 sync=false > /dev/null 2>&1");
+    //system("python3 /home/root/Scripts/audiotest1.py");
+    //pr_win(pr_win_media[pr_win_audio2_depth], "Audio streaming stopped.\n");
+    // audio2_exec2("python3 /home/root/Scripts/audiotest.py");
+    // system("killall python3");
+    char cmd_1per[256];
+    char cmd_5per[256];
+    char cmd_10per[256];
+    char cmd_25per[256];
+    char cmd_50per[256];
+    char cmd_100per[256];
+
+    snprintf(cmd_1per, sizeof(cmd_1per), "python3 /home/root/Scripts/audiotest.py --volume=0.01");
+    snprintf(cmd_5per, sizeof(cmd_5per), "python3 /home/root/Scripts/audiotest.py --volume=0.05");
+    snprintf(cmd_10per, sizeof(cmd_10per), "python3 /home/root/Scripts/audiotest.py --volume=0.1");
+    snprintf(cmd_25per, sizeof(cmd_25per), "python3 /home/root/Scripts/audiotest.py --volume=0.25");
+    snprintf(cmd_50per, sizeof(cmd_50per), "python3 /home/root/Scripts/audiotest.py --volume=0.5");
+    snprintf(cmd_100per, sizeof(cmd_100per), "python3 /home/root/Scripts/audiotest.py --volume=1.0");
+
+
+
+    menu_args_t audio_levelmeter_python_menu[] = {
+            {audio2_exec2, "VOL 1%", cmd_1per},
+            {audio2_exec2, "VOL 5%", cmd_5per},
+            {audio2_exec2, "VOL 10%", cmd_10per},
+            {audio2_exec2, "VOL 25%", cmd_25per},
+            {audio2_exec2, "VOL 50%", cmd_50per},
+            {audio2_exec2, "VOL 100%", cmd_100per},
+            {back2, "back", ""}
+    };
+
+    pr_win_audio2_depth++;
+    menu_args_exec(audio_levelmeter_python_menu, sizeof(audio_levelmeter_python_menu) / sizeof(menu_args_t), "AUDIO STREAMING VOLUME MENU", &pr_win_media[pr_win_audio2_depth]);
+    pr_win_audio2_depth--;
+    system("killall python3");
+
     return 0;
 }
 
@@ -135,12 +170,12 @@ static int audio_levelmeter_python(char *freq)
     char cmd_50per[256];
     char cmd_100per[256];
 
-    snprintf(cmd_1per, sizeof(cmd_1per), "python3 /home/root/Scripts/audiotest.py --freq=%s --volume=0.01", freq);
-    snprintf(cmd_5per, sizeof(cmd_5per), "python3 /home/root/Scripts/audiotest.py --freq=%s --volume=0.05", freq);
-    snprintf(cmd_10per, sizeof(cmd_10per), "python3 /home/root/Scripts/audiotest.py --freq=%s --volume=0.1", freq);
-    snprintf(cmd_25per, sizeof(cmd_25per), "python3 /home/root/Scripts/audiotest.py --freq=%s --volume=0.25", freq);
-    snprintf(cmd_50per, sizeof(cmd_50per), "python3 /home/root/Scripts/audiotest.py --freq=%s --volume=0.5", freq);
-    snprintf(cmd_100per, sizeof(cmd_100per), "python3 /home/root/Scripts/audiotest.py --freq=%s --volume=1.0", freq);
+    snprintf(cmd_1per, sizeof(cmd_1per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.01", freq);
+    snprintf(cmd_5per, sizeof(cmd_5per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.05", freq);
+    snprintf(cmd_10per, sizeof(cmd_10per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.1", freq);
+    snprintf(cmd_25per, sizeof(cmd_25per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.25", freq);
+    snprintf(cmd_50per, sizeof(cmd_50per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.5", freq);
+    snprintf(cmd_100per, sizeof(cmd_100per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=1.0", freq);
 
 
 
@@ -157,9 +192,43 @@ static int audio_levelmeter_python(char *freq)
     pr_win_audio2_depth++;
     menu_args_exec(audio_levelmeter_python_menu, sizeof(audio_levelmeter_python_menu) / sizeof(menu_args_t), "AUDIO LEVELMETER VOLUME MENU", &pr_win_media[pr_win_audio2_depth]);
     pr_win_audio2_depth--;
+    system("killall python3");
     return 0;
 
 }
+
+static int audio_levelmeter_python2(char *freq)
+{
+    char cmd_1per[256];
+    char cmd_5per[256];
+    char cmd_10per[256];
+    char cmd_25per[256];
+    char cmd_50per[256];
+    char cmd_100per[256];
+
+    snprintf(cmd_1per, sizeof(cmd_1per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.01", freq);
+    snprintf(cmd_5per, sizeof(cmd_5per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.05", freq);
+    snprintf(cmd_10per, sizeof(cmd_10per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.1", freq);
+    snprintf(cmd_25per, sizeof(cmd_25per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.25", freq);
+    snprintf(cmd_50per, sizeof(cmd_50per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=0.5", freq);
+    snprintf(cmd_100per, sizeof(cmd_100per), "python3 /home/root/Scripts/audiotest2.py --freq=%s --volume=1.0", freq);
+
+    menu_args_t audio_levelmeter_python_menu[] = {
+            {audio2_exec2, "VOL 1%", cmd_1per},
+            {audio2_exec2, "VOL 5%", cmd_5per},
+            {audio2_exec2, "VOL 10%", cmd_10per},
+            {audio2_exec2, "VOL 25%", cmd_25per},
+            {audio2_exec2, "VOL 50%", cmd_50per},
+            {audio2_exec2, "VOL 100%", cmd_100per},
+            {back2, "back", ""}
+    };
+
+    pr_win_audio2_depth++;
+    menu_args_exec(audio_levelmeter_python_menu, sizeof(audio_levelmeter_python_menu) / sizeof(menu_args_t), "AUDIO LEVELMETER VOLUME MENU", &pr_win_media[pr_win_audio2_depth]);
+    pr_win_audio2_depth--;
+    return 0;
+}
+
 
 static int audio_levelmeter(void)
 {
