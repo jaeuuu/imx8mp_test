@@ -17,6 +17,7 @@ static int pr_win_usb_depth = 0;
 
 static int show_usb_info(void)
 {
+#if 0
     system("lsusb > /home/root/Logs/usb_info.log");
     system("echo \"\" >> /home/root/Logs/usb_info.log");
     system("echo \"\" >> /home/root/Logs/usb_info.log");
@@ -25,6 +26,10 @@ static int show_usb_info(void)
     system("echo \"\" >> /home/root/Logs/usb_info.log");
     system("usb-devices >> /home/root/Logs/usb_info.log");
     system("nano -v -0 /home/root/Logs/usb_info.log");
+#endif
+    endwin();
+    system("clear");
+    system("dmesg -w");
     keypad(stdscr, TRUE);
     clear();
     refresh();

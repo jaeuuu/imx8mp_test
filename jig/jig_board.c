@@ -11,6 +11,7 @@
 #include "usbctl.h"
 #include "audioctl2.h"
 #include "gpuctl.h"
+#include "i2cctl.h"
 
 int hello_world1(void);
 int hello_world2(void);
@@ -69,9 +70,11 @@ int hello_world3(void)
 }
 
 static menu_t main_menu[] = {
+    {gpio_input_monitor, "GPIO MONITORING"},
     {gpio_in_ctl, "GPIO INPUT TEST"},
     {gpio_out_ctl, "GPIO OUTPUT TEST"},
     {uart_ctl, "UART TEST"},
+    {i2c_ctl, "I2C TEST"},
     {net_ctl, "NETWORK TEST"},
     {can_ctl, "CAN TEST"},
     {lcd_ctl, "LCD TEST"},
@@ -100,6 +103,7 @@ void board_init(int argc, char **argv)
     gpio_init();
     uart_init();
     can_init();
+    i2c_init();
 }
 
 void start_board(int argc, char **argv)

@@ -135,7 +135,7 @@ static int setup_ping(void *intf)
     endwin();
     system("clear");
     system(cmd);
-    system("tail -f /home/root/Logs/ping.log");
+    system("cat /home/root/Logs/ping.log; tail -n 0 -f /home/root/Logs/ping.log");
     system("killall ping > /dev/null 2>&1");
     // fp = popen(cmd, "r");
     // if (!fp)
@@ -149,18 +149,70 @@ static int setup_ping(void *intf)
     return 0;
 }
 
+static int setup_ping_default(void *intf)
+{
+    char cmd[128];
+    char tmp[32];
+    char buf[512];
+    struct network_info *info;
+    FILE *fp;
+
+    if (!strcmp(intf, "eth0")) {
+        info = &eth0_info;
+        eth_down("eth1");
+    } else if (!strcmp(intf, "eth1")) {
+        info = &eth1_info;
+        eth_down("eth0");
+    }
+
+    memset(tmp, 0x00, sizeof(tmp));
+#if 0
+    if (menu_args_input_exec(tmp, sizeof(tmp), "Input target IP") < 0)
+        return 0;
+
+    if (check_ip_form(tmp) < 0) {
+        wattron(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        pr_win(pr_win_net[pr_win_net_depth], "[PING TEST]: format error!\n");
+        wattroff(pr_win_net[pr_win_net_depth], COLOR_PAIR(1));
+        return 0;
+    }
+#endif
+    eth_up(intf, "192.168.0.200", "192.168.0.1", "255.255.255.0");
+    //sprintf(cmd, "ping -c 5 %s -I %s > /home/root/Logs/ping.log 2>&1 &", tmp, (char *)intf);
+    system("echo \"===================================================\" > /home/root/Logs/ping_default.log");
+    system("echo \"                     PING TEST                     \" >> /home/root/Logs/ping_default.log");
+    system("echo \"===================================================\" >> /home/root/Logs/ping_default.log");
+    system("echo \"\" >> /home/root/Logs/ping_default.log");
+    system("echo \"\" >> /home/root/Logs/ping_default.log");
+    system("echo \"IMX8MPLUS(192.168.0.200) <------> PC(192.168.0.100)\" >> /home/root/Logs/ping_default.log");
+    system("echo \"\" >> /home/root/Logs/ping_default.log");
+    system("echo \"\" >> /home/root/Logs/ping_default.log");
+    system("echo \"===================================================\" >> /home/root/Logs/ping_default.log");
+    system("echo \"\" >> /home/root/Logs/ping_default.log");
+    sprintf(cmd, "ping 192.168.0.100 -I %s >> /home/root/Logs/ping_default.log 2>&1 &", (char *)intf);
+    //system(cmd);
+    endwin();
+    system("clear");
+    system(cmd);
+    system("cat /home/root/Logs/ping_default.log; tail -n 0 -f /home/root/Logs/ping_default.log");
+    system("killall ping > /dev/null 2>&1");
+    return 0;
+}
+
+
 /*
  * MENU Deepth 1
  */
 
 static int net_eth0(void)
 {
-    char *des = "ETHERNET1 TEST MENU";
+    char *des = "ETHERNET2 TEST MENU";
     menu_args_t eth_set_menu[] = {
         {setup_ip, "SET IP", "eth0"},
         {setup_gw, "SET GATEWAY", "eth0"},
         {setup_sub, "SET SUBNET", "eth0"},
         {setup_ping, "PING TEST", "eth0"},
+        {setup_ping_default, "PING TEST_DEFAULT", "eth0"},
         {back2, "back", "eth0"}
     };
 
@@ -173,12 +225,13 @@ static int net_eth0(void)
 
 static int net_eth1(void)
 {
-    char *des = "ETHERNET2 TEST MENU";
+    char *des = "ETHERNET1 TEST MENU";
     menu_args_t eth_set_menu[] = {
         {setup_ip, "SET IP", "eth1"},
         {setup_gw, "SET GATEWAY", "eth1"},
         {setup_sub, "SET SUBNET", "eth1"},
         {setup_ping, "PING TEST", "eth1"},
+        {setup_ping_default, "PING TEST_DEFAULT", "eth1"},
         {back2, "back", "eth0"}
     };
 
@@ -211,14 +264,14 @@ static int net_info(void)
 
     endwin();
     system("clear");
-    system("nano -v -0 /home/root/Logs/net_info.log");
+    system("cat /home/root/Logs/net_info.log; tail -n 0 -f /home/root/Logs/net_info.log");
 
     return 0;
 }
 
 static menu_t net_menus[] = {
-    {net_eth0, "ETHERNET1"},
-    {net_eth1, "ETHERNET2"},
+    {net_eth1, "ETHERNET1"},
+    {net_eth0, "ETHERNET2"},
     {net_info, "NETWORK INFO"},
     {back, "back"}
 };

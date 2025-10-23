@@ -72,7 +72,9 @@ static int matrix_ops_test(void)
 static int show_test_log(void)
 {
     //pr_win(pr_win_stress[pr_win_stress_depth], "Showing test log...\n");
-    system("nano -v -0 /home/root/Logs/stress.log");
+    endwin();
+    system("clear");
+    system("cat /home/root/Logs/stress.log; tail -n 0 -f /home/root/Logs/stress.log");
     //pr_win(pr_win_stress[pr_win_stress_depth], "End of test log.\n");
     keypad(stdscr, TRUE);
     clear();

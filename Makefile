@@ -9,10 +9,10 @@ JIG_BOARD_DIR = jig
 JIG_BOARD_SRC = main.c $(JIG_BOARD_DIR)/jig_board.c $(API_DIR)/menu.c $(JIG_BOARD_DIR)/gpioctl.c \
 				$(JIG_BOARD_DIR)/uartctl.c $(API_DIR)/uart.c $(API_DIR)/utils.c $(JIG_BOARD_DIR)/netctl.c \
 				$(JIG_BOARD_DIR)/canctl.c $(JIG_BOARD_DIR)/lcdctl.c $(JIG_BOARD_DIR)/cameractl.c $(JIG_BOARD_DIR)/audioctl2.c \
-				$(JIG_BOARD_DIR)/stressctl.c $(JIG_BOARD_DIR)/usbctl.c $(JIG_BOARD_DIR)/gpuctl.c
+				$(JIG_BOARD_DIR)/stressctl.c $(JIG_BOARD_DIR)/usbctl.c $(JIG_BOARD_DIR)/gpuctl.c $(JIG_BOARD_DIR)/i2cctl.c $(JIG_BOARD_DIR)/ina260.c
 
 JIG_BOARD_OBJ = main.o jig_board.o menu.o gpioctl.o uartctl.o uart.o utils.o netctl.o canctl.o lcdctl.o cameractl.o	audioctl2.o \
-				stressctl.o usbctl.o gpuctl.o
+				stressctl.o usbctl.o gpuctl.o i2cctl.o ina260.o
 
 JIG_TARGET = jigtest
 

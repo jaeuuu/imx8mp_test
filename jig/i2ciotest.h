@@ -1,5 +1,5 @@
-#ifndef GPIOCTL_H_
-#define GPIOCTL_H_
+#ifndef I2CIOTEST_H_
+#define I2CIOTEST_H_
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -7,7 +7,6 @@
 #include <linux/gpio.h>
 #include <pthread.h>
 #include <stdbool.h>
-#include <api/menu.h>
 
 typedef struct st_gpiochip {
     char *dev;
@@ -72,10 +71,5 @@ typedef struct st_gpiostat {
 #define MAX_GPIO_PIN 32
 
 #define MAX_GPIO_DEV    7
-
-int gpio_in_ctl(void);
-int gpio_out_ctl(void);
-void gpio_init(void);
-int gpio_input_monitor(void);
 
 #endif

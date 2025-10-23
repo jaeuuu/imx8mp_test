@@ -20,7 +20,7 @@
  /* In my environment, max width 158, max height 60 */
 
 #define CONSOLE_TOTAL_W     120
-#define CONSOLE_TOTAL_H     50
+#define CONSOLE_TOTAL_H     60
 
 #define MAX_MENU_TITLE_W    50
 #define MAX_MENU_TITLE_H    5

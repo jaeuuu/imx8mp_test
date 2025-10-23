@@ -11,6 +11,8 @@ static pthread_mutex_t gpio_lock;
 static WINDOW *pr_win_gpio[MAX_GPIO_MENU_DEPTH];
 static int pr_win_gpio_depth = 0;
 
+static int back_on_gpio(void *arg);
+
 static int gpio_read(int port, int pin)
 {
     struct gpiohandle_request req;
@@ -78,19 +80,19 @@ static int __gpio_input_monitor(void *args)
     return 0;
 }
 
-static int gpio_input_monitor(void)
+int gpio_input_monitor(void)
 {
     int on = 1, off = 0;
     menu_args_t input_monitor_menus[] = {
-        {__gpio_input_monitor, "ON", &on},
-        {__gpio_input_monitor, "OFF", &off},
-        {back2, "back", &on}
+        //{__gpio_input_monitor, "ON", &on},
+        //{__gpio_input_monitor, "OFF", &off},
+        {back_on_gpio, "back", &on}
     };
-
-    char *des = "SELECT INPUT MONITORING";
-    pr_win_gpio_depth++;
+    char *des = "GPIO INPUT MONITORING";
+    //pr_win_gpio_depth++;
+    gpio_input_monitoring = 1;
     menu_args_exec(input_monitor_menus, sizeof(input_monitor_menus) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
-    pr_win_gpio_depth--;
+    //pr_win_gpio_depth--;
     return 0;
 }
 
@@ -136,30 +138,19 @@ static void gpio_det_thread(void)
     int port, pin;
     int old, new;
     int x, y;
+    int initflag = 1;
 
     while (1) {
-        sleep(1);
-
-        if (!gpio_input_monitoring)
+        if (!gpio_input_monitoring) {
+            initflag = 1;
+            sleep(1);
             continue;
-#if 0
-        water_sens_pwr_status = gpio_read(GPIO_PORT3, GPIO_PIN25);
-        lte_modem_pwr_status = gpio_read(GPIO_PORT5, GPIO_PIN4);
-        lte_modem_act_status = gpio_read(GPIO_PORT5, GPIO_PIN5);
-
-        if (water_sens_pwr_status != old_water_sens_pwr_status) {
-            printf("\n\n\t[WATER SENSOR POWER STATUS] : %s\n\n", water_sens_pwr_status ? "HIGH" : "LOW");
-            old_water_sens_pwr_status = water_sens_pwr_status;
+        } else {
+            if (initflag) {
+                sleep(1);
+                initflag = 0;
+            }
         }
-        if (lte_modem_pwr_status != old_lte_modem_pwr_status) {
-            printf("\n\n\t[LTE MODEM POWER STATUS] : %s\n\n", lte_modem_pwr_status ? "HIGH" : "LOW");
-            old_lte_modem_pwr_status = lte_modem_pwr_status;
-        }
-        if (lte_modem_act_status != old_lte_modem_act_status) {
-            printf("\n\n\t[LTE MODEM ACTIVE STATUS] : %s\n\n", lte_modem_act_status ? "HIGH" : "LOW");
-            old_lte_modem_act_status = lte_modem_act_status;
-        }
-#endif
 
         for (port = GPIO_PORT1; port < MAX_GPIO_PORT; port++) {
             for (pin = GPIO_PIN0; pin < MAX_GPIO_PIN; pin++) {
@@ -167,85 +158,45 @@ static void gpio_det_thread(void)
                     continue;
 
                 if (port == GPIO_PORT1 &&
-                    (pin == GPIO_PIN14 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
-                        pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN9 ||
-                        pin == GPIO_PIN10 || pin == GPIO_PIN11 || pin == GPIO_PIN12 || pin == GPIO_PIN15 ||
-                        pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 || pin == GPIO_PIN19 ||
-                        pin == GPIO_PIN20 || pin == GPIO_PIN21 || pin == GPIO_PIN22 ||
-                        pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
-                        pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
-                        pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
+                    (pin != GPIO_PIN7 && pin != GPIO_PIN8 && pin != GPIO_PIN13 && pin != GPIO_PIN14))
                     continue;
 
                 if (port == GPIO_PORT2 &&
-                    (pin == GPIO_PIN11 || pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
-                        pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 || pin == GPIO_PIN19 ||
-                        pin == GPIO_PIN21 || pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 ||
-                        pin == GPIO_PIN25 || pin == GPIO_PIN26 || pin == GPIO_PIN27 ||
-                        pin == GPIO_PIN28 || pin == GPIO_PIN29 || pin == GPIO_PIN30 ||
-                        pin == GPIO_PIN31))
+                    (pin != GPIO_PIN0 && pin != GPIO_PIN1 && pin != GPIO_PIN2 && pin != GPIO_PIN3 && pin != GPIO_PIN4 &&
+                        pin != GPIO_PIN5 && pin != GPIO_PIN6 && pin != GPIO_PIN7 && pin != GPIO_PIN8 &&
+                        pin != GPIO_PIN9 && pin != GPIO_PIN10 && pin != GPIO_PIN20))
                     continue;
 
-                if (port == GPIO_PORT3 &&
-                    (pin == GPIO_PIN0 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
-                        pin == GPIO_PIN4 || pin == GPIO_PIN5 ||
-                        pin == GPIO_PIN6 || pin == GPIO_PIN7 || pin == GPIO_PIN8 ||
-                        pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
-                        pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 ||
-                        pin == GPIO_PIN15 || pin == GPIO_PIN16 || pin == GPIO_PIN17 ||
-                        pin == GPIO_PIN18 || pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
-                        pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
-                        pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
+                if (port == GPIO_PORT3)
                     continue;
 
                 if (port == GPIO_PORT4 &&
-                    (pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
-                        pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN7 ||
-                        pin == GPIO_PIN8 || pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
-                        pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
-                        pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN19 || pin == GPIO_PIN21 ||
-                        pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
-                        pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
-                        pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
+                    (pin != GPIO_PIN0 && pin != GPIO_PIN18 && pin != GPIO_PIN19 && pin != GPIO_PIN20))
                     continue;
 
-                if (port == GPIO_PORT5 &&
-                    (pin == GPIO_PIN0 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
-                        pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN7 ||
-                        pin == GPIO_PIN8 || pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
-                        pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
-                        pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 ||
-                        pin == GPIO_PIN19 || pin == GPIO_PIN20 || pin == GPIO_PIN21 ||
-                        pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 ||
-                        pin == GPIO_PIN25 || pin == GPIO_PIN26 || pin == GPIO_PIN27 ||
-                        pin == GPIO_PIN28 || pin == GPIO_PIN29 || pin == GPIO_PIN30 ||
-                        pin == GPIO_PIN31))
+                if (port == GPIO_PORT5)
                     continue;
 
-                // /* CPLD IN control pin */
-                // if (port == GPIO_PORT3 && pin == GPIO_PIN20)
-                //     continue;
+                if (port == GPIO_PORT6 &&
+                    (pin > GPIO_PIN7))
+                    continue;
 
-                // /* CPLD MS LED control pin */
-                // if (port == GPIO_PORT1 && pin == GPIO_PIN8)
-                //     continue;
-
-                // /* CPLD ACT LED control pin */
-                // if (port == GPIO_PORT2 && pin == GPIO_PIN0)
-                //     continue;
+                if (port == GPIO_PORT7 &&
+                    (pin > GPIO_PIN7))
+                    continue;
 
                 new = gpio_read(port, pin);
                 if (new < 0) {
-                    pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][READ]: error!\n", port + 1, pin);
+                    pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][INPUT]: error!\n", port + 1, pin);
                     continue;
                 }
 
                 old = gpio_stat[port][pin].inval;
                 if (old != new) {
                     gpio_stat[port][pin].inval = new;
-                    pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][READ]: \"%s\"\n", port + 1, pin, new ? "HIGH" : "LOW");
+                    pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO%d_IO%02d][INPUT]: \"%s\"\n", port + 1, pin, new ? "HIGH" : "LOW");
                 }
-                usleep(1 * 1000);
+                usleep(10 * 1000);
             }
         }
     }
@@ -2240,6 +2191,1397 @@ static int gpio_in_ctrl_port7(void)
     pr_win_gpio_depth--;
 }
 
+static int gpio1_io07_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT1, GPIO_PIN7);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO07][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO07][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_1_7 = 1;
+        sig_1_7 = !sig_1_7;
+        ret = gpio_write(GPIO_PORT1, GPIO_PIN7, sig_1_7);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO07][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO07][OUTPUT]: \"%s\"\n", sig_1_7 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio1_io08_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT1, GPIO_PIN8);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO08][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO08][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_1_8 = 1;
+        sig_1_8 = !sig_1_8;
+        ret = gpio_write(GPIO_PORT1, GPIO_PIN8, sig_1_8);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO08][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO08][OUTPUT]: \"%s\"\n", sig_1_8 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio1_io13_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT1, GPIO_PIN13);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO13][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO13][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_1_13 = 1;
+        sig_1_13 = !sig_1_13;
+        ret = gpio_write(GPIO_PORT1, GPIO_PIN13, sig_1_13);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO13][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO13][OUTPUT]: \"%s\"\n", sig_1_13 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio1_io14_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT1, GPIO_PIN14);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO14][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO14][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_1_14 = 1;
+        sig_1_14 = !sig_1_14;
+        ret = gpio_write(GPIO_PORT1, GPIO_PIN14, sig_1_14);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO14][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO1_IO14][OUTPUT]: \"%s\"\n", sig_1_14 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io00_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN0);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO00][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO00][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_0 = 1;
+        sig_2_0 = !sig_2_0;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN0, sig_2_0);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO00][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO00][OUTPUT]: \"%s\"\n", sig_2_0 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io01_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN1);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO01][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO01][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_1 = 1;
+        sig_2_1 = !sig_2_1;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN1, sig_2_1);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO01][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO01][OUTPUT]: \"%s\"\n", sig_2_1 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io02_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN2);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO02][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO02][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_2 = 1;
+        sig_2_2 = !sig_2_2;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN2, sig_2_2);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO02][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO02][OUTPUT]: \"%s\"\n", sig_2_2 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io03_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN3);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO03][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO03][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_3 = 1;
+        sig_2_3 = !sig_2_3;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN3, sig_2_3);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO03][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO03][OUTPUT]: \"%s\"\n", sig_2_3 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io04_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN4);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO04][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO04][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_4 = 1;
+        sig_2_4 = !sig_2_4;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN4, sig_2_4);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO04][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO04][OUTPUT]: \"%s\"\n", sig_2_4 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io05_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN5);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO05][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO05][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_5 = 1;
+        sig_2_5 = !sig_2_5;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN5, sig_2_5);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO05][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO05][OUTPUT]: \"%s\"\n", sig_2_5 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io06_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN6);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO06][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO06][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_6 = 1;
+        sig_2_6 = !sig_2_6;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN6, sig_2_6);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO06][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO06][OUTPUT]: \"%s\"\n", sig_2_6 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io07_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN7);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO07][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO07][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_7 = 1;
+        sig_2_7 = !sig_2_7;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN7, sig_2_7);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO07][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO07][OUTPUT]: \"%s\"\n", sig_2_7 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io08_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN8);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO08][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO08][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_8 = 1;
+        sig_2_8 = !sig_2_8;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN8, sig_2_8);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO08][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO08][OUTPUT]: \"%s\"\n", sig_2_8 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io09_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN9);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO09][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO09][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_9 = 1;
+        sig_2_9 = !sig_2_9;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN9, sig_2_9);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO09][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO09][OUTPUT]: \"%s\"\n", sig_2_9 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io10_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN10);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO10][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO10][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_10 = 1;
+        sig_2_10 = !sig_2_10;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN10, sig_2_10);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO10][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO10][OUTPUT]: \"%s\"\n", sig_2_10 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio2_io20_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT2, GPIO_PIN20);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO20][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO20][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_2_20 = 1;
+        sig_2_20 = !sig_2_20;
+        ret = gpio_write(GPIO_PORT2, GPIO_PIN20, sig_2_20);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO20][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO2_IO20][OUTPUT]: \"%s\"\n", sig_2_20 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio4_io00_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT4, GPIO_PIN0);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO00][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO00][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_4_0 = 1;
+        sig_4_0 = !sig_4_0;
+        ret = gpio_write(GPIO_PORT4, GPIO_PIN0, sig_4_0);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO00][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO00][OUTPUT]: \"%s\"\n", sig_4_0 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio4_io18_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT4, GPIO_PIN18);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO18][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO18][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_4_18 = 1;
+        sig_4_18 = !sig_4_18;
+        ret = gpio_write(GPIO_PORT4, GPIO_PIN18, sig_4_18);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO18][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO18][OUTPUT]: \"%s\"\n", sig_4_18 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio4_io19_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT4, GPIO_PIN19);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO19][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO19][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_4_19 = 1;
+        sig_4_19 = !sig_4_19;
+        ret = gpio_write(GPIO_PORT4, GPIO_PIN19, sig_4_19);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO19][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO19][OUTPUT]: \"%s\"\n", sig_4_19 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio4_io20_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT4, GPIO_PIN20);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO20][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO20][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_4_20 = 1;
+        sig_4_20 = !sig_4_20;
+        ret = gpio_write(GPIO_PORT4, GPIO_PIN20, sig_4_20);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO20][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO4_IO20][OUTPUT]: \"%s\"\n", sig_4_20 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io00_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN0);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO00][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO00][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_0 = 1;
+        sig_6_0 = !sig_6_0;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN0, sig_6_0);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO00][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO00][OUTPUT]: \"%s\"\n", sig_6_0 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io01_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN1);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO01][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO01][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_1 = 1;
+        sig_6_1 = !sig_6_1;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN1, sig_6_1);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO01][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO01][OUTPUT]: \"%s\"\n", sig_6_1 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io02_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN2);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO02][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO02][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_2 = 1;
+        sig_6_2 = !sig_6_2;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN2, sig_6_2);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO02][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO02][OUTPUT]: \"%s\"\n", sig_6_2 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io03_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN3);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO03][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO03][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_3 = 1;
+        sig_6_3 = !sig_6_3;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN3, sig_6_3);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO03][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO03][OUTPUT]: \"%s\"\n", sig_6_3 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io04_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN4);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO04][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO04][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_4 = 1;
+        sig_6_4 = !sig_6_4;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN4, sig_6_4);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO04][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO04][OUTPUT]: \"%s\"\n", sig_6_4 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io05_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN5);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO05][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO05][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_5 = 1;
+        sig_6_5 = !sig_6_5;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN5, sig_6_5);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO05][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO05][OUTPUT]: \"%s\"\n", sig_6_5 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io06_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN6);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO06][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO06][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_6 = 1;
+        sig_6_6 = !sig_6_6;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN6, sig_6_6);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO06][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO06][OUTPUT]: \"%s\"\n", sig_6_6 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io07_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN7);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO07][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO07][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_7 = 1;
+        sig_6_7 = !sig_6_7;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN7, sig_6_7);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO07][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO07][OUTPUT]: \"%s\"\n", sig_6_7 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io08_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN8);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO08][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO08][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_8 = 1;
+        sig_6_8 = !sig_6_8;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN8, sig_6_8);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO08][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO08][OUTPUT]: \"%s\"\n", sig_6_8 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io09_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN9);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO09][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO09][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_9 = 1;
+        sig_6_9 = !sig_6_9;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN9, sig_6_9);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO09][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO09][OUTPUT]: \"%s\"\n", sig_6_9 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io10_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN10);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO10][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO10][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_10 = 1;
+        sig_6_10 = !sig_6_10;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN10, sig_6_10);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO10][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO10][OUTPUT]: \"%s\"\n", sig_6_10 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io11_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN11);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO11][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO11][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_11 = 1;
+        sig_6_11 = !sig_6_11;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN11, sig_6_11);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO11][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO11][OUTPUT]: \"%s\"\n", sig_6_11 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io12_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN12);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO12][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO12][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_12 = 1;
+        sig_6_12 = !sig_6_12;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN12, sig_6_12);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO12][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO12][OUTPUT]: \"%s\"\n", sig_6_12 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io13_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN13);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO13][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO13][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_13 = 1;
+        sig_6_13 = !sig_6_13;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN13, sig_6_13);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO13][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO13][OUTPUT]: \"%s\"\n", sig_6_13 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io14_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN14);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO14][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO14][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_14 = 1;
+        sig_6_14 = !sig_6_14;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN14, sig_6_14);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO14][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO14][OUTPUT]: \"%s\"\n", sig_6_14 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio6_io15_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT6, GPIO_PIN15);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO15][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO15][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_6_15 = 1;
+        sig_6_15 = !sig_6_15;
+        ret = gpio_write(GPIO_PORT6, GPIO_PIN15, sig_6_15);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO15][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO6_IO15][OUTPUT]: \"%s\"\n", sig_6_15 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io00_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN0);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO00][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO00][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_0 = 1;
+        sig_7_0 = !sig_7_0;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN0, sig_7_0);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO00][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO00][OUTPUT]: \"%s\"\n", sig_7_0 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io01_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN1);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO01][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO01][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_1 = 1;
+        sig_7_1 = !sig_7_1;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN1, sig_7_1);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO01][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO01][OUTPUT]: \"%s\"\n", sig_7_1 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io02_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN2);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO02][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO02][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_2 = 1;
+        sig_7_2 = !sig_7_2;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN2, sig_7_2);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO02][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO02][OUTPUT]: \"%s\"\n", sig_7_2 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io03_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN3);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO03][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO03][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_3 = 1;
+        sig_7_3 = !sig_7_3;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN3, sig_7_3);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO03][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO03][OUTPUT]: \"%s\"\n", sig_7_3 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io04_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN4);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO04][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO04][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_4 = 1;
+        sig_7_4 = !sig_7_4;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN4, sig_7_4);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO04][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO04][OUTPUT]: \"%s\"\n", sig_7_4 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io05_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN5);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO05][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO05][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_5 = 1;
+        sig_7_5 = !sig_7_5;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN5, sig_7_5);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO05][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO05][OUTPUT]: \"%s\"\n", sig_7_5 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io06_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN6);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO06][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO06][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_6 = 1;
+        sig_7_6 = !sig_7_6;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN6, sig_7_6);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO06][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO06][OUTPUT]: \"%s\"\n", sig_7_6 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io07_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN7);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO07][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO07][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_7 = 1;
+        sig_7_7 = !sig_7_7;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN7, sig_7_7);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO07][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO07][OUTPUT]: \"%s\"\n", sig_7_7 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io08_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN8);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO08][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO08][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_8 = 1;
+        sig_7_8 = !sig_7_8;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN8, sig_7_8);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO08][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO08][OUTPUT]: \"%s\"\n", sig_7_8 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io09_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN9);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO09][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO09][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_9 = 1;
+        sig_7_9 = !sig_7_9;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN9, sig_7_9);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO09][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO09][OUTPUT]: \"%s\"\n", sig_7_9 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io10_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN10);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO10][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO10][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_10 = 1;
+        sig_7_10 = !sig_7_10;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN10, sig_7_10);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO10][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO10][OUTPUT]: \"%s\"\n", sig_7_10 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io11_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN11);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO11][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO11][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_11 = 1;
+        sig_7_11 = !sig_7_11;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN11, sig_7_11);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO11][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO11][OUTPUT]: \"%s\"\n", sig_7_11 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io12_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN12);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO12][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO12][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_12 = 1;
+        sig_7_12 = !sig_7_12;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN12, sig_7_12);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO12][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO12][OUTPUT]: \"%s\"\n", sig_7_12 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io13_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN13);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO13][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO13][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_13 = 1;
+        sig_7_13 = !sig_7_13;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN13, sig_7_13);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO13][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO13][OUTPUT]: \"%s\"\n", sig_7_13 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io14_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN14);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO14][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO14][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_14 = 1;
+        sig_7_14 = !sig_7_14;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN14, sig_7_14);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO14][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO14][OUTPUT]: \"%s\"\n", sig_7_14 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int gpio7_io15_rw(void *rwflag)
+{
+    int *flag = (int *)rwflag;
+    int ret;
+
+    if (*flag) {
+        ret = gpio_read(GPIO_PORT7, GPIO_PIN15);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO15][INPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO15][INPUT]: \"%s\"\n", ret ? "HIGH" : "LOW");;
+        }
+    } else {
+        static int sig_7_15 = 1;
+        sig_7_15 = !sig_7_15;
+        ret = gpio_write(GPIO_PORT7, GPIO_PIN15, sig_7_15);
+        if (ret < 0) {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO15][OUTPUT]: error!\n");
+        } else {
+            pr_win(pr_win_gpio[pr_win_gpio_depth], "[GPIO7_IO15][OUTPUT]: \"%s\"\n", sig_7_15 ? "HIGH" : "LOW");
+        }
+    }
+    return 0;
+}
+
+static int back_on_gpio(void *arg)
+{
+    gpio_input_monitoring = 0;
+    return -1;
+}
+
+static int rflag = 1;
+static menu_args_t gpio_in_menu[] = {
+    //{gpio_input_monitor, "GPIO MONITORING", NULL},
+    {gpio1_io07_rw, "GPIO1_IO07 (IO1_07)", &rflag},
+    {gpio1_io08_rw, "GPIO1_IO08 (IO1_08)", &rflag},
+    {gpio1_io13_rw, "GPIO1_IO13 (IO1_13)", &rflag},
+    {gpio1_io14_rw, "GPIO1_IO14 (IO1_14)", &rflag},
+    {gpio2_io00_rw, "GPIO2_IO00 (IO2_00)", &rflag},
+    {gpio2_io01_rw, "GPIO2_IO01 (IO2_01)", &rflag},
+    {gpio2_io02_rw, "GPIO2_IO02 (IO2_02)", &rflag},
+    {gpio2_io03_rw, "GPIO2_IO03 (IO2_03)", &rflag},
+    {gpio2_io04_rw, "GPIO2_IO04 (IO2_04)", &rflag},
+    {gpio2_io05_rw, "GPIO2_IO05 (IO2_05)", &rflag},
+    {gpio2_io06_rw, "GPIO2_IO06 (IO2_06)", &rflag},
+    {gpio2_io07_rw, "GPIO2_IO07 (IO2_07)", &rflag},
+    {gpio2_io08_rw, "GPIO2_IO08 (IO2_08)", &rflag},
+    {gpio2_io09_rw, "GPIO2_IO09 (IO2_09)", &rflag},
+    {gpio2_io10_rw, "GPIO2_IO10 (IO2_10)", &rflag},
+    {gpio2_io20_rw, "GPIO2_IO20 (IO2_20)", &rflag},
+    {gpio4_io00_rw, "GPIO4_IO00 (IO4_00)", &rflag},
+    {gpio4_io18_rw, "GPIO4_IO18 (IO4_18)", &rflag},
+    {gpio4_io19_rw, "GPIO4_IO19 (IO4_19)", &rflag},
+    {gpio4_io20_rw, "GPIO4_IO20 (IO4_20)", &rflag},
+    {gpio6_io00_rw, "GPIO6_IO00 (I2C_I0)", &rflag},
+    {gpio6_io01_rw, "GPIO6_IO01 (I2C_I1)", &rflag},
+    {gpio6_io02_rw, "GPIO6_IO02 (I2C_I2)", &rflag},
+    {gpio6_io03_rw, "GPIO6_IO03 (I2C_I3)", &rflag},
+    {gpio6_io04_rw, "GPIO6_IO04 (I2C_I4)", &rflag},
+    {gpio6_io05_rw, "GPIO6_IO05 (I2C_I5)", &rflag},
+    {gpio6_io06_rw, "GPIO6_IO06 (I2C_I6)", &rflag},
+    {gpio6_io07_rw, "GPIO6_IO07 (I2C_I7)", &rflag},
+    {gpio7_io00_rw, "GPIO7_IO00 (SPI_I0)", &rflag},
+    {gpio7_io01_rw, "GPIO7_IO01 (SPI_I1)", &rflag},
+    {gpio7_io02_rw, "GPIO7_IO02 (SPI_I2)", &rflag},
+    {gpio7_io03_rw, "GPIO7_IO03 (SPI_I3)", &rflag},
+    {gpio7_io04_rw, "GPIO7_IO04 (SPI_I4)", &rflag},
+    {gpio7_io05_rw, "GPIO7_IO05 (SPI_I5)", &rflag},
+    {gpio7_io06_rw, "GPIO7_IO06 (SPI_I6)", &rflag},
+    {gpio7_io07_rw, "GPIO7_IO07 (SPI_I7)", &rflag},
+    {back_on_gpio, "back", NULL},
+};
+
+static int wflag = 0;
+static menu_args_t gpio_out_menu[] = {
+    {gpio1_io07_rw, "GPIO1_IO07 (IO1_07)", &wflag},
+    {gpio1_io08_rw, "GPIO1_IO08 (IO1_08)", &wflag},
+    {gpio1_io13_rw, "GPIO1_IO13 (IO1_13)", &wflag},
+    {gpio1_io14_rw, "GPIO1_IO14 (IO1_14)", &wflag},
+    {gpio2_io00_rw, "GPIO2_IO00 (IO2_00)", &wflag},
+    {gpio2_io01_rw, "GPIO2_IO01 (IO2_01)", &wflag},
+    {gpio2_io02_rw, "GPIO2_IO02 (IO2_02)", &wflag},
+    {gpio2_io03_rw, "GPIO2_IO03 (IO2_03)", &wflag},
+    {gpio2_io04_rw, "GPIO2_IO04 (IO2_04)", &wflag},
+    {gpio2_io05_rw, "GPIO2_IO05 (IO2_05)", &wflag},
+    {gpio2_io06_rw, "GPIO2_IO06 (IO2_06)", &wflag},
+    {gpio2_io07_rw, "GPIO2_IO07 (IO2_07)", &wflag},
+    {gpio2_io08_rw, "GPIO2_IO08 (IO2_08)", &wflag},
+    {gpio2_io09_rw, "GPIO2_IO09 (IO2_09)", &wflag},
+    {gpio2_io10_rw, "GPIO2_IO10 (IO2_10)", &wflag},
+    {gpio2_io20_rw, "GPIO2_IO20 (IO2_20)", &wflag},
+    {gpio4_io00_rw, "GPIO4_IO00 (IO4_00)", &wflag},
+    {gpio4_io18_rw, "GPIO4_IO18 (IO4_18)", &wflag},
+    {gpio4_io19_rw, "GPIO4_IO19 (IO4_19)", &wflag},
+    {gpio4_io20_rw, "GPIO4_IO20 (IO4_20)", &wflag},
+    {gpio6_io08_rw, "GPIO6_IO08 (I2C_O0)", &wflag},
+    {gpio6_io09_rw, "GPIO6_IO09 (I2C_O1)", &wflag},
+    {gpio6_io10_rw, "GPIO6_IO10 (I2C_O2)", &wflag},
+    {gpio6_io11_rw, "GPIO6_IO11 (I2C_O3)", &wflag},
+    {gpio6_io12_rw, "GPIO6_IO12 (I2C_O4)", &wflag},
+    {gpio6_io13_rw, "GPIO6_IO13 (I2C_O5)", &wflag},
+    {gpio6_io14_rw, "GPIO6_IO14 (I2C_O6)", &wflag},
+    {gpio6_io15_rw, "GPIO6_IO15 (I2C_O7)", &wflag},
+    {gpio7_io08_rw, "GPIO7_IO08 (SPI_O0)", &wflag},
+    {gpio7_io09_rw, "GPIO7_IO09 (SPI_O1)", &wflag},
+    {gpio7_io10_rw, "GPIO7_IO10 (SPI_O2)", &wflag},
+    {gpio7_io11_rw, "GPIO7_IO11 (SPI_O3)", &wflag},
+    {gpio7_io12_rw, "GPIO7_IO12 (SPI_O4)", &wflag},
+    {gpio7_io13_rw, "GPIO7_IO13 (SPI_O5)", &wflag},
+    {gpio7_io14_rw, "GPIO7_IO14 (SPI_O6)", &wflag},
+    {gpio7_io15_rw, "GPIO7_IO15 (SPI_O7)", &wflag},
+    {back2, "back", &wflag},
+};
+
+
+#if 0
 static menu_t gpio_out_menu[] = {
     {gpio_out_ctrl_port1, "GPIO PORT1"},
     {gpio_out_ctrl_port2, "GPIO PORT2"},
@@ -2262,18 +3604,19 @@ static menu_t gpio_in_menu[] = {
     {gpio_in_ctrl_port7, "GPIO PORT7(SPI-IO)"},
     {back, "back"},
 };
+#endif
 
 int gpio_in_ctl(void)
 {
     char *des = "GPIO INPUT TEST MENU";
-    menu_exec(gpio_in_menu, sizeof(gpio_in_menu) / sizeof(menu_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    menu_args_exec(gpio_in_menu, sizeof(gpio_in_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
     return 0;
 }
 
 int gpio_out_ctl(void)
 {
     char *des = "GPIO OUTPUT TEST MENU";
-    menu_exec(gpio_out_menu, sizeof(gpio_out_menu) / sizeof(menu_t), des, &pr_win_gpio[pr_win_gpio_depth]);
+    menu_args_exec(gpio_out_menu, sizeof(gpio_out_menu) / sizeof(menu_args_t), des, &pr_win_gpio[pr_win_gpio_depth]);
     return 0;
 }
 
@@ -2301,59 +3644,31 @@ void gpio_init(void)
     for (port = GPIO_PORT1; port < MAX_GPIO_PORT; port++) {
         for (pin = GPIO_PIN0; pin < MAX_GPIO_PIN; pin++) {
             if (port == GPIO_PORT1 &&
-                (pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
-                    pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN9 ||
-                    pin == GPIO_PIN10 || pin == GPIO_PIN11 || pin == GPIO_PIN12 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
-                    pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 || pin == GPIO_PIN19 ||
-                    pin == GPIO_PIN20 || pin == GPIO_PIN21 || pin == GPIO_PIN22 ||
-                    pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
-                    pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
-                    pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
+                (pin != GPIO_PIN7 && pin != GPIO_PIN8 && pin != GPIO_PIN13 && pin != GPIO_PIN14))
                 continue;
 
             if (port == GPIO_PORT2 &&
-                (pin == GPIO_PIN11 || pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
-                    pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 || pin == GPIO_PIN19 ||
-                    pin == GPIO_PIN21 || pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 ||
-                    pin == GPIO_PIN25 || pin == GPIO_PIN26 || pin == GPIO_PIN27 ||
-                    pin == GPIO_PIN28 || pin == GPIO_PIN29 || pin == GPIO_PIN30 ||
-                    pin == GPIO_PIN31))
+                (pin != GPIO_PIN0 && pin != GPIO_PIN1 && pin != GPIO_PIN2 && pin != GPIO_PIN3 && pin != GPIO_PIN4 &&
+                    pin != GPIO_PIN5 && pin != GPIO_PIN6 && pin != GPIO_PIN7 && pin != GPIO_PIN8 &&
+                    pin != GPIO_PIN9 && pin != GPIO_PIN10 && pin != GPIO_PIN20))
                 continue;
 
-            if (port == GPIO_PORT3 &&
-                (pin == GPIO_PIN0 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
-                    pin == GPIO_PIN4 || pin == GPIO_PIN5 ||
-                    pin == GPIO_PIN6 || pin == GPIO_PIN7 || pin == GPIO_PIN8 ||
-                    pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
-                    pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 ||
-                    pin == GPIO_PIN15 || pin == GPIO_PIN16 || pin == GPIO_PIN17 ||
-                    pin == GPIO_PIN18 || pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
-                    pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
-                    pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
+            if (port == GPIO_PORT3)
                 continue;
 
             if (port == GPIO_PORT4 &&
-                (pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
-                    pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN7 ||
-                    pin == GPIO_PIN8 || pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
-                    pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
-                    pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN19 || pin == GPIO_PIN21 ||
-                    pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 || pin == GPIO_PIN25 ||
-                    pin == GPIO_PIN26 || pin == GPIO_PIN27 || pin == GPIO_PIN28 ||
-                    pin == GPIO_PIN29 || pin == GPIO_PIN30 || pin == GPIO_PIN31))
+                (pin != GPIO_PIN0 && pin != GPIO_PIN18 && pin != GPIO_PIN19 && pin != GPIO_PIN20))
                 continue;
 
-            if (port == GPIO_PORT5 &&
-                (pin == GPIO_PIN0 || pin == GPIO_PIN1 || pin == GPIO_PIN2 || pin == GPIO_PIN3 ||
-                    pin == GPIO_PIN4 || pin == GPIO_PIN5 || pin == GPIO_PIN6 || pin == GPIO_PIN7 ||
-                    pin == GPIO_PIN8 || pin == GPIO_PIN9 || pin == GPIO_PIN10 || pin == GPIO_PIN11 ||
-                    pin == GPIO_PIN12 || pin == GPIO_PIN13 || pin == GPIO_PIN14 || pin == GPIO_PIN15 ||
-                    pin == GPIO_PIN16 || pin == GPIO_PIN17 || pin == GPIO_PIN18 ||
-                    pin == GPIO_PIN19 || pin == GPIO_PIN20 || pin == GPIO_PIN21 ||
-                    pin == GPIO_PIN22 || pin == GPIO_PIN23 || pin == GPIO_PIN24 ||
-                    pin == GPIO_PIN25 || pin == GPIO_PIN26 || pin == GPIO_PIN27 ||
-                    pin == GPIO_PIN28 || pin == GPIO_PIN29 || pin == GPIO_PIN30 ||
-                    pin == GPIO_PIN31))
+            if (port == GPIO_PORT5)
+                continue;
+
+            if (port == GPIO_PORT6 &&
+                (pin > GPIO_PIN7))
+                continue;
+
+            if (port == GPIO_PORT7 &&
+                (pin > GPIO_PIN7))
                 continue;
 
             sig = gpio_read(port, pin);

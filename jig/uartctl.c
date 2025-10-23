@@ -107,41 +107,41 @@ static void uart_rx_thread(void)
                     break;
                 case UART_MXC3:
 #ifdef UART_DEBUG
-                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     pr_win(pr_win_uart[pr_win_uart_depth], "[MXC UART3][READ]: \n");
-                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
                     break;
                 case UART_SERIAL1:
 #ifdef UART_DEBUG
-                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     pr_win(pr_win_uart[pr_win_uart_depth], "[PCIe UART1]][READ]: \n");
-                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
                     break;
                 case UART_SERIAL2:
 #ifdef UART_DEBUG
-                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     pr_win(pr_win_uart[pr_win_uart_depth], "[PCIe UART2][READ]: \n");
-                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
                     break;
                 case UART_SERIAL3:
 #ifdef UART_DEBUG
-                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     pr_win(pr_win_uart[pr_win_uart_depth], "[PCIe UART3][READ]: \n");
-                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
                     break;
                 case UART_SERIAL4:
 #ifdef UART_DEBUG
-                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     pr_win(pr_win_uart[pr_win_uart_depth], "[PCIe UART4][READ]: \n");
-                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(tmp, ret);
 #endif
                     break;
@@ -182,9 +182,9 @@ static void uart_rx_thread(void)
                     pr_win(pr_win_uart[pr_win_uart_depth], "[%s][WRITE]: error!\n", port_name);
                     wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                 } else {
-                    wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattron(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     pr_win(pr_win_uart[pr_win_uart_depth], "[%s][WRITE]: \n", port_name);
-                    wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
+                    //wattroff(pr_win_uart[pr_win_uart_depth], COLOR_PAIR(1));
                     uart_hex_print(str, strlen(str));
                     uarts_poll[i].events &= ~POLLOUT;
                 }
